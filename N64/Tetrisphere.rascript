@@ -504,6 +504,7 @@ function Player1FuseComboLimit() => byte(0x112D0A)
 
 // $112F9C: Miss Counter (Normal mode?) ff on death, starts at 03
 function Player1LifeCount() => byte(0x112F9C)
+function IsPlayer1Dead() => Player1LifeCount() == 0 || Player1LifeCount() == 0xFF
 
 // $11345C: Puzzle Mode Reset Flag
 //          When set to 1, the puzzle is being reloaded.
@@ -535,7 +536,7 @@ function EarnedVictoryJingle() => VictoryJingle() > prev(VictoryJingle())
 // $115FE6: Game End Flag (duplicate of 0x115834?)
 // $116586: Player 2's Life Count (Also includes CPU)
 //          This starts at 3, and they lose if it hits 0.
-
+function IsPlayer2Dead() => byte(0x116586) == 0 || byte(0x116586) == 0xFF
 // $116588: Vs CPU Mode Indicator
 //          Unlike the other game state flags, this one appears to be consistent for this particular mode.
 function VsCpuActive() => byte(0x116588)
@@ -557,6 +558,7 @@ function SeenVsOpponent() => byte(0x116589)
 //          0x97 = Hide & Seek Initial Cutscene
 //          0xff = Cutscenes, Level Select
 function GameStateA() => byte(0x1BF94C)
+function OnDemo() => GameStateA() == 0x16
 function OnInitialMenu() => GameStateA() == 1
 function InRescueMode() => GameStateA() == 0x1b
 function InHideAndSeek() => GameStateA() == 0x14
@@ -588,6 +590,9 @@ function OutOfDemo() => GameStateB() != 7
 function InPuzzleMode() => GameStateB() == 195
 function InLinesMode() => GameStateB() == 0x15
 function OutOfPuzzleMode() => GameStateB() != 195
+
+// Hopefully this holds up.
+function OnMainMenu() => GameStateA() == 1 && GameStateB() == 1
 
 // $1E412B: Mis-drop Pulse Effect?
 //          This appears to be set to non 0 whenever a mis-drop occurs. After one miss, it settles to 1. After two, it settles to 5.
@@ -701,103 +706,56 @@ function TriggerPuzzleMode(startLevel) {
     return NotCheating() && never(OutOfPuzzleMode()) && once(CurrentLevelUi() == startLevel) && never(outsideRange) && repeated(10, PuzzleVictoryJingle())
 }
 
-achievement(
-    title = "Professor E. Gadd", description = "In one session, complete levels 1-10 of Puzzle Mode.", points = 5,
-    id = 196572, badge = "228107", published = "2/6/2022 7:31:08 PM", modified = "3/27/2022 3:15:51 AM",
-    trigger = TriggerPuzzleMode(1)
-)
+function CreatePuzzleAchievement(title, startLevel, points) {
+    achievement(
+        title = title,
+        description = "In one session, complete levels " + startLevel + "-" + (startLevel + 9) + " of Puzzle Mode.",
+        points = points,
+        trigger = TriggerPuzzleMode(startLevel)
+    )
+}
 
-achievement(
-    title = "Phoenix Wright", description = "In one session, complete levels 11-20 of Puzzle Mode.", points = 5,
-    id = 196573, badge = "228108", published = "2/6/2022 7:31:09 PM", modified = "3/19/2022 6:37:21 PM",
-    trigger = TriggerPuzzleMode(11)
-)
+CreatePuzzleAchievement("Professor E. Gadd", 1, 5)
+CreatePuzzleAchievement("Phoenix Wright", 11, 5)
+CreatePuzzleAchievement("Mordin Solus", 21, 10)
+CreatePuzzleAchievement("Dr. Thomas Light", 31, 10)
+CreatePuzzleAchievement("Deckard Cain", 41, 10)
+CreatePuzzleAchievement("Miles \"Tails\" Prower", 51, 10)
+CreatePuzzleAchievement("Bentley Wiseturtle", 61, 25)
+CreatePuzzleAchievement("Charles Xavier", 71, 25)
+CreatePuzzleAchievement("Bruce Wayne", 81, 25)
+CreatePuzzleAchievement("Professor Layton", 91, 25)
 
-achievement(
-    title = "Mordin Solus", description = "In one session, complete levels 21-30 of Puzzle Mode.", points = 10,
-    id = 196574, badge = "228109", published = "2/6/2022 7:31:09 PM", modified = "3/19/2022 6:37:21 PM",
-    trigger = TriggerPuzzleMode(21)
-)
-
-achievement(
-    title = "Dr. Thomas Light", description = "In one session, complete levels 31-40 of Puzzle Mode.", points = 10,
-    id = 196575, badge = "228110", published = "2/6/2022 7:31:09 PM", modified = "3/19/2022 6:37:21 PM",
-    trigger = TriggerPuzzleMode(31)
-)
-
-achievement(
-    title = "Deckard Cain", description = "In one session, complete levels 41-50 of Puzzle Mode.", points = 10,
-    id = 196576, badge = "228111", published = "2/6/2022 7:31:10 PM", modified = "3/19/2022 6:37:22 PM",
-    trigger = TriggerPuzzleMode(41)
-)
-
-achievement(
-    title = "Miles \"Tails\" Prower", description = "In one session, complete levels 51-60 of Puzzle Mode.", points = 10,
-    id = 196577, badge = "228112", published = "2/6/2022 7:31:10 PM", modified = "3/19/2022 6:37:22 PM",
-    trigger = TriggerPuzzleMode(51)
-)
-
-achievement(
-    title = "Bentley Wiseturtle", description = "In one session, complete levels 61-70 of Puzzle Mode.", points = 25,
-    id = 196578, badge = "228113", published = "2/6/2022 7:31:10 PM", modified = "3/19/2022 6:37:22 PM",
-    trigger = TriggerPuzzleMode(61)
-)
-
-achievement(
-    title = "Charles Xavier", description = "In one session, complete levels 71-80 of Puzzle Mode.", points = 25,
-    id = 196579, badge = "228114", published = "2/6/2022 7:31:11 PM", modified = "3/19/2022 6:37:23 PM",
-    trigger = TriggerPuzzleMode(71)
-)
-
-achievement(
-    title = "Bruce Wayne", description = "In one session, complete levels 81-90 of Puzzle Mode.", points = 25,
-    id = 196580, badge = "228115", published = "2/6/2022 7:31:11 PM", modified = "3/19/2022 6:37:23 PM",
-    trigger = TriggerPuzzleMode(81)
-)
-
-achievement(
-    title = "Professor Layton", description = "In one session, complete levels 91-100 of Puzzle Mode.", points = 25,
-    id = 196581, badge = "228116", published = "2/6/2022 7:31:11 PM", modified = "3/19/2022 6:37:23 PM",
-    trigger = TriggerPuzzleMode(91)
-)
+function VsModeTally(target) {
+    coreTarget = Player1CorePiecesLeft() == 0 || Player1CorePiecesLeft() > 128
+    lifeTarget = !IsPlayer1Dead() && IsPlayer2Dead()
+    return tally(target, coreTarget && EarnedVictoryJingle(), lifeTarget && EarnedVictoryJingle())
+}
 
 // Reusable code for Vs. CPU session cheevos.
 function TriggerVsMode(episodeNumber) {
-    return NotCheating() && never(VsCpuActive() == 0) && GameStateA() != 22 &&
+    coreTarget = Player1CorePiecesLeft() == 0 || Player1CorePiecesLeft() > 128
+    lifeTarget = !IsPlayer1Dead() && IsPlayer2Dead()
+    return NotCheating() && never(VsCpuActive() == 0) && !OnDemo() && never(EpisodeMenuSelection() != episodeNumber) &&
       once(SelectedVsCpu() && SeenVsOpponent() == 0 && CurrentLevelUi() == 1) &&
       // Verify the win condition. Concerned about ties or close calls.
-      measured(repeated(7, (Player1CorePiecesLeft() == 0 || Player1CorePiecesLeft() > 128) && EpisodeMenuSelection() == episodeNumber && EarnedVictoryJingle()))
+      measured(VsModeTally(7))
 }
 
-achievement(
-    title = "Dr. Fill", description = "Complete Episode 1 of Vs. Mode.", points = 10,
-    id = 196582, badge = "228117", published = "2/6/2022 7:31:12 PM", modified = "3/27/2022 2:37:03 AM",
-    trigger = TriggerVsMode(0)
-)
+function CreateVsModeAchievement(title, episode, points) {
+    achievement(
+        title = title,
+        description = "Complete Episode " + (episode + 1) + " of Vs. Mode.",
+        points = points,
+        trigger = TriggerVsMode(episode)
+    )
+}
 
-achievement(
-    title = "DeepMind", description = "Complete Episode 2 of Vs. Mode.", points = 10,
-    id = 196583, badge = "228118", published = "2/6/2022 7:31:12 PM", modified = "3/27/2022 2:37:03 AM",
-    trigger = TriggerVsMode(1)
-)
-
-achievement(
-    title = "Deep Blue", description = "Complete Episode 3 of Vs. Mode.", points = 25,
-    id = 196584, badge = "228119", published = "2/6/2022 7:31:12 PM", modified = "3/27/2022 2:37:04 AM",
-    trigger = TriggerVsMode(2)
-)
-
-achievement(
-    title = "AlphaGo", description = "Complete Episode 4 of Vs. Mode.", points = 50,
-    id = 196585, badge = "228120", published = "2/6/2022 7:31:13 PM", modified = "3/27/2022 2:37:04 AM",
-    trigger = TriggerVsMode(3)
-)
-
-achievement(
-    title = "Watson", description = "Complete Episode 5 of Vs. Mode.", points = 50,
-    id = 196586, badge = "228121", published = "2/6/2022 7:31:13 PM", modified = "3/27/2022 2:37:04 AM",
-    trigger = TriggerVsMode(4)
-)
+CreateVsModeAchievement("Dr. Fill", 0, 10)
+CreateVsModeAchievement("DeepMind", 1, 10)
+CreateVsModeAchievement("Deep Blue", 2, 25)
+CreateVsModeAchievement("AlphaGo", 3, 50)
+CreateVsModeAchievement("Watson", 4, 50)
 
 // Reusable code for Lines Mode
 function TriggerLinesMode(episodeNumber) {
@@ -805,35 +763,20 @@ function TriggerLinesMode(episodeNumber) {
       once(InLinesMode() && EpisodeMenuSelection() == episodeNumber && CurrentLevelUi() == 1) && measured(repeated(10, EarnedVictoryJingle()))
 }
 
-achievement(
-    title = "Vertical Lines", description = "In one session, complete Episode 1 of Lines Mode.", points = 10,
-    id = 196587, badge = "228122", published = "2/6/2022 7:31:13 PM", modified = "3/27/2022 3:30:22 AM",
-    trigger = TriggerLinesMode(0)
-)
+function CreateLinesModeAchievement(title, episode, points) {
+    achievement(
+        title = title,
+        description = "In one session, complete Episode " + (episode + 1) + " of Lines Mode.",
+        points = points,
+        trigger = TriggerLinesMode(episode)
+    )
+}
 
-achievement(
-    title = "Horizontal Lines", description = "In one session, complete Episode 2 of Lines Mode.", points = 10,
-    id = 196588, badge = "228123", published = "2/6/2022 7:31:14 PM", modified = "3/27/2022 3:30:22 AM",
-    trigger = TriggerLinesMode(1)
-)
-
-achievement(
-    title = "Diagonal Lines", description = "In one session, complete Episode 3 of Lines Mode.", points = 25,
-    id = 196589, badge = "228124", published = "2/6/2022 7:31:14 PM", modified = "3/27/2022 3:30:23 AM",
-    trigger = TriggerLinesMode(2)
-)
-
-achievement(
-    title = "Zig-Zag Lines", description = "In one session, complete Episode 4 of Lines Mode.", points = 50,
-    id = 196590, badge = "228125", published = "2/6/2022 7:31:14 PM", modified = "3/27/2022 3:30:23 AM",
-    trigger = TriggerLinesMode(3)
-)
-
-achievement(
-    title = "Curved Lines", description = "In one session, complete Episode 5 of Lines Mode.", points = 50,
-    id = 196591, badge = "228126", published = "2/6/2022 7:31:15 PM", modified = "3/27/2022 3:30:23 AM",
-    trigger = TriggerLinesMode(4)
-)
+CreateLinesModeAchievement("Vertical Lines", 0, 10)
+CreateLinesModeAchievement("Horizontal Lines", 1, 10)
+CreateLinesModeAchievement("Diagonal Lines", 2, 25)
+CreateLinesModeAchievement("Zig-Zag Lines", 3, 50)
+CreateLinesModeAchievement("Curved Lines", 4, 50)
 
 // Reusable function for Rescue Mode.
 function TriggerRescueMode(episodeNumber) {
@@ -841,65 +784,25 @@ function TriggerRescueMode(episodeNumber) {
       once(InRescueMode() && EpisodeMenuSelection() == episodeNumber && CurrentLevelUi() == 1) && measured(repeated(10, EarnedVictoryJingle()))
 }
 
-achievement(
-    title = "Janesville, PA", description = "In one session, complete Episode 1 of Rescue Mode.", points = 5,
-    id = 196557, badge = "228092", published = "2/6/2022 7:31:03 PM", modified = "3/27/2022 2:36:58 AM",
-    trigger = TriggerRescueMode(0)
-)
+function CreateRescueModeAchievement(title, episode, points) {
+    achievement(
+        title = title,
+        description = "In one session, complete Episode " + (episode + 1) + " of Rescue Mode.",
+        points = points,
+        trigger = TriggerRescueMode(episode)
+    )
+}
 
-achievement(
-    title = "Quecreek Mine", description = "In one session, complete Episode 2 of Rescue Mode.", points = 5,
-    id = 196558, badge = "228093", published = "2/6/2022 7:31:04 PM", modified = "3/27/2022 2:36:58 AM",
-    trigger = TriggerRescueMode(1)
-)
-
-achievement(
-    title = "Moko and the Whales", description = "In one session, complete Episode 3 of Rescue Mode.", points = 10,
-    id = 196559, badge = "228094", published = "2/6/2022 7:31:04 PM", modified = "3/27/2022 2:36:59 AM",
-    trigger = TriggerRescueMode(2)
-)
-
-achievement(
-    title = "Copiapo", description = "In one session, complete Episode 4 of Rescue Mode.", points = 10,
-    id = 196560, badge = "228095", published = "2/6/2022 7:31:04 PM", modified = "3/27/2022 2:36:59 AM",
-    trigger = TriggerRescueMode(3)
-)
-
-achievement(
-    title = "Hudson Miracle", description = "In one session, complete Episode 5 of Rescue Mode.", points = 10,
-    id = 196561, badge = "228096", published = "2/6/2022 7:31:05 PM", modified = "3/27/2022 2:36:59 AM",
-    trigger = TriggerRescueMode(4)
-)
-
-achievement(
-    title = "SS Andrea Doria", description = "In one session, complete Episode 6 of Rescue Mode.", points = 25,
-    id = 196562, badge = "228097", published = "2/6/2022 7:31:05 PM", modified = "3/27/2022 2:37:00 AM",
-    trigger = TriggerRescueMode(5)
-)
-
-achievement(
-    title = "Thailand Soccer", description = "In one session, complete Episode 7 of Rescue Mode.", points = 25,
-    id = 196563, badge = "228098", published = "2/6/2022 7:31:05 PM", modified = "3/27/2022 2:37:00 AM",
-    trigger = TriggerRescueMode(6)
-)
-
-achievement(
-    title = "SS Pendleton", description = "In one session, complete Episode 8 of Rescue Mode.", points = 25,
-    id = 196564, badge = "228099", published = "2/6/2022 7:31:06 PM", modified = "3/27/2022 2:37:00 AM",
-    trigger = TriggerRescueMode(7)
-)
-
-achievement(
-    title = "Ingrid Betancourt", description = "In one session, complete Episode 9 of Rescue Mode.", points = 50,
-    id = 196565, badge = "228100", published = "2/6/2022 7:31:06 PM", modified = "3/27/2022 2:37:01 AM",
-    trigger = TriggerRescueMode(8)
-)
-
-achievement(
-    title = "Apollo 13", description = "In one session, complete Episode 10 of Rescue Mode.", points = 50,
-    id = 196566, badge = "228101", published = "2/6/2022 7:31:06 PM", modified = "3/27/2022 2:37:01 AM",
-    trigger = TriggerRescueMode(9)
-)
+CreateRescueModeAchievement("Janesville, PA", 0, 5)
+CreateRescueModeAchievement("Quecreek Mine", 1, 5)
+CreateRescueModeAchievement("Moko and the Whales", 2, 10)
+CreateRescueModeAchievement("Copiapo", 3, 10)
+CreateRescueModeAchievement("Hudson Miracle", 4, 10)
+CreateRescueModeAchievement("SS Andrea Doria", 5, 25)
+CreateRescueModeAchievement("Thailand Soccer", 6, 25)
+CreateRescueModeAchievement("SS Pendleton", 7, 25)
+CreateRescueModeAchievement("Ingrid Betancourt", 8, 50)
+CreateRescueModeAchievement("Apollo 13", 9, 50)
 
 // Reusable function for Hide & Seek Mode.
 function TriggerHideAndSeek(episodeNumber) {
@@ -907,35 +810,20 @@ function TriggerHideAndSeek(episodeNumber) {
       once(InHideAndSeek() && EpisodeMenuSelection() == episodeNumber && CurrentLevelUi() == 1) && measured(EpisodeMenuSelection() == episodeNumber && repeated(30, EarnedVictoryJingle()))
 }
 
-achievement(
-    title = "Sardines", description = "In one session, complete Episode 1 of Hide & Seek.", points = 10,
-    id = 196567, badge = "228102", published = "2/6/2022 7:31:07 PM", modified = "3/27/2022 2:37:01 AM",
-    trigger = TriggerHideAndSeek(0)
-)
+function CreateHideAndSeekAchievement(title, episode, points) {
+    achievement(
+        title = title,
+        points = points,
+        description = "In one session, complete Episode " + (episode + 1) + " of Hide & Seek.",
+        trigger = TriggerHideAndSeek(episode)
+    )
+}
 
-achievement(
-    title = "Secret Wave", description = "In one session, complete Episode 2 of Hide & Seek.", points = 10,
-    id = 196568, badge = "228103", published = "2/6/2022 7:31:07 PM", modified = "3/27/2022 2:37:02 AM",
-    trigger = TriggerHideAndSeek(1)
-)
-
-achievement(
-    title = "Blocko", description = "In one session, complete Episode 3 of Hide & Seek.", points = 25,
-    id = 196569, badge = "228104", published = "2/6/2022 7:31:07 PM", modified = "3/27/2022 2:37:02 AM",
-    trigger = TriggerHideAndSeek(2)
-)
-
-achievement(
-    title = "Kick the Can", description = "In one session, complete Episode 4 of Hide & Seek.", points = 50,
-    id = 196570, badge = "228105", published = "2/6/2022 7:31:08 PM", modified = "3/27/2022 2:37:02 AM",
-    trigger = TriggerHideAndSeek(3)
-)
-
-achievement(
-    title = "Hide the Teddy", description = "In one session, complete Episode 5 of Hide & Seek.", points = 50,
-    id = 196571, badge = "228106", published = "2/6/2022 7:31:08 PM", modified = "3/27/2022 2:37:03 AM",
-    trigger = TriggerHideAndSeek(4)
-)
+CreateHideAndSeekAchievement("Sardines", 0, 10)
+CreateHideAndSeekAchievement("Secret Wave", 1, 10)
+CreateHideAndSeekAchievement("Blocko", 2, 25)
+CreateHideAndSeekAchievement("Kick the Can", 3, 50)
+CreateHideAndSeekAchievement("Hide the Teddy", 4, 50)
 
 achievement(
     title = "One-Hit Wonder", description = "Clear Practice Mode in ONE piece drop.", points = 5,
@@ -1046,9 +934,9 @@ leaderboard(
 function VsCpuTimeLeaderboard(lid, episode, desc) {
     leaderboard(
         id = lid, title = "Vs. CPU Episode " + episode + " Time Attack", description = desc,
-        start = NotCheating() && never(VsCpuActive() == 0) && GameStateA() != 22 && once(SelectedVsCpu() && SeenVsOpponent() == 0 && EpisodeMenuSelection() == 0 && CurrentLevelUi() == 1),
-        cancel = GameStateB() == 1 || EpisodeMenuSelection() >= episode,
-        submit = repeated(episode * 7, (Player1CorePiecesLeft() == 0 || Player1CorePiecesLeft() > 128) && EarnedVictoryJingle()) && never(GameStateB() == 1),
+        start = NotCheating() && never(VsCpuActive() == 0) && !OnDemo() && once(SelectedVsCpu() && SeenVsOpponent() == 0 && EpisodeMenuSelection() == 0 && CurrentLevelUi() == 1),
+        cancel = OnMainMenu() || EpisodeMenuSelection() >= episode,
+        submit = never(OnMainMenu()) && VsModeTally(episode * 7),
         value = measured(always_true()),
         lower_is_better = true,
         format = "FRAMES"
@@ -1100,3 +988,185 @@ function LinesTimeLeaderboard(lid, episode, desc) {
 LinesTimeLeaderboard(30336, 1, "Get the fastest time you can completing Episode 1 of Lines.")
 LinesTimeLeaderboard(30338, 3, "Get the fastest time you can completing Episode 1-3 of Lines.")
 LinesTimeLeaderboard(30340, 5, "Get the fastest time you can completing Episode 1-5 of Lines.")
+
+rich_presence_conditional_display(byte(0x1C0420) == 0x00, "{0}{1}{2}{3}{4}{5}{6}{7} 🤖 {8} Selecting a Mode",
+    rich_presence_lookup("Text", byte(0x0E13CB), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CA), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C9), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C8), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CF), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CE), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CD), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CC), TextLookup),
+    rich_presence_lookup("BotName", byte(0x0E07D7), BotNameLookup)
+)
+
+rich_presence_conditional_display(byte(0x1BF94C) == 0x02, "{0}{1}{2}{3}{4}{5}{6}{7} 🤖 {8} Preparing for Practice",
+    rich_presence_lookup("Text", byte(0x0E13CB), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CA), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C9), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C8), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CF), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CE), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CD), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CC), TextLookup),
+    rich_presence_lookup("BotName", byte(0x0E07D7), BotNameLookup)
+)
+
+rich_presence_conditional_display(byte(0x1BF94C) == 0x25, "{0}{1}{2}{3}{4}{5}{6}{7} 🤖 {8} In Practice - Score: {9} Pieces: {10}{11}{12}{13}{14}{15} 🧱: {16} Core Pieces: {17}",
+    rich_presence_lookup("Text", byte(0x0E13CB), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CA), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C9), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C8), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CF), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CE), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CD), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CC), TextLookup),
+    rich_presence_lookup("BotName", byte(0x0E07D7), BotNameLookup),
+    rich_presence_value("Number", dword(0x0E241C) * 10),
+    rich_presence_lookup("TrainingSquare", byte(0x0E0893), TrainingSquareLookup),
+    rich_presence_lookup("TrainingHori", byte(0x0E0891), TrainingHoriLookup),
+    rich_presence_lookup("TrainingVert", byte(0x0E0892), TrainingVertLookup),
+    rich_presence_lookup("TrainingL", byte(0x0E0890), TrainingLLookup),
+    rich_presence_lookup("TrainingZig", byte(0x0E0897), TrainingZigLookup),
+    rich_presence_lookup("TrainingT", byte(0x0E0896), TrainingTLookup),
+    rich_presence_value("Number", byte(0x0E089B)),
+    rich_presence_value("Number", byte(0x0E089E))
+)
+
+rich_presence_conditional_display(byte(0x1C0420) == 0x0E, "{0}{1}{2}{3}{4}{5}{6}{7} 🤖 {8} In Rescue Mode Level {9}:{10} - Score: {11}",
+    rich_presence_lookup("Text", byte(0x0E13CB), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CA), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C9), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C8), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CF), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CE), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CD), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CC), TextLookup),
+    rich_presence_lookup("BotName", byte(0x0E07D7), BotNameLookup),
+    rich_presence_value("Number", byte(0x0E44A2) + 1),
+    rich_presence_value("Number", byte(0x0E449A) + 1),
+    rich_presence_value("Number", dword(0x0E241C) * 10)
+)
+
+rich_presence_conditional_display(byte(0x1C0420) == 0x14 && byte(0x0E44A2) <= 0x02, "{0}{1}{2}{3}{4}{5}{6}{7} 🤖 {8} In Hide & Seek Mode Level {9}:{10} - Score: {11}",
+    rich_presence_lookup("Text", byte(0x0E13CB), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CA), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C9), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C8), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CF), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CE), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CD), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CC), TextLookup),
+    rich_presence_lookup("BotName", byte(0x0E07D7), BotNameLookup),
+    rich_presence_value("Number", byte(0x0E44A2) + 1),
+    rich_presence_lookup("HSEarly", byte(0x0E449A), HSEarlyLookup),
+    rich_presence_value("Number", dword(0x0E241C) * 10)
+)
+
+rich_presence_conditional_display(byte(0x1C0420) == 0x14 && byte(0x0E44A2) >= 0x03, "{0}{1}{2}{3}{4}{5}{6}{7} 🤖 {8} In Hide & Seek Mode Level {9}:{10} - Score: {11}",
+    rich_presence_lookup("Text", byte(0x0E13CB), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CA), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C9), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C8), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CF), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CE), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CD), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CC), TextLookup),
+    rich_presence_lookup("BotName", byte(0x0E07D7), BotNameLookup),
+    rich_presence_value("Number", byte(0x0E44A2) + 1),
+    rich_presence_lookup("HSLate", byte(0x0E449A), HSLateLookup),
+    rich_presence_value("Number", dword(0x0E241C) * 10)
+)
+
+rich_presence_conditional_display(byte(0x1C0420) == 0xC3, "{0}{1}{2}{3}{4}{5}{6}{7} 🤖 {8} In Puzzle Mode Level {9}",
+    rich_presence_lookup("Text", byte(0x0E13CB), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CA), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C9), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C8), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CF), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CE), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CD), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CC), TextLookup),
+    rich_presence_lookup("BotName", byte(0x0E07D7), BotNameLookup),
+    rich_presence_value("Number", byte(0x0E449E))
+)
+
+rich_presence_conditional_display(byte(0x1C0420) == 0x37 && byte(0x0E1050) == 0x70, "{0}{1}{2}{3}{4}{5}{6}{7} 🤖 {8} In Time Trial Mode Level {9}",
+    rich_presence_lookup("Text", byte(0x0E13CB), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CA), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C9), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C8), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CF), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CE), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CD), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CC), TextLookup),
+    rich_presence_lookup("BotName", byte(0x0E07D7), BotNameLookup),
+    rich_presence_value("Number", byte(0x0E449A) + 1)
+)
+
+rich_presence_conditional_display(byte(0x1C0420) == 0x37 && byte(0x0E1050) == 0x10, "{0}{1}{2}{3}{4}{5}{6}{7} 🤖 {8} Reviewing the Time Trial Results",
+    rich_presence_lookup("Text", byte(0x0E13CB), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CA), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C9), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C8), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CF), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CE), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CD), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CC), TextLookup),
+    rich_presence_lookup("BotName", byte(0x0E07D7), BotNameLookup)
+)
+
+rich_presence_conditional_display(byte(0x0E0756) == 0x00 && byte(0x0E0754) == 0x04 && byte(0x116588) == 0x01, "{0}{1}{2}{3}{4}{5}{6}{7} 🤖 {8} VS CPU 🤖 {9} Level {10}:{11}",
+    rich_presence_lookup("Text", byte(0x0E13CB), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CA), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C9), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C8), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CF), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CE), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CD), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CC), TextLookup),
+    rich_presence_lookup("BotName", byte(0x0E07D7), BotNameLookup),
+    rich_presence_lookup("BotName", byte(0x116589), BotNameLookup),
+    rich_presence_value("Number", byte(0x0E44A2) + 1),
+    rich_presence_value("Number", byte(0x0E449A) + 1)
+)
+
+rich_presence_conditional_display(byte(0x1C0420) == 0x15, "{0}{1}{2}{3}{4}{5}{6}{7} 🤖 {8} In Lines Mode Level {9}:{10} - Score: {11}",
+    rich_presence_lookup("Text", byte(0x0E13CB), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CA), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C9), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C8), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CF), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CE), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CD), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CC), TextLookup),
+    rich_presence_lookup("BotName", byte(0x0E07D7), BotNameLookup),
+    rich_presence_value("Number", byte(0x0E44A2) + 1),
+    rich_presence_value("Number", byte(0x0E449A) + 1),
+    rich_presence_value("Number", dword(0x0E241C) * 10)
+)
+
+rich_presence_conditional_display(byte(0x1C0420) == 0x75, "{0}{1}{2}{3}{4}{5}{6}{7} 🤖 {8} Watching a Cutscene",
+    rich_presence_lookup("Text", byte(0x0E13CB), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CA), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C9), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C8), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CF), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CE), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CD), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CC), TextLookup),
+    rich_presence_lookup("BotName", byte(0x0E07D7), BotNameLookup)
+)
+
+rich_presence_display("{0}{1}{2}{3}{4}{5}{6}{7} 🤖 {8} Navigating the Menus",
+    rich_presence_lookup("Text", byte(0x0E13CB), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CA), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C9), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13C8), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CF), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CE), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CD), TextLookup),
+    rich_presence_lookup("Text", byte(0x0E13CC), TextLookup),
+    rich_presence_lookup("BotName", byte(0x0E07D7), BotNameLookup)
+)
