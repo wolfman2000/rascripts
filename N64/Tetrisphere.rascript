@@ -294,7 +294,8 @@ function CurrentLevelUi() => byte(0x0E449E)
 // $0E44A2: Episode Number Menu Selection
 //          This goes from 0x00 to the max number of episodes available in that mode.
 //          Unlike other menu selections, this one holds up during gameplay.
-function EpisodeMenuSelection() => byte(0x0E44A2)
+function EpisodeMenuSelection() => low4(0x0E44A2)
+function EpisodeMenuRp() => EpisodeMenuSelection() + 1
 
 // $0ECA80: Filename Entry - Normal
 //          The following 0x48 bytes are used to represent the filename for the bot. 0x00 represents a blank space on the table. The ASCII codes match with a few exceptions noted here:
@@ -854,6 +855,8 @@ achievement(
                && prior(Player1MagicSlot()) == 5 && Player1MagicSlot() == 255 && Player1PressedCDown() == 1
 )
 
+// Leaderboards Below
+
 // Common functionality for Rescue Score Attack leaderboards.
 function RescueScoreLeaderboard(lid, episode, desc) {
     
@@ -989,6 +992,8 @@ LinesTimeLeaderboard(30336, 1, "Get the fastest time you can completing Episode 
 LinesTimeLeaderboard(30338, 3, "Get the fastest time you can completing Episode 1-3 of Lines.")
 LinesTimeLeaderboard(30340, 5, "Get the fastest time you can completing Episode 1-5 of Lines.")
 
+// Rich Presence Below
+
 rich_presence_conditional_display(byte(0x1C0420) == 0x00, "{0}{1}{2}{3}{4}{5}{6}{7} 🤖 {8} Selecting a Mode",
     rich_presence_lookup("Text", byte(0x0E13CB), TextLookup),
     rich_presence_lookup("Text", byte(0x0E13CA), TextLookup),
@@ -1044,12 +1049,12 @@ rich_presence_conditional_display(byte(0x1C0420) == 0x0E, "{0}{1}{2}{3}{4}{5}{6}
     rich_presence_lookup("Text", byte(0x0E13CD), TextLookup),
     rich_presence_lookup("Text", byte(0x0E13CC), TextLookup),
     rich_presence_lookup("BotName", byte(0x0E07D7), BotNameLookup),
-    rich_presence_value("Number", byte(0x0E44A2) + 1),
+    rich_presence_value("Number", EpisodeMenuRp()),
     rich_presence_value("Number", byte(0x0E449A) + 1),
     rich_presence_value("Number", dword(0x0E241C) * 10)
 )
 
-rich_presence_conditional_display(byte(0x1C0420) == 0x14 && byte(0x0E44A2) <= 0x02, "{0}{1}{2}{3}{4}{5}{6}{7} 🤖 {8} In Hide & Seek Mode Level {9}:{10} - Score: {11}",
+rich_presence_conditional_display(byte(0x1C0420) == 0x14 && EpisodeMenuSelection() <= 0x02, "{0}{1}{2}{3}{4}{5}{6}{7} 🤖 {8} In Hide & Seek Mode Episode {9} Level {10} - Score: {11}",
     rich_presence_lookup("Text", byte(0x0E13CB), TextLookup),
     rich_presence_lookup("Text", byte(0x0E13CA), TextLookup),
     rich_presence_lookup("Text", byte(0x0E13C9), TextLookup),
@@ -1059,12 +1064,12 @@ rich_presence_conditional_display(byte(0x1C0420) == 0x14 && byte(0x0E44A2) <= 0x
     rich_presence_lookup("Text", byte(0x0E13CD), TextLookup),
     rich_presence_lookup("Text", byte(0x0E13CC), TextLookup),
     rich_presence_lookup("BotName", byte(0x0E07D7), BotNameLookup),
-    rich_presence_value("Number", byte(0x0E44A2) + 1),
+    rich_presence_value("Number", EpisodeMenuRp()),
     rich_presence_lookup("HSEarly", byte(0x0E449A), HSEarlyLookup),
     rich_presence_value("Number", dword(0x0E241C) * 10)
 )
 
-rich_presence_conditional_display(byte(0x1C0420) == 0x14 && byte(0x0E44A2) >= 0x03, "{0}{1}{2}{3}{4}{5}{6}{7} 🤖 {8} In Hide & Seek Mode Level {9}:{10} - Score: {11}",
+rich_presence_conditional_display(byte(0x1C0420) == 0x14 && EpisodeMenuSelection() >= 0x03, "{0}{1}{2}{3}{4}{5}{6}{7} 🤖 {8} In Hide & Seek Mode Episode {9} Level {10} - Score: {11}",
     rich_presence_lookup("Text", byte(0x0E13CB), TextLookup),
     rich_presence_lookup("Text", byte(0x0E13CA), TextLookup),
     rich_presence_lookup("Text", byte(0x0E13C9), TextLookup),
@@ -1074,7 +1079,7 @@ rich_presence_conditional_display(byte(0x1C0420) == 0x14 && byte(0x0E44A2) >= 0x
     rich_presence_lookup("Text", byte(0x0E13CD), TextLookup),
     rich_presence_lookup("Text", byte(0x0E13CC), TextLookup),
     rich_presence_lookup("BotName", byte(0x0E07D7), BotNameLookup),
-    rich_presence_value("Number", byte(0x0E44A2) + 1),
+    rich_presence_value("Number", EpisodeMenuRp()),
     rich_presence_lookup("HSLate", byte(0x0E449A), HSLateLookup),
     rich_presence_value("Number", dword(0x0E241C) * 10)
 )
@@ -1128,7 +1133,7 @@ rich_presence_conditional_display(byte(0x0E0756) == 0x00 && byte(0x0E0754) == 0x
     rich_presence_lookup("Text", byte(0x0E13CC), TextLookup),
     rich_presence_lookup("BotName", byte(0x0E07D7), BotNameLookup),
     rich_presence_lookup("BotName", byte(0x116589), BotNameLookup),
-    rich_presence_value("Number", byte(0x0E44A2) + 1),
+    rich_presence_value("Number", EpisodeMenuRp()),
     rich_presence_value("Number", byte(0x0E449A) + 1)
 )
 
@@ -1142,7 +1147,7 @@ rich_presence_conditional_display(byte(0x1C0420) == 0x15, "{0}{1}{2}{3}{4}{5}{6}
     rich_presence_lookup("Text", byte(0x0E13CD), TextLookup),
     rich_presence_lookup("Text", byte(0x0E13CC), TextLookup),
     rich_presence_lookup("BotName", byte(0x0E07D7), BotNameLookup),
-    rich_presence_value("Number", byte(0x0E44A2) + 1),
+    rich_presence_value("Number", EpisodeMenuRp()),
     rich_presence_value("Number", byte(0x0E449A) + 1),
     rich_presence_value("Number", dword(0x0E241C) * 10)
 )
