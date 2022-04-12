@@ -77,6 +77,7 @@ function Cheat8C() => bit5(0x9440)
 function Cheat8L() => bit2(0x9440)
 function Cheat8R() => bit3(0x9440)
 function Cheat8U() => bit0(0x9440)
+function Cheat8D() => bit1(0x9440)
 // $9441: Cheat Check Button 7
 //        See 0x943A for button mapping information.
 function Cheat7A() => bit6(0x9441)
@@ -84,91 +85,139 @@ function Cheat7B() => bit4(0x9441)
 function Cheat7C() => bit5(0x9441)
 function Cheat7L() => bit2(0x9441)
 function Cheat7R() => bit3(0x9441)
+function Cheat7U() => bit0(0x9441)
 
+// ACCABABL
 function SuperCheat() => once(prev(Cheat1A()) == 1 && prev(Cheat2C()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4A()) == 1 &&
   prev(Cheat5B()) == 1 && prev(Cheat6A()) == 1 && prev(Cheat7B()) == 1 && prev(Cheat8L()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
   
+// AAAALRRL
 function InvincibilityCheat() => IsInvincibilityCheatOn() || once(prev(Cheat1A()) == 1 && prev(Cheat2A()) == 1 && prev(Cheat3A()) == 1 && prev(Cheat4A()) == 1 &&
   prev(Cheat5L()) == 1 && prev(Cheat6R()) == 1 && prev(Cheat7R()) == 1 && prev(Cheat8L()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
 
+// ACCBAABU
 function MapModeCheat() => IsMapModeOn() || once(prev(Cheat1A()) == 1 && prev(Cheat2C()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4B()) == 1 &&
   prev(Cheat5A()) == 1 && prev(Cheat6A()) == 1 && prev(Cheat7B()) == 1 && prev(Cheat8U()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
 
+// CABABACA
+function MealWormsExtraCheat() => once(prev(Cheat1C()) == 1 && prev(Cheat2A()) == 1 && prev(Cheat3B()) == 1 && prev(Cheat4A()) == 1 &&
+  prev(Cheat5B()) == 1 && prev(Cheat6A()) == 1 && prev(Cheat7C()) == 1 && prev(Cheat8A()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
+
+// CACACACA
 function MealWorms10Cheat() => once(prev(Cheat1C()) == 1 && prev(Cheat2A()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4A()) == 1 &&
   prev(Cheat5C()) == 1 && prev(Cheat6A()) == 1 && prev(Cheat7C()) == 1 && prev(Cheat8A()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
 
+// ABCCBABB
 function MealWorms81Cheat() => once(prev(Cheat1A()) == 1 && prev(Cheat2B()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4C()) == 1 &&
   prev(Cheat5B()) == 1 && prev(Cheat6A()) == 1 && prev(Cheat7B()) == 1 && prev(Cheat8B()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
 
+// CCCCAABC
 function BarnBlasterCheat() => once(prev(Cheat1C()) == 1 && prev(Cheat2C()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4C()) == 1 &&
   prev(Cheat5A()) == 1 && prev(Cheat6A()) == 1 && prev(Cheat7B()) == 1 && prev(Cheat8C()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
 
+// CCCCAABB
 function BubbleGunCheat() => once(prev(Cheat1C()) == 1 && prev(Cheat2C()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4C()) == 1 &&
   prev(Cheat5A()) == 1 && prev(Cheat6A()) == 1 && prev(Cheat7B()) == 1 && prev(Cheat8B()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
 
+// CCCCAABA
 function HomingMissilesCheat() => once(prev(Cheat1C()) == 1 && prev(Cheat2C()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4C()) == 1 &&
   prev(Cheat5A()) == 1 && prev(Cheat6A()) == 1 && prev(Cheat7B()) == 1 && prev(Cheat8A()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
-  
+
+// CCCCAAAB
 function MegaPlasmaCheat() => once(prev(Cheat1C()) == 1 && prev(Cheat2C()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4C()) == 1 &&
   prev(Cheat5A()) == 1 && prev(Cheat6A()) == 1 && prev(Cheat7A()) == 1 && prev(Cheat8B()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
 
+// CCCCAAAC
 function ThreeFingerCheat() => once(prev(Cheat1C()) == 1 && prev(Cheat2C()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4C()) == 1 &&
   prev(Cheat5A()) == 1 && prev(Cheat6A()) == 1 && prev(Cheat7A()) == 1 && prev(Cheat8C()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
 
+// ABCCCAAB
 function ExtraLifeCheat() => once(prev(Cheat1A()) == 1 && prev(Cheat2B()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4C()) == 1 &&
   prev(Cheat5C()) == 1 && prev(Cheat6A()) == 1 && prev(Cheat7A()) == 1 && prev(Cheat8B()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
 
+// ABCCCAAA
+function ExtraLifeOnceCheat() => once(prev(Cheat1A()) == 1 && prev(Cheat2B()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4C()) == 1 &&
+  prev(Cheat5C()) == 1 && prev(Cheat6A()) == 1 && prev(Cheat7A()) == 1 && prev(Cheat8A()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
+
+// CBBACBBA
 function AmmoRefillCheat() => once(prev(Cheat1C()) == 1 && prev(Cheat2B()) == 1 && prev(Cheat3B()) == 1 && prev(Cheat4A()) == 1 &&
   prev(Cheat5C()) == 1 && prev(Cheat6B()) == 1 && prev(Cheat7B()) == 1 && prev(Cheat8A()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
-  
+
+// CBBACBAA
+function AmmoRefill2Cheat() => once(prev(Cheat1C()) == 1 && prev(Cheat2B()) == 1 && prev(Cheat3B()) == 1 && prev(Cheat4A()) == 1 &&
+  prev(Cheat5C()) == 1 && prev(Cheat6B()) == 1 && prev(Cheat7A()) == 1 && prev(Cheat8A()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
+
+// ABCABCAB
 function EnergyRefillCheat() => once(prev(Cheat1A()) == 1 && prev(Cheat2B()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4A()) == 1 &&
   prev(Cheat5B()) == 1 && prev(Cheat6C()) == 1 && prev(Cheat7A()) == 1 && prev(Cheat8B()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
-  
+
+// ABCABCAA
 function EnergyRefillPlusCheat() => once(prev(Cheat1A()) == 1 && prev(Cheat2B()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4A()) == 1 &&
   prev(Cheat5B()) == 1 && prev(Cheat6C()) == 1 && prev(Cheat7A()) == 1 && prev(Cheat8A()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
 
+// AACCBALR
 function ContinueCheat() => once(prev(Cheat1A()) == 1 && prev(Cheat2A()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4C()) == 1 &&
   prev(Cheat5B()) == 1 && prev(Cheat6A()) == 1 && prev(Cheat7L()) == 1 && prev(Cheat8R()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
-  
+
+// AACCBALL
+function ContinueOnceCheat() => once(prev(Cheat1A()) == 1 && prev(Cheat2A()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4C()) == 1 &&
+  prev(Cheat5B()) == 1 && prev(Cheat6A()) == 1 && prev(Cheat7L()) == 1 && prev(Cheat8L()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
+
+// CABCABUD
+function TeleportBombCheat() => once(prev(Cheat1C()) == 1 && prev(Cheat2A()) == 1 && prev(Cheat3B()) == 1 && prev(Cheat4C()) == 1 &&
+  prev(Cheat5A()) == 1 && prev(Cheat6B()) == 1 && prev(Cheat7U()) == 1 && prev(Cheat8D()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
+
+// BBCABCLR
 function WarpToInflatedHead() => once(prev(Cheat1B()) == 1 && prev(Cheat2B()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4A()) == 1 &&
   prev(Cheat5B()) == 1 && prev(Cheat6C()) == 1 && prev(Cheat7L()) == 1 && prev(Cheat8R()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
-  
+
+// ABCRRRRR
 function WarpToIso9000() => once(prev(Cheat1A()) == 1 && prev(Cheat2B()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4R()) == 1 &&
   prev(Cheat5R()) == 1 && prev(Cheat6R()) == 1 && prev(Cheat7R()) == 1 && prev(Cheat8R()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
-  
+
+// CCDDARRL
 function WarpToLevelAte() => once(prev(Cheat1C()) == 1 && prev(Cheat2C()) == 1 && prev(Cheat3D()) == 1 && prev(Cheat4D()) == 1 &&
   prev(Cheat5A()) == 1 && prev(Cheat6R()) == 1 && prev(Cheat7R()) == 1 && prev(Cheat8L()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
-  
+
+// ABCCUCLR
 function WarpToVilliPeople() => once(prev(Cheat1A()) == 1 && prev(Cheat2B()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4C()) == 1 &&
   prev(Cheat5U()) == 1 && prev(Cheat6C()) == 1 && prev(Cheat7L()) == 1 && prev(Cheat8R()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
-  
+
+// DACLRDAC
 function WarpToUdderlyAbducted() => once(prev(Cheat1D()) == 1 && prev(Cheat2A()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4L()) == 1 &&
   prev(Cheat5R()) == 1 && prev(Cheat6D()) == 1 && prev(Cheat7A()) == 1 && prev(Cheat8C()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
 
+// CCCCCCAA
 function WarpToPuppyLove1() => once(prev(Cheat1C()) == 1 && prev(Cheat2C()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4C()) == 1 &&
   prev(Cheat5C()) == 1 && prev(Cheat6C()) == 1 && prev(Cheat7A()) == 1 && prev(Cheat8A()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
 
+// LRBCCLRA
 function WarpToPuppyLove2() => once(prev(Cheat1L()) == 1 && prev(Cheat2R()) == 1 && prev(Cheat3B()) == 1 && prev(Cheat4C()) == 1 &&
   prev(Cheat5C()) == 1 && prev(Cheat6L()) == 1 && prev(Cheat7R()) == 1 && prev(Cheat8A()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
-  
+
+// RRABCLRA
 function WarpToPuppyLove3() => once(prev(Cheat1R()) == 1 && prev(Cheat2R()) == 1 && prev(Cheat3A()) == 1 && prev(Cheat4B()) == 1 &&
   prev(Cheat5C()) == 1 && prev(Cheat6L()) == 1 && prev(Cheat7R()) == 1 && prev(Cheat8A()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
-  
+
+// BBCLLLLR
 function WarpToSeeJimRun() => once(prev(Cheat1B()) == 1 && prev(Cheat2B()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4L()) == 1 &&
   prev(Cheat5L()) == 1 && prev(Cheat6L()) == 1 && prev(Cheat7L()) == 1 && prev(Cheat8R()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
-  
+
+// ABBACBBR
 function WarpToNext() => once(prev(Cheat1A()) == 1 && prev(Cheat2B()) == 1 && prev(Cheat3B()) == 1 && prev(Cheat4A()) == 1 &&
   prev(Cheat5C()) == 1 && prev(Cheat6B()) == 1 && prev(Cheat7B()) == 1 && prev(Cheat8R()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
-  
+
+// CACABAAU
 function WarpToEnd() => once(prev(Cheat1C()) == 1 && prev(Cheat2A()) == 1 && prev(Cheat3C()) == 1 && prev(Cheat4A()) == 1 &&
   prev(Cheat5B()) == 1 && prev(Cheat6A()) == 1 && prev(Cheat7A()) == 1 && prev(Cheat8U()) == 1 && dword(0x943a) == 0 && dword(0x943e) == 0)
 
 function AnyWarpCheat() => SuperCheat() || WarpToInflatedHead() || WarpToIso9000() || WarpToLevelAte() || WarpToVilliPeople() || WarpToUdderlyAbducted() ||
   WarpToPuppyLove1() || WarpToPuppyLove2() || WarpToPuppyLove3() || WarpToSeeJimRun() || WarpToNext() || WarpToEnd()
 
-function AnyNonWarpCheat() => InvincibilityCheat() || MapModeCheat() || MealWorms10Cheat() || MealWorms81Cheat() ||
+function AnyNonWarpCheat() => InvincibilityCheat() || MapModeCheat() || MealWormsExtraCheat() || MealWorms10Cheat() || MealWorms81Cheat() ||
   BarnBlasterCheat() || BubbleGunCheat() || HomingMissilesCheat() || MegaPlasmaCheat() || ThreeFingerCheat() ||
-  ExtraLifeCheat() || AmmoRefillCheat() || EnergyRefillCheat() || EnergyRefillPlusCheat() || ContinueCheat()
+  ExtraLifeCheat() || ExtraLifeOnceCheat() || AmmoRefillCheat() || AmmoRefill2Cheat() ||
+  EnergyRefillCheat() || EnergyRefillPlusCheat() || ContinueCheat() || ContinueOnceCheat() || TeleportBombCheat()
 
 function AnyCheat() => AnyWarpCheat() || AnyNonWarpCheat()
 
@@ -336,6 +385,8 @@ function InDemo() => byte(0xa1ef) == 0xFF
 // $A1FB: Current In-Game Music
 //        This will either be in the range of 0x00-0x11 while playing a stage, of 0xFF if nothing is playing. This makes this byte elligible for potential leaderboard starting.
 function MusicTrack() => byte(0xa1fb)
+function IsMenuMusic() => byte(0xa1fb) == 6
+function IsInStageMusic() => MusicTrack() != 6 && MusicTrack() != 0xFF
 // $A1FE: Incrementing Counter [16-bit]
 //        This resets and goes up whenever a demo starts.
 //        Sometimes only the upper byte goes up and not the lower. It's surprisingly inconsistent.
@@ -657,7 +708,8 @@ function InGameTimer() => low4(0xfe81) * 10 + low4(0xfe80)
 // $FF29: Puppy Love Current Round (0 Index)
 //        The number of rounds is based on the player's difficulty. Look into 0xff2a to see if that value is consistent with the max expected round.
 function PeterPuppyRound() => low4(0xff29) + 1
-function PastFlagRounds() => once(byte(0xff29) == 3)
+function PastFlagRounds() => once(low4(0xff29) == 3)
+function FinishedPeterPuppyDifficult() => low4(0xff29) == 5
 
 // Cheevo IDs to erase (voting approved):
 // 5655 (reach Granny Bonus. The cheevo for beating this is enough.)
@@ -666,37 +718,38 @@ function PastFlagRounds() => once(byte(0xff29) == 3)
 // 5753 (Hard You're Dead Meat. No fair equivalent for damageless.)
 // 5985 (Hard Pupa Dominated. No fair equivalent for damageless.)
 
-function CreateBeatenLevelNormalCheevo(levelNumber, title, points) {
+function CreateBeatenLevelNormalCheevo(id, levelNumber, title, points) {
     achievement(
+        id = id,
         title = title,
         description = "Beat the level " + LevelNumberToStageName[levelNumber] + ".",
         points = points,
-        trigger = unless(AnyCheat()) && never(InDemo()) && BeatenLevel(levelNumber)
+        trigger = unless(AnyCheat()) && never(InDemo()) && never(IsMenuMusic()) && BeatenLevel(levelNumber)
     )
 }
 
 // Replace 5657 with this. (Old name: Lorenzen's Soiled)
-CreateBeatenLevelNormalCheevo(1, "Why the Tangerines?", 10)
+CreateBeatenLevelNormalCheevo(209715, 1, "Why the Tangerines?", 10)
 // Replace 5658 with this. (Old name: Aren't They Adorable?)
-CreateBeatenLevelNormalCheevo(2, "Modern Worm Digging", 10)
+CreateBeatenLevelNormalCheevo(209705, 2, "Modern Worm Digging", 10)
 // Replace 5659 with this. (Old name: As Blind as a Cave Salamander)
-CreateBeatenLevelNormalCheevo(3, "Odie", 10)
+CreateBeatenLevelNormalCheevo(209706, 3, "Odie", 10)
 // Replace 5660 with this. (Old name: Flying Pigs and Pirate Ships)
-CreateBeatenLevelNormalCheevo(4, "What Is This Level's Name?", 10)
+CreateBeatenLevelNormalCheevo(209707, 4, "What Is This Level's Name?", 10)
 // Replace 5661 with this. (Old name: Cuteness Overload)
-CreateBeatenLevelNormalCheevo(5, "Flying Pigs + Pirate Ships", 10)
+CreateBeatenLevelNormalCheevo(209708, 5, "Flying Pigs + Pirate Ships", 10)
 // Replace 5662 with this. (Old name: Udderly Abducted)
-CreateBeatenLevelNormalCheevo(6, "Blue", 10)
+CreateBeatenLevelNormalCheevo(209709, 6, "Blue", 10)
 // Replace 5663 with this (Old name: Don't be such an airhead)
-CreateBeatenLevelNormalCheevo(7, "No Launching This Time, Sorry.", 10)
+CreateBeatenLevelNormalCheevo(209710, 7, "No Launching This Time, Sorry.", 10)
 // Replace 5664 with this. (Old name: ISO 9000)
-CreateBeatenLevelNormalCheevo(8, "Up, Up, and Away!", 10)
+CreateBeatenLevelNormalCheevo(209711, 8, "Up, Up, and Away!", 10)
 // Replace 5666 with this. (Old name: Pups Galore)
-CreateBeatenLevelNormalCheevo(9, "New Patent: Cow Launcher", 10)
+CreateBeatenLevelNormalCheevo(209712, 9, "New Patent: Cow Launcher", 10)
 // Replace 5667 with this. (Old name: Eight ate eight)
-CreateBeatenLevelNormalCheevo(10, "Spike", 10)
+CreateBeatenLevelNormalCheevo(209713, 10, "Spike", 10)
 // Replace 5671 with this. (Old name: See Jim Run)
-CreateBeatenLevelNormalCheevo(11, "Color Splash Did This Second?", 10)
+CreateBeatenLevelNormalCheevo(209714, 11, "Color Splash Did This Second?", 10)
 
 
 function CreateBeatenLevelDifficultCheevo(levelNumber, title, points) {
@@ -704,7 +757,7 @@ function CreateBeatenLevelDifficultCheevo(levelNumber, title, points) {
         title = title,
         description = "Beat the level " + LevelNumberToStageName[levelNumber] + " on Difficult Difficulty",
         points = points,
-        trigger = unless(AnyCheat()) && never(InDemo()) && OnDifficult() && BeatenLevel(levelNumber)
+        trigger = unless(AnyCheat()) && never(InDemo()) && never(IsMenuMusic()) && OnDifficult() && BeatenLevel(levelNumber)
     )
 }
 
@@ -731,8 +784,9 @@ CreateBeatenLevelDifficultCheevo(10, "Pluto", 25)
 // Replace 5754 with this. (Old name: [HARD] See Jim Run)
 CreateBeatenLevelDifficultCheevo(11, "Thanks for the Feast", 25)
 
-function CreateGameBeatenCheevo(title, description, onRightDifficulty) {
+function CreateGameBeatenCheevo(id, title, description, onRightDifficulty) {
     achievement(
+        id = id,
         title = title,
         description = description,
         points = 25,
@@ -741,17 +795,17 @@ function CreateGameBeatenCheevo(title, description, onRightDifficulty) {
 }
 
 // Update 5672 to end on taxi smash. (Maybe move the icon to difficult mode)
-CreateGameBeatenCheevo("Look Left, Right, and Up for Flying Taxis", "Beat the game.", true)
+CreateGameBeatenCheevo(209716, "Look Left, Right, and Up for Flying Taxis", "Beat the game.", true)
 
 // Update 5755 to end on taxi smash.
-CreateGameBeatenCheevo("...Stays in Lost Vegas", "Beat the game on Difficult Difficulty", OnDifficult())
+CreateGameBeatenCheevo(209739, "...Stays in Lost Vegas", "Beat the game on Difficult Difficulty", OnDifficult())
 
 function CreateAllFlagCheevo(levelNumber, title, points) {
     achievement(
         title = title,
         description = "In one session, beat " + LevelNumberToStageName[levelNumber] + " with all flags collected.",
         points = points,
-        trigger = unless(AnyCheat()) && never(InDemo()) && BeatenWithAllFlags(levelNumber)
+        trigger = unless(AnyCheat()) && never(InDemo()) && never(IsMenuMusic()) && BeatenWithAllFlags(levelNumber)
     )
 }
 
@@ -887,7 +941,8 @@ function CreatePeterPuppyProtectionPolicyCheevo(title, levelNumber) {
         description = "Complete " + LevelNumberToStageName[levelNumber] + " on Difficult WITHOUT making Peter Puppy mad.",
         points = 50,
         trigger = unless(AnyCheat()) && never(InDemo()) && OnDifficult() && CurrentStage() == LevelNumberToDict[levelNumber][0] &&
-            disable_when(DidPeterGoMad(), until=CurrentStage() != LevelNumberToDict[levelNumber][0]) && PastFlagRounds() && trigger_when(LevelFlagClaimed(levelNumber))
+            disable_when(DidPeterGoMad(), until=CurrentStage() != LevelNumberToDict[levelNumber][0]) && PastFlagRounds() &&
+            trigger_when(LevelFlagClaimed(levelNumber) && FinishedPeterPuppyDifficult())
     )
 }
 
@@ -914,7 +969,7 @@ achievement(
     title = "Claws Encounters of the Non-Furred Kind",
     description = "Get to the high striker in one life WITHOUT being popped by Evil the Cat.",
     points = 25,
-    trigger = unless(AnyCheat()) && never(InDemo()) && trigger_when(prev(CurrentStage()) == 0x07 && CurrentStage() == 0x08) &&
+    trigger = unless(AnyCheat()) && never(InDemo()) && never(IsMenuMusic()) && once(CurrentStage() == 7) && trigger_when(prev(CurrentStage()) == 0x07 && CurrentStage() == 0x08) &&
         disable_when(LifeCount() < prev(LifeCount()) || WasPoppedByEvil(), until=OutOfLevel(8) )
 )
 
@@ -933,8 +988,9 @@ function AnyPercentLeaderboard(difficulty, isOnDifficulty) {
     )
 }
 
-function AllFlagsLeaderboard(difficulty, isOnDifficulty) {
+function AllFlagsLeaderboard(id, difficulty, isOnDifficulty) {
     leaderboard(
+        id = id,
         title = "All Flags " + difficulty,
         description = "Beat the game on " + difficulty + " difficulty with all flags as fast as you can. No game overs allowed.",
         start = unless(AnyCheat()) && never(InDemo()) && InLevel(1) && MusicTrack() == 4 && isOnDifficulty && IsFreshStart(1),
@@ -952,8 +1008,8 @@ function AllFlagsLeaderboard(difficulty, isOnDifficulty) {
 
 AnyPercentLeaderboard("Normal", OnNormal())
 AnyPercentLeaderboard("Difficult", OnDifficult())
-AllFlagsLeaderboard("Normal", OnNormal())
-AllFlagsLeaderboard("Difficult", OnDifficult())
+AllFlagsLeaderboard(34230, "Normal", OnNormal())
+AllFlagsLeaderboard(34231, "Difficult", OnDifficult())
 
 DifficultyToStartingLifeLookup = {
     "Easy": 5,
