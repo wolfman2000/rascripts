@@ -96,6 +96,8 @@
 //        On the Title Screen, this counts down to zero before activating the demo.
 // $C912: Final Door Reminder
 //        On picking up the final key of the level, set to 0xc8 and display an indicator above Bugs' head to get to the final door. This counts down to 0x00, when the indicator stops appearing.
+// $C92C: Loaded Title Screen Once? 
+//        This flag can be used to reset cheevos without turning off the game. Watch when 0x00 becomes 0x03. 
 // $C92D: Continuous Stage ID (0-Index) (Duplicate of 0xc8e1)
 // $C92E: Password Cursor Position
 // $C92F: Password Column Number Entry
@@ -210,6 +212,10 @@ HasPickaxe = PickaxeBit == 1
 HammerBit = bit7(0xC905)
 HasHammer = HammerBit == 1
 
+// Has the Title Screen Loaded?
+// Use this to clear failed cheevo pauses.
+LoadedTitleScreenOnReset = prev(word(0xC90D)) == 0x0 && word(0xC90D) == 0x141e
+
 // What are some of Bugs' animation states?
 BugsStateA = byte(0xD00A)
 InOverworld = BugsStateA == 0x71
@@ -295,8 +301,8 @@ WorldPointsLookup = {
 
 WorldClassicPointsLookup = {
     0: 5,
-    1: 10,
-    2: 10,
+    1: 5,
+    2: 5,
     3: 10,
     4: 10,
     5: 10,
@@ -304,7 +310,7 @@ WorldClassicPointsLookup = {
     7: 25,
     8: 25,
     9: 25,
-    10: 50,
+    10: 25,
     11: 50
 }
 
@@ -333,16 +339,18 @@ function CreateBeatWorldCheevo(worldId, points) {
     worldLength = worldData[1]
     lastStage = firstStage + worldLength - 1
     worldGood = WorldId == worldId
+    worldBad = WorldId != worldId
     description = "In one session, complete all levels of World " + worldNumber + "."
     if (worldId == 11) {
         description = description + " This includes the final level in World 13."
         worldGood = WorldId >= worldId
+        worldBad = WorldId < worldId
     }
     achievement(
         title = "Navigated the " + worldName,
         points = points,
         description = description,
-        trigger = never(WorldId != worldId) &&
+        trigger = never(worldBad) &&
             measured(repeated(worldLength, HasEnteredExitDoor), worldGood)
     )
 }
@@ -359,11 +367,13 @@ function CreateClassicBeatWorldCheevo(worldId, points) {
     worldLength = worldData[1]
     lastStage = firstStage + worldLength - 1
     worldGood = WorldId == worldId
+    worldBad = WorldId != worldId
     description = "In one session, complete all levels of World " + worldNumber +
         " WITHOUT taking damage."
     if (worldId == 11) {
         description = description + " This includes the final level in World 13."
         worldGood = WorldId >= worldId
+        worldBad = WorldId < worldId
     }
     if (worldId > 0) {
         description = description + " Password: " + WorldPasswordLookup[worldId]
@@ -372,9 +382,9 @@ function CreateClassicBeatWorldCheevo(worldId, points) {
         title = "Clasically Navigated the " + worldName,
         points = points,
         description = description,
-        trigger = never(WorldId != worldId) &&
+        trigger = never(worldBad) &&
             measured(repeated(worldLength, HasEnteredExitDoor), worldGood) &&
-            unless(TookDamage)
+            disable_when(once(worldGood && TookDamage), until=LoadedTitleScreenOnReset)
     )
 }
 
@@ -390,11 +400,13 @@ function CreateItemLessWorldCheevo(worldId, points) {
     worldLength = worldData[1]
     lastStage = firstStage + worldLength - 1
     worldGood = WorldId == worldId
+    worldBad = WorldId != worldId
     description = "In one session, complete all levels of World " + worldNumber +
         " WITHOUT using collected traps."
     if (worldId == 11) {
         description = description + " This includes the final level in World 13."
         worldGood = WorldId >= worldId
+        worldBad = WorldId < worldId
     }
     if (worldId > 0) {
         description = description + " Password: " + WorldPasswordLookup[worldId]
@@ -403,9 +415,9 @@ function CreateItemLessWorldCheevo(worldId, points) {
         title = "Outwitted the Enemies of the " + worldName,
         points = points,
         description = description,
-        trigger = never(WorldId != worldId) &&
+        trigger = never(worldBad) &&
             measured(repeated(worldLength, HasEnteredExitDoor), worldGood) &&
-            unless(HasFiredTrap())
+            disable_when(worldGood && HasFiredTrap(), until=LoadedTitleScreenOnReset)
     )
 }
 
