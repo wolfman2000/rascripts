@@ -299,7 +299,8 @@ WhistleMusic = CurrentMusic == 0x11
 GameOverMusic = CurrentMusic == 0x39
 AnyPlatformMusic = OverWorldMusic || UnderWaterMusic || UnderGroundMusic ||
     SMB1CastleMusic || SMB3CastleMusic
-AnyBattleMusic = CurrentMusic == 0x0c || CurrentMusic == 0x07 || CurrentMusic == 0x09 ||
+RobotMasterMusic = CurrentMusic == 0x0c
+AnyBattleMusic = RobotMasterMusic || CurrentMusic == 0x07 || CurrentMusic == 0x09 ||
     CurrentMusic == 0x0d || CurrentMusic == 0x11
 AnyVictoryMusic = CurrentMusic == 0x38 || CurrentMusic == 0x3A
 
@@ -341,9 +342,13 @@ function HasMasterWeaponEquipped() => CurrentWeapon != 0 && CurrentWeapon != 7 &
 function HasRushEquipped() => CurrentWeapon == 7 || CurrentWeapon == 9 || CurrentWeapon == 11
 
 // A common function for defeating bosses with no extra conditions.
-function DefeatBossCommonCheevo(stage, screen, bossBarAddress) {
-    return InternalStage == stage && PrevRemainingBar(bossBarAddress) > 0 &&
-        RemainingBar(bossBarAddress) == 0 && never(XScreen != screen)
+function DefeatBossCommonCheevo(stage, screen, bossBarAddress, shouldTrigger = false) {
+    common = InternalStage == stage && XScreen == screen
+    bossDead = PrevRemainingBar(bossBarAddress) > 0 && RemainingBar(bossBarAddress) == 0
+    if (shouldTrigger == true) {
+        return common && trigger_when(bossDead)        
+    }
+    return common && bossDead
 }
 
 
@@ -538,9 +543,9 @@ function TookWorldWarp() {
     (prev(InternalStage) == 2 && prev(XScreen) == 11 && InternalStage == 5 && XScreen == 0) ||
     (prev(InternalStage) == 2 && prev(XScreen) == 11 && InternalStage == 1 && XScreen == 22) ||
     (prev(InternalStage) == 2 && prev(XScreen) == 26 && InternalStage == 8 && XScreen == 0) ||
-    (prev(InternalStage) == 4 && prev(XScreen) == 7 && InternalStage == 6 && XScreen == 0) ||
-    (prev(InternalStage) == 4 && prev(XScreen) == 7 && InternalStage == 4 && XScreen == 32) ||
-    (prev(InternalStage) == 4 && prev(XScreen) == 7 && InternalStage == 11 && XScreen == 0))
+    (prev(InternalStage) == 7 && prev(XScreen) == 3 && InternalStage == 9 && XScreen == 0) ||
+    (prev(InternalStage) == 7 && prev(XScreen) == 3 && InternalStage == 4 && XScreen == 32) ||
+    (prev(InternalStage) == 7 && prev(XScreen) == 3 && InternalStage == 11 && XScreen == 0))
 }
 
 // Cheevos Below
@@ -549,11 +554,16 @@ function TookWorldWarp() {
 function CreateRobotMasterBeatenCheevo(location, worldNumber, points) {
     stage = WorldNumberToInternalFirstStage[worldNumber]
     screen = WorldNumberToInternalBossScreen[worldNumber]
+    first = WorldNumberToInternalFirstStageScreen[worldNumber]
+    redo = XScreen == first && TeleportingDown()
     achievement(
         title = "This Isn't " + location,
         points = points,
         description = "Defeat " + WorldNumberToBoss[worldNumber] + " Man in World " + worldNumber + ".",
-        trigger = DefeatBossCommonCheevo(stage, screen, 0xb0)
+        trigger = DefeatBossCommonCheevo(stage, screen, 0xb0) &&
+            once(RobotMasterMusic && BossHP == 28) &&
+            never(redo) &&
+            disable_when(IsDead, until=redo)
     )
 }
 
@@ -755,10 +765,16 @@ function CreatePerfectRunRobotCheevo(title, worldNumber, points) {
         title = title,
         points = points,
         description = "Travel to AND defeat " + WorldNumberToBoss[worldNumber] + " Man without taking damage or using master weapons. Rush is allowed.",
-        trigger = never(XScreen == firstScreen) && once(XScreen == bossScreen && CurrentMusic == 0x0c) && trigger_when(DefeatBossCommonCheevo(firstStage, bossScreen, 0xb0)) &&
-            disable_when(HasMasterWeaponEquipped() && PressedB && prev(EquippedWeapon) > EquippedWeapon, until=once(IsDead) && redo) &&
-            disable_when(HasMasterWeaponEquipped() && PressedB && FiredMultiEnergyWeapon, until=once(IsDead) && redo) &&
-            disable_when(prev(ArmCannon) > ArmCannon, until=(once(IsDead) && redo))
+        trigger = never(XScreen == firstScreen) && once(XScreen == bossScreen &&
+            RobotMasterMusic) &&
+            DefeatBossCommonCheevo(firstStage, bossScreen, 0xb0, true) &&
+            disable_when(HasMasterWeaponEquipped() && PressedB &&
+            prev(EquippedWeapon) > EquippedWeapon && !TitleScreenMusic && CurrentMusic != 0xff, until=once(IsDead) && redo) &&
+            disable_when(HasMasterWeaponEquipped() && PressedB &&
+            FiredMultiEnergyWeapon && !TitleScreenMusic && CurrentMusic != 0xff, until=once(IsDead) && redo) &&
+            disable_when(prev(ArmCannon) > ArmCannon &&
+            !TitleScreenMusic && CurrentMusic != 0xff, until=(once(IsDead) && redo)) &&
+            never(redo)
     )
 }
 
@@ -777,9 +793,11 @@ function CreatePerfectRunLevel2Cheevo(title, worldNumber, triggerScreen, points)
         points = points,
         description = "Travel through " + worldNumber + "-2 and get to the " + normal + "exit without taking damage or using master weapons. Rush is allowed.",
         trigger = InternalStage == startStage && once(XScreen == triggerScreen) && trigger_when(XScreen == finishScreen && TeleportingOut()) &&
-            disable_when(HasMasterWeaponEquipped() && PressedB && prev(EquippedWeapon) > EquippedWeapon, until=once(redo)) &&
-            disable_when(HasMasterWeaponEquipped() && PressedB && FiredMultiEnergyWeapon, until=redo) &&
-            disable_when(prev(ArmCannon) > ArmCannon, until=redo)
+            disable_when(HasMasterWeaponEquipped() && PressedB &&
+            prev(EquippedWeapon) > EquippedWeapon && !TitleScreenMusic && CurrentMusic != 0xff, until=once(redo)) &&
+            disable_when(HasMasterWeaponEquipped() && PressedB &&
+            FiredMultiEnergyWeapon && !TitleScreenMusic && CurrentMusic != 0xff, until=redo) &&
+            disable_when(prev(ArmCannon) > ArmCannon && !TitleScreenMusic && CurrentMusic != 0xff, until=redo)
     )
 }
 
@@ -794,9 +812,11 @@ function CreatePerfectRunLevel3Cheevo(title, worldNumber, triggerScreen, points)
         points = points,
         description = "Travel through " + worldNumber + "-3 and get to the exit without taking damage or using master weapons. Rush is allowed.",
         trigger = InternalStage == startStage && once(XScreen == triggerScreen) && trigger_when(XScreen == finishScreen && TeleportingOut()) &&
-            disable_when(HasMasterWeaponEquipped() && PressedB && prev(EquippedWeapon) > EquippedWeapon, until=once(redo)) &&
-            disable_when(HasMasterWeaponEquipped() && PressedB && FiredMultiEnergyWeapon, until=redo) &&
-            disable_when(prev(ArmCannon) > ArmCannon, until=redo)
+            disable_when(HasMasterWeaponEquipped() && PressedB &&
+            prev(EquippedWeapon) > EquippedWeapon && !TitleScreenMusic && CurrentMusic != 0xff, until=once(redo)) &&
+            disable_when(HasMasterWeaponEquipped() && PressedB &&
+            FiredMultiEnergyWeapon && !TitleScreenMusic && CurrentMusic != 0xff, until=redo) &&
+            disable_when(prev(ArmCannon) > ArmCannon && !TitleScreenMusic && CurrentMusic != 0xff, until=redo)
     )
 }
 
@@ -837,9 +857,11 @@ function CreatePerfectRunWilyCheevo(title, wilyNumber, points, music, bossBarAdd
         points = points,
         description = "Clear the whole stage, including " + boss + ", without taking damage or using master weapons. Rush is allowed.",
         trigger = once(XScreen == bossScreen && CurrentMusic == music) && trigger_when(DefeatBossCommonCheevo(firstStage, bossScreen, bossBarAddress)) &&
-            disable_when(HasMasterWeaponEquipped() && PressedB && prev(EquippedWeapon) > EquippedWeapon, until=once(redo)) &&
-            disable_when(HasMasterWeaponEquipped() && PressedB && FiredMultiEnergyWeapon, until=redo) &&
-            disable_when(prev(ArmCannon) > ArmCannon, until=redo)
+            disable_when(HasMasterWeaponEquipped() && PressedB &&
+            prev(EquippedWeapon) > EquippedWeapon && !TitleScreenMusic && CurrentMusic != 0xff, until=once(redo)) &&
+            disable_when(HasMasterWeaponEquipped() && PressedB &&
+            FiredMultiEnergyWeapon && !TitleScreenMusic && CurrentMusic != 0xff, until=redo) &&
+            disable_when(prev(ArmCannon) > ArmCannon && !TitleScreenMusic && CurrentMusic != 0xff, until=redo)
     )
 }
 
