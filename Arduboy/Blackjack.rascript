@@ -31,7 +31,19 @@
 // $0AE2: Purse (Tens Digit)
 // $0AE3: Purse (Hundreds Digit)
 
-// Variables Below
+// Variables & Functions Below
+
+VersionOffset = 0x418
+
+SilentVersion = bit0(0x46) == 0
+LoudVersion = bit0(0x46) == 1
+
+function Offset() {
+    if bit0(0x46) == 1 {
+        return VersionOffset
+    }
+    return 0
+}
 
 // Suit order: more for RP purposes.
 HeartSuit = "♥️"
@@ -45,43 +57,70 @@ SelectedOption = low4(0x02a8)
 
 Message = low4(0x0294)
 MessageWelcome = Message == 0
+MessageWelcomeSilence = low4(0x0294 + VersionOffset) == 0
 MessageDealerBlackjack = Message == 1
+MessageDealerBlackjackSilence = low4(0x0294 + VersionOffset) == 1
 MessageDealerWin = Message == 2
+MessageDealerWinSilence = low4(0x0294 + VersionOffset) == 2
 MessagePlayerBlackjack = Message == 4
 MessagePlayerWin = Message == 5
 MessagePush = Message == 6
 MessagePlayerBust = Message == 7
 
 GameState = low4(0x02e9)
+GameStateSilence = low4(0x02e9 + VersionOffset)
 InitialBetState = GameState == 1
+InitialBetStateSilence = GameStateSilence == 1
 DealingCards = GameState == 2
+DealingCardsSilence = GameStateSilence == 2
 Insurance = GameState == 3
+InsuranceSilence = GameStateSilence == 3
 DealerPeaking = GameState == 4
+DealerPeakingSilence = GameStateSilence == 4
 InsuranceWasted = GameState == 5
+InsuranceWastedSilence = GameStateSilence == 5
 SplittingHand = GameState == 6
+SplittingHandSilence = GameStateSilence == 6
 PlayerTurn = GameState == 8
+PlayerTurnSilence = GameStateSilence == 8
 DealerTurn = GameState == 9
+DealerTurnSilence = GameStateSilence == 9
 FinalWinner = GameState == 0x0a
+FinalWinnerSilence = GameStateSilence == 0x0a
 PayingOut = GameState == 0x0b
+PayingOutSilence = GameStateSilence == 0x0b
 Continue = GameState == 0x0c
+ContinueSilence = GameStateSilence == 0x0c
 PlayerBust = GameState == 0x0d
+PlayerBustSilence = GameStateSilence == 0x0d
 
 // Player's Money
+
 PlayerPurse = word(0x0284)
+PlayerPurseSilence = word(0x0284 + VersionOffset)
 InitialBet = byte(0x02e0)
+InitialBetSilence = byte(0x02e0 + VersionOffset)
 TotalBet = word(0x02de)
+TotalBetSilence = word(0x02de + VersionOffset)
 
 // Game Result
 GameResult = low4(0x029b)
+GameResultSilence = low4(0x029b + VersionOffset)
 PlayerWins = GameResult == 1
+PlayerWinsSilence = low4(0x029b + VersionOffset) == 1
 PlayerLose = GameResult == 2
+PlayerLoseSilence = low4(0x029b + VersionOffset) == 2
 PlayerPush = GameResult == 3
+PlayerPushSilence = low4(0x029b + VersionOffset) == 3
 
 PlayerMainCardCount = low4(0x0263)
+PlayerMainCardCountSilence = low4(0x0263 + VersionOffset)
 PlayerCardArrayOrigin = 0x0264
 
 PlayerCard1 = byte(PlayerCardArrayOrigin)
+PlayerCard1Silence = byte(PlayerCardArrayOrigin + VersionOffset)
 PlayerCard2 = byte(PlayerCardArrayOrigin + 1)
+PlayerCard2Silence = byte(PlayerCardArrayOrigin + 1 + VersionOffset)
 
 PlayerCard1H = PlayerCard1 != 0 && PlayerCard1 != 13 && PlayerCard1 != 26 && PlayerCard1 != 39
 PlayerCard1A = PlayerCard1 == 0 || PlayerCard1 == 13 || PlayerCard1 == 26 || PlayerCard1 == 39
@@ -98,6 +137,13 @@ PlayerCard1T = (PlayerCard1 >= 9 && PlayerCard1 <= 12) ||
     (PlayerCard1 >= 35 && PlayerCard1 <= 38) ||
     PlayerCard1 >= 48
 
+PlayerCard1AS = PlayerCard1Silence == 0 || PlayerCard1Silence == 13 ||
+    PlayerCard1Silence == 26 || PlayerCard1Silence == 39
+PlayerCard1TS = (PlayerCard1Silence >= 9 && PlayerCard1Silence <= 12) ||
+    (PlayerCard1Silence >= 22 && PlayerCard1Silence <= 25) ||
+    (PlayerCard1Silence >= 35 && PlayerCard1Silence <= 38) ||
+    PlayerCard1Silence >= 48
+
 PlayerCard2H = PlayerCard2 != 0 && PlayerCard2 != 13 && PlayerCard2 != 26 && PlayerCard2 != 39
 PlayerCard2A = PlayerCard2 == 0 || PlayerCard2 == 13 || PlayerCard2 == 26 || PlayerCard2 == 39
 PlayerCard22 = PlayerCard2 == 1 || PlayerCard2 == 14 || PlayerCard2 == 27 || PlayerCard2 == 40
@@ -113,85 +159,121 @@ PlayerCard2T = (PlayerCard2 >= 9 && PlayerCard2 <= 12) ||
     (PlayerCard2 >= 35 && PlayerCard2 <= 38) ||
     PlayerCard2 >= 48
 
+PlayerCard2AS = PlayerCard2Silence == 0 || PlayerCard2Silence == 13 ||
+    PlayerCard2Silence == 26 || PlayerCard2Silence == 39
+PlayerCard2TS = (PlayerCard2Silence >= 9 && PlayerCard2Silence <= 12) ||
+    (PlayerCard2Silence >= 22 && PlayerCard2Silence <= 25) ||
+    (PlayerCard2Silence >= 35 && PlayerCard2Silence <= 38) ||
+    PlayerCard2Silence >= 48
+
 PlayerSplitCardCount = low4(0x0275)
+PlayerSplitCardCountSilence = low4(0x0275 + VersionOffset)
 PlayerSplitArrayOrigin = 0x0276
+PlayerSplitArrayOriginSilence = PlayerSplitArrayOrigin + VersionOffset
 
 DealerMainCardCount = low4(0x0287)
+DealerMainCardCountSilence = low4(0x0287 + VersionOffset)
 DealerCardArrayOrigin = 0x0288 // This one at 0 is the hole card!
+DealerCardArrayOriginSilence = DealerCardArrayOrigin + VersionOffset
 
 DidPlayerDoubleDown = bit0(0x0261) == 1
+DidPlayerDoubleDownSilence = bit0(0x0261 + VersionOffset) == 1
 IsPlayerDone = bit0(0x0260) == 1
+IsPlayerDoneSilence = bit0(0x0260 + VersionOffset) == 1
 
 // Cheevos Below
 
 achievement(
     title = "Min-Maxing",
+    id=215164,
     points = 5,
     description = "Wager the max possible and win the hand. If a split, win both!",
-    trigger = InitialBet == 200 && ((PlayerSplitCardCount == 0 && PlayerWins) ||
+    trigger = (LoudVersion && InitialBet == 200 &&
+    ((PlayerSplitCardCount == 0 && PlayerWins) ||
     (disable_when(PlayerLose || PlayerPush, until=InitialBetState) &&
-        PlayerSplitCardCount > 0 && once(Continue)))
+        PlayerSplitCardCount > 0 && once(Continue)))) ||
+    (SilentVersion && InitialBetSilence == 200 &&
+    ((PlayerSplitCardCountSilence == 0 && PlayerWinsSilence) ||
+    (disable_when(PlayerLoseSilence || PlayerPushSilence, until=InitialBetStateSilence) &&
+        PlayerSplitCardCountSilence > 0 && once(ContinueSilence))))
 )
 
 achievement(
     title = "Card Counter",
+    id=215165,
     points = 10,
     description = "Win five hands in a row. Pushes maintain the streak.",
-    trigger = repeated(5, measured(prev(GameResult) != 1 && PlayerWins)) && never(PlayerLose) &&
-        never(MessageWelcome)
+    trigger = (LoudVersion && repeated(5, measured(prev(GameResult) != 1 && PlayerWins))
+        && never(LoudVersion && PlayerLose) && never(LoudVersion && MessageWelcome)) ||
+    (SilentVersion && repeated(5, measured(prev(GameResultSilence) != 1 && PlayerWinsSilence))
+        && never(SilentVersion && PlayerLoseSilence) && never(SilentVersion && MessageWelcomeSilence))
 )
+
+BankBrokeYou = (LoudVersion && PlayerPurse == 0 && PayingOut) ||
+        (SilentVersion && PlayerPurseSilence == 0 && PayingOutSilence)
+BrokeBank = (LoudVersion && PlayerPurse >= 1000 && PayingOut) ||
+        (SilentVersion && PlayerPurseSilence >= 1000 && PayingOutSilence)
 
 achievement(
     title = "You Broke The Bank",
+    id=215166,
     points = 10,
     description = "Break the bank by having $1000 in your purse.",
-    trigger = PlayerPurse >= 1000 && PayingOut
+    trigger = BrokeBank
 )
 
 achievement(
     title = "Splitting Hairs",
+    id=215167,
     points = 10,
     description = "Split a hand. Win both of them.",
-    trigger = never(InitialBetState) && PlayerSplitCardCount > 0 && once(Continue) &&
-        disable_when(PlayerLose || PlayerPush, until=InitialBetState)
+    trigger = (LoudVersion && never(LoudVersion && InitialBetState) &&
+        PlayerSplitCardCount > 0 && once(Continue) &&
+        disable_when(LoudVersion && (PlayerLose || PlayerPush), until=InitialBetState)) ||
+        (SilentVersion && never(SilentVersion && InitialBetStateSilence) &&
+        PlayerSplitCardCountSilence > 0 && once(ContinueSilence) &&
+        disable_when(SilentVersion && (PlayerLoseSilence || PlayerPushSilence), until=InitialBetStateSilence))
 )
 
 achievement(
     title = "Robbie Rotten Is Concerned",
+    id=215168,
     points = 5,
     description = "Waste a Blackjack by asking for another card.",
-    trigger = ((PlayerCard1A && PlayerCard2T) || (PlayerCard1T && PlayerCard2A)) &&
-        prev(GameState) == 8 && PlayerMainCardCount == 3
+    trigger = (LoudVersion && ((PlayerCard1A && PlayerCard2T) ||
+        (PlayerCard1T && PlayerCard2A)) &&
+        prev(GameState) == 8 && PlayerMainCardCount == 3) ||
+        (SilentVersion && ((PlayerCard1AS && PlayerCard2TS) ||
+        (PlayerCard1TS && PlayerCard2AS)) &&
+        prev(GameStateSilence) == 8 && PlayerMainCardCountSilence == 3)
 )
-
-AlwaysSplit = ((PlayerCard1A && PlayerCard2A) || (PlayerCard18 && PlayerCard28))
-
 
 achievement(
     title = "Are They Cheating?",
+    id=215169,
     points = 10,
     description = "Stay on your initial 20 hand, and still lose to a non-Blackjack 21.",
-    trigger = (PlayerCard1T && PlayerCard2T) && MessageDealerWin
+    trigger = (LoudVersion && PlayerCard1T && PlayerCard2T && FinalWinner && MessageDealerWin) ||
+        (SilentVersion && PlayerCard1TS && PlayerCard2TS && FinalWinnerSilence && MessageDealerWinSilence)
 )
 
 // Leaderboard Below
 
+
+
 leaderboard(
     title = "Break The Bank Time Attack",
+    id = 33785,
     description = "Get 1000 in your purse as fast as you can. Time ends on celebration.",
-    start = DealingCards,
-    cancel = PlayerPurse == 0 && PayingOut,
-    submit = PlayerPurse >= 1000 && PayingOut,
+    start = (LoudVersion && DealingCards) || (SilentVersion && DealingCardsSilence),
+    cancel = BankBrokeYou,
+    submit = BrokeBank,
     value = always_true(),
     lower_is_better = true,
     format = "FRAMES"
 )
 
 // Rich Presence Below
-
-RpPlayerPurse = rich_presence_macro("Number", PlayerPurse)
-RpInitialBet = rich_presence_macro("Number", InitialBet)
-RpTotalBet = rich_presence_macro("Number", TotalBet)
 
 CardLookup = {
     0: ("A" + HeartSuit),
@@ -248,6 +330,13 @@ CardLookup = {
     51: ("K" + ClubSuit),
 }
 
+RpPlayerPurse = rich_presence_macro("Number", PlayerPurse)
+RpPlayerPurseS = rich_presence_macro("Number", PlayerPurseSilence)
+RpInitialBet = rich_presence_macro("Number", InitialBet)
+RpInitialBetS = rich_presence_macro("Number", InitialBetSilence)
+RpTotalBet = rich_presence_macro("Number", TotalBet)
+RpTotalBetS = rich_presence_macro("Number", TotalBetSilence)
+
 RpPlayerCard1 = rich_presence_lookup("Card", byte(PlayerCardArrayOrigin), CardLookup)
 RpPlayerCard2 = rich_presence_lookup("Card", byte(PlayerCardArrayOrigin + 1), CardLookup)
 RpPlayerCard3 = rich_presence_lookup("Card", byte(PlayerCardArrayOrigin + 2), CardLookup)
@@ -266,24 +355,48 @@ RpDealerCard3 = rich_presence_lookup("Card", byte(DealerCardArrayOrigin + 2), Ca
 RpDealerCard4 = rich_presence_lookup("Card", byte(DealerCardArrayOrigin + 3), CardLookup)
 RpDealerCard5 = rich_presence_lookup("Card", byte(DealerCardArrayOrigin + 4), CardLookup)
 
+RpPlayerCard1S = rich_presence_lookup("Card", byte(PlayerCardArrayOrigin + VersionOffset), CardLookup)
+RpPlayerCard2S = rich_presence_lookup("Card", byte(PlayerCardArrayOrigin + VersionOffset + 1), CardLookup)
+RpPlayerCard3S = rich_presence_lookup("Card", byte(PlayerCardArrayOrigin + VersionOffset + 2), CardLookup)
+RpPlayerCard4S = rich_presence_lookup("Card", byte(PlayerCardArrayOrigin + VersionOffset + 3), CardLookup)
+RpPlayerCard5S = rich_presence_lookup("Card", byte(PlayerCardArrayOrigin + VersionOffset + 4), CardLookup)
+
+RpSplitCard1S = rich_presence_lookup("Card", byte(PlayerSplitArrayOrigin + VersionOffset), CardLookup)
+RpSplitCard2S = rich_presence_lookup("Card", byte(PlayerSplitArrayOrigin + VersionOffset + 1), CardLookup)
+RpSplitCard3S = rich_presence_lookup("Card", byte(PlayerSplitArrayOrigin + VersionOffset + 2), CardLookup)
+RpSplitCard4S = rich_presence_lookup("Card", byte(PlayerSplitArrayOrigin + VersionOffset + 3), CardLookup)
+RpSplitCard5S = rich_presence_lookup("Card", byte(PlayerSplitArrayOrigin + VersionOffset + 4), CardLookup)
+
+RpDealerCard1S = rich_presence_lookup("Card", byte(DealerCardArrayOrigin + VersionOffset), CardLookup)
+RpDealerCard2S = rich_presence_lookup("Card", byte(DealerCardArrayOrigin + VersionOffset + 1), CardLookup)
+RpDealerCard3S = rich_presence_lookup("Card", byte(DealerCardArrayOrigin + VersionOffset + 2), CardLookup)
+RpDealerCard4S = rich_presence_lookup("Card", byte(DealerCardArrayOrigin + VersionOffset + 3), CardLookup)
+RpDealerCard5S = rich_presence_lookup("Card", byte(DealerCardArrayOrigin + VersionOffset + 4), CardLookup)
+
 rich_presence_conditional_display(
-    PlayerPurse >= 1000 && PayingOut,
+    BrokeBank,
     "You Broke The Bank"
 )
 
 rich_presence_conditional_display(
-    PlayerPurse == 0 && PayingOut,
+    BankBrokeYou,
     "You Are Broke"
 )
 
 rich_presence_conditional_display(
-    Continue || (InsuranceWasted && MessageDealerBlackjack),
+    LoudVersion && (Continue || (InsuranceWasted && MessageDealerBlackjack)),
     "👛{0} On Hand: Time To Stop?",
     RpPlayerPurse
 )
 
 rich_presence_conditional_display(
-    Insurance || DealerPeaking || InsuranceWasted,
+    SilentVersion && (ContinueSilence || (InsuranceWastedSilence && MessageDealerBlackjackSilence)),
+    "👛{0} On Hand: Time To Stop?",
+    RpPlayerPurseS
+)
+
+rich_presence_conditional_display(
+    LoudVersion && (Insurance || DealerPeaking || InsuranceWasted),
     "{0} on the line: {1}{2} vs Insurance",
     RpTotalBet,
     RpPlayerCard1,
@@ -291,7 +404,15 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    (PlayerTurn || PlayerBust) && PlayerMainCardCount == 5,
+    SilentVersion && (InsuranceSilence || DealerPeakingSilence || InsuranceWastedSilence),
+    "{0} on the line: {1}{2} vs Insurance",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && ((PlayerTurn || PlayerBust) && PlayerMainCardCount == 5),
     "{0} on the line: {1}{2}{3}{4}{5} vs XX{6}",
     RpTotalBet,
     RpPlayerCard1,
@@ -303,7 +424,19 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    (PlayerTurn || PlayerBust) && PlayerMainCardCount == 4,
+    SilentVersion && ((PlayerTurnSilence || PlayerBustSilence) && PlayerMainCardCountSilence == 5),
+    "{0} on the line: {1}{2}{3}{4}{5} vs XX{6}",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S,
+    RpPlayerCard3S,
+    RpPlayerCard4S,
+    RpPlayerCard5S,
+    RpDealerCard2S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && ((PlayerTurn || PlayerBust) && PlayerMainCardCount == 4),
     "{0} on the line: {1}{2}{3}{4} vs XX{5}",
     RpTotalBet,
     RpPlayerCard1,
@@ -314,7 +447,18 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    (PlayerTurn || PlayerBust) && PlayerMainCardCount == 3,
+    SilentVersion && ((PlayerTurnSilence || PlayerBustSilence) && PlayerMainCardCountSilence == 4),
+    "{0} on the line: {1}{2}{3}{4} vs XX{5}",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S,
+    RpPlayerCard3S,
+    RpPlayerCard4S,
+    RpDealerCard2S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && ((PlayerTurn || PlayerBust) && PlayerMainCardCount == 3),
     "{0} on the line: {1}{2}{3} vs XX{4}",
     RpTotalBet,
     RpPlayerCard1,
@@ -324,7 +468,18 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    (DealerTurn || FinalWinner) && PlayerMainCardCount == 5 && DealerMainCardCount == 5,
+    SilentVersion && ((PlayerTurnSilence || PlayerBustSilence) && PlayerMainCardCountSilence == 3),
+    "{0} on the line: {1}{2}{3} vs XX{4}",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S,
+    RpPlayerCard3S,
+    RpDealerCard2S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && ((DealerTurn || FinalWinner) &&
+        PlayerMainCardCount == 5 && DealerMainCardCount == 5),
     "{0} on the line: {1}{2}{3}{4}{5} vs {6}{7}{8}{9}{10}",
     RpTotalBet,
     RpPlayerCard1,
@@ -340,7 +495,25 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    (DealerTurn || FinalWinner) && PlayerMainCardCount == 5 && DealerMainCardCount == 4,
+    SilentVersion && ((DealerTurnSilence || FinalWinnerSilence) &&
+        PlayerMainCardCountSilence == 5 && DealerMainCardCountSilence == 5),
+    "{0} on the line: {1}{2}{3}{4}{5} vs {6}{7}{8}{9}{10}",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S,
+    RpPlayerCard3S,
+    RpPlayerCard4S,
+    RpPlayerCard5S,
+    RpDealerCard1S,
+    RpDealerCard2S,
+    RpDealerCard3S,
+    RpDealerCard4S,
+    RpDealerCard5S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && ((DealerTurn || FinalWinner) &&
+        PlayerMainCardCount == 5 && DealerMainCardCount == 4),
     "{0} on the line: {1}{2}{3}{4}{5} vs {6}{7}{8}{9}",
     RpTotalBet,
     RpPlayerCard1,
@@ -355,7 +528,24 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    (DealerTurn || FinalWinner) && PlayerMainCardCount == 5 && DealerMainCardCount == 3,
+    SilentVersion && ((DealerTurnSilence || FinalWinnerSilence) &&
+        PlayerMainCardCountSilence == 5 && DealerMainCardCountSilence == 4),
+    "{0} on the line: {1}{2}{3}{4}{5} vs {6}{7}{8}{9}",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S,
+    RpPlayerCard3S,
+    RpPlayerCard4S,
+    RpPlayerCard5S,
+    RpDealerCard1S,
+    RpDealerCard2S,
+    RpDealerCard3S,
+    RpDealerCard4S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && ((DealerTurn || FinalWinner) &&
+        PlayerMainCardCount == 5 && DealerMainCardCount == 3),
     "{0} on the line: {1}{2}{3}{4}{5} vs {6}{7}{8}",
     RpTotalBet,
     RpPlayerCard1,
@@ -369,7 +559,22 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    (DealerTurn || FinalWinner) && PlayerMainCardCount == 5,
+    SilentVersion && ((DealerTurnSilence || FinalWinnerSilence) &&
+        PlayerMainCardCountSilence == 5 && DealerMainCardCountSilence == 3),
+    "{0} on the line: {1}{2}{3}{4}{5} vs {6}{7}{8}",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S,
+    RpPlayerCard3S,
+    RpPlayerCard4S,
+    RpPlayerCard5S,
+    RpDealerCard1S,
+    RpDealerCard2S,
+    RpDealerCard3S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && ((DealerTurn || FinalWinner) && PlayerMainCardCount == 5),
     "{0} on the line: {1}{2}{3}{4}{5} vs {6}{7}",
     RpTotalBet,
     RpPlayerCard1,
@@ -382,7 +587,21 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    (DealerTurn || FinalWinner) && PlayerMainCardCount == 4 && DealerMainCardCount == 5,
+    SilentVersion && ((DealerTurnSilence || FinalWinnerSilence) && PlayerMainCardCountSilence == 5),
+    "{0} on the line: {1}{2}{3}{4}{5} vs {6}{7}",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S,
+    RpPlayerCard3S,
+    RpPlayerCard4S,
+    RpPlayerCard5S,
+    RpDealerCard1S,
+    RpDealerCard2S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && ((DealerTurn || FinalWinner) &&
+        PlayerMainCardCount == 4 && DealerMainCardCount == 5),
     "{0} on the line: {1}{2}{3}{4} vs {5}{6}{7}{8}{9}",
     RpTotalBet,
     RpPlayerCard1,
@@ -397,7 +616,24 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    (DealerTurn || FinalWinner) && PlayerMainCardCount == 4 && DealerMainCardCount == 4,
+    SilentVersion && ((DealerTurnSilence || FinalWinnerSilence) &&
+        PlayerMainCardCountSilence == 4 && DealerMainCardCountSilence == 5),
+    "{0} on the line: {1}{2}{3}{4} vs {5}{6}{7}{8}{9}",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S,
+    RpPlayerCard3S,
+    RpPlayerCard4S,
+    RpDealerCard1S,
+    RpDealerCard2S,
+    RpDealerCard3S,
+    RpDealerCard4S,
+    RpDealerCard5S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && ((DealerTurn || FinalWinner) &&
+        PlayerMainCardCount == 4 && DealerMainCardCount == 4),
     "{0} on the line: {1}{2}{3}{4} vs {5}{6}{7}{8}",
     RpTotalBet,
     RpPlayerCard1,
@@ -411,7 +647,23 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    (DealerTurn || FinalWinner) && PlayerMainCardCount == 4 && DealerMainCardCount == 3,
+    SilentVersion && ((DealerTurnSilence || FinalWinnerSilence) &&
+        PlayerMainCardCountSilence == 4 && DealerMainCardCountSilence == 4),
+    "{0} on the line: {1}{2}{3}{4} vs {5}{6}{7}{8}",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S,
+    RpPlayerCard3S,
+    RpPlayerCard4S,
+    RpDealerCard1S,
+    RpDealerCard2S,
+    RpDealerCard3S,
+    RpDealerCard4S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && ((DealerTurn || FinalWinner) &&
+        PlayerMainCardCount == 4 && DealerMainCardCount == 3),
     "{0} on the line: {1}{2}{3}{4} vs {5}{6}{7}",
     RpTotalBet,
     RpPlayerCard1,
@@ -424,7 +676,21 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    (DealerTurn || FinalWinner) && PlayerMainCardCount == 4,
+    SilentVersion && ((DealerTurnSilence || FinalWinnerSilence) &&
+        PlayerMainCardCountSilence == 4 && DealerMainCardCountSilence == 3),
+    "{0} on the line: {1}{2}{3}{4} vs {5}{6}{7}",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S,
+    RpPlayerCard3S,
+    RpPlayerCard4S,
+    RpDealerCard1S,
+    RpDealerCard2S,
+    RpDealerCard3S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && ((DealerTurn || FinalWinner) && PlayerMainCardCount == 4),
     "{0} on the line: {1}{2}{3}{4} vs {5}{6}",
     RpTotalBet,
     RpPlayerCard1,
@@ -436,7 +702,20 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    (DealerTurn || FinalWinner) && PlayerMainCardCount == 3 && DealerMainCardCount == 5,
+    SilentVersion && ((DealerTurnSilence || FinalWinnerSilence) && PlayerMainCardCountSilence == 4),
+    "{0} on the line: {1}{2}{3}{4} vs {5}{6}",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S,
+    RpPlayerCard3S,
+    RpPlayerCard4S,
+    RpDealerCard1S,
+    RpDealerCard2S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && ((DealerTurn || FinalWinner) &&
+        PlayerMainCardCount == 3 && DealerMainCardCount == 5),
     "{0} on the line: {1}{2}{3} vs {4}{5}{6}{7}{8}",
     RpTotalBet,
     RpPlayerCard1,
@@ -450,7 +729,23 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    (DealerTurn || FinalWinner) && PlayerMainCardCount == 3 && DealerMainCardCount == 4,
+    SilentVersion && ((DealerTurnSilence || FinalWinnerSilence) &&
+        PlayerMainCardCountSilence == 3 && DealerMainCardCountSilence == 5),
+    "{0} on the line: {1}{2}{3} vs {4}{5}{6}{7}{8}",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S,
+    RpPlayerCard3S,
+    RpDealerCard1S,
+    RpDealerCard2S,
+    RpDealerCard3S,
+    RpDealerCard4S,
+    RpDealerCard5S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && ((DealerTurn || FinalWinner) &&
+        PlayerMainCardCount == 3 && DealerMainCardCount == 4),
     "{0} on the line: {1}{2}{3} vs {4}{5}{6}{7}",
     RpTotalBet,
     RpPlayerCard1,
@@ -463,7 +758,22 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    (DealerTurn || FinalWinner) && PlayerMainCardCount == 3 && DealerMainCardCount == 3,
+    SilentVersion && ((DealerTurnSilence || FinalWinnerSilence) &&
+        PlayerMainCardCountSilence == 3 && DealerMainCardCountSilence == 4),
+    "{0} on the line: {1}{2}{3} vs {4}{5}{6}{7}",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S,
+    RpPlayerCard3S,
+    RpDealerCard1S,
+    RpDealerCard2S,
+    RpDealerCard3S,
+    RpDealerCard4S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && ((DealerTurn || FinalWinner) &&
+        PlayerMainCardCount == 3 && DealerMainCardCount == 3),
     "{0} on the line: {1}{2}{3} vs {4}{5}{6}",
     RpTotalBet,
     RpPlayerCard1,
@@ -475,7 +785,20 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    (DealerTurn || FinalWinner) && PlayerMainCardCount == 3,
+    SilentVersion && ((DealerTurnSilence || FinalWinnerSilence) &&
+        PlayerMainCardCountSilence == 3 && DealerMainCardCountSilence == 3),
+    "{0} on the line: {1}{2}{3} vs {4}{5}{6}",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S,
+    RpPlayerCard3S,
+    RpDealerCard1S,
+    RpDealerCard2S,
+    RpDealerCard3S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && (DealerTurn || FinalWinner) && PlayerMainCardCount == 3,
     "{0} on the line: {1}{2}{3} vs {4}{5}",
     RpTotalBet,
     RpPlayerCard1,
@@ -486,7 +809,18 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    (DealerTurn || FinalWinner) && DealerMainCardCount == 5,
+    SilentVersion && (DealerTurnSilence || FinalWinnerSilence) && PlayerMainCardCountSilence == 3,
+    "{0} on the line: {1}{2}{3} vs {4}{5}",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S,
+    RpPlayerCard3S,
+    RpDealerCard1S,
+    RpDealerCard2S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && (DealerTurn || FinalWinner) && DealerMainCardCount == 5,
     "{0} on the line: {1}{2} vs {3}{4}{5}{6}{7}",
     RpTotalBet,
     RpPlayerCard1,
@@ -499,7 +833,20 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    (DealerTurn || FinalWinner) && DealerMainCardCount == 4,
+    SilentVersion && (DealerTurnSilence || FinalWinnerSilence) && DealerMainCardCountSilence == 5,
+    "{0} on the line: {1}{2} vs {3}{4}{5}{6}{7}",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S,
+    RpDealerCard1S,
+    RpDealerCard2S,
+    RpDealerCard3S,
+    RpDealerCard4S,
+    RpDealerCard5S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && (DealerTurn || FinalWinner) && DealerMainCardCount == 4,
     "{0} on the line: {1}{2} vs {3}{4}{5}{6}",
     RpTotalBet,
     RpPlayerCard1,
@@ -511,7 +858,19 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    (DealerTurn || FinalWinner) && DealerMainCardCount == 3,
+    SilentVersion && (DealerTurnSilence || FinalWinnerSilence) && DealerMainCardCountSilence == 4,
+    "{0} on the line: {1}{2} vs {3}{4}{5}{6}",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S,
+    RpDealerCard1S,
+    RpDealerCard2S,
+    RpDealerCard3S,
+    RpDealerCard4S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && (DealerTurn || FinalWinner) && DealerMainCardCount == 3,
     "{0} on the line: {1}{2} vs {3}{4}{5}",
     RpTotalBet,
     RpPlayerCard1,
@@ -522,7 +881,18 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    (DealerTurn || FinalWinner),
+    SilentVersion && (DealerTurnSilence || FinalWinnerSilence) && DealerMainCardCountSilence == 3,
+    "{0} on the line: {1}{2} vs {3}{4}{5}",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S,
+    RpDealerCard1S,
+    RpDealerCard2S,
+    RpDealerCard3S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && (DealerTurn || FinalWinner),
     "{0} on the line: {1}{2} vs {3}{4}",
     RpTotalBet,
     RpPlayerCard1,
@@ -532,7 +902,17 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    PlayerTurn || DealerTurn || FinalWinner || PlayerBust,
+    SilentVersion && (DealerTurnSilence || FinalWinnerSilence),
+    "{0} on the line: {1}{2} vs {3}{4}",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S,
+    RpDealerCard1S,
+    RpDealerCard2S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && (PlayerTurn || DealerTurn || FinalWinner || PlayerBust),
     "{0} on the line: {1}{2} vs XX{3}",
     RpTotalBet,
     RpPlayerCard1,
@@ -541,16 +921,38 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    DealingCards || (InitialBetState && InitialBet > 0),
+    SilentVersion && (PlayerTurnSilence || DealerTurnSilence || FinalWinnerSilence || PlayerBustSilence),
+    "{0} on the line: {1}{2} vs XX{3}",
+    RpTotalBetS,
+    RpPlayerCard1S,
+    RpPlayerCard2S,
+    RpDealerCard2S
+)
+
+rich_presence_conditional_display(
+    LoudVersion && (DealingCards || (InitialBetState && InitialBet > 0)),
     "👛{0} To Gamble Away At Blackjack: Betting {1}",
     RpPlayerPurse,
     RpInitialBet
 )
 
 rich_presence_conditional_display(
-    InitialBetState,
+    SilentVersion && (DealingCardsSilence || (InitialBetStateSilence && InitialBetSilence > 0)),
+    "👛{0} To Gamble Away At Blackjack: Betting {1}",
+    RpPlayerPurseS,
+    RpInitialBetS
+)
+
+rich_presence_conditional_display(
+    LoudVersion && InitialBetState,
     "👛{0} To Gamble Away At Blackjack",
     RpPlayerPurse
+)
+
+rich_presence_conditional_display(
+    SilentVersion && InitialBetStateSilence,
+    "👛{0} To Gamble Away At Blackjack",
+    RpPlayerPurseS
 )
 
 rich_presence_display("Playing Blackjack")
