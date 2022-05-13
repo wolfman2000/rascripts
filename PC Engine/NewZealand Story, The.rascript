@@ -103,6 +103,7 @@ StageId = low4(0x2a)
 
 // How many lives do we have?
 Lives = low4(0x2c)
+LostLifeCounter = prev(Lives) > Lives
 
 // How many continues/credits are left?
 Continues = low4(0x2e)
@@ -113,7 +114,7 @@ WeaponBomb = Weapon == 1
 WeaponLaser = Weapon == 2
 
 // Music Playing
-Music = low4(0xff)
+Music = byte(0xff)
 NoMusic = Music == 0 || Music == 1
 NormalInStage = Music == 2
 BossBattle = Music == 4
@@ -142,6 +143,13 @@ WorldLookup = {
     2: 3,
     3: 4,
     4: 4
+}
+
+WorldInternalLookup = {
+    0: 0,
+    1: 1,
+    2: 2,
+    3: 4
 }
 
 WorldNameLookup = {
@@ -211,12 +219,13 @@ for key in BossLevelLookup {
         points = 25
         
     }
+    stageId = BossLevelLookup[key]
     achievement(
         title = BossTitleLookup[key],
         points = points,
         description = "Beat the boss of World " + WorldLookup[key] + ".",
-        trigger = WorldId == WorldLookup[key] && StageId == BossLevelLookup[key] &&
-            BeatLevel
+        trigger = once(WorldId == key && StageId == stageId && BossBattle) &&
+            never(LostLife || LostLifeCounter) && WorldId == key && StageId == stageId && BeatLevel
     )
 }
 
@@ -229,8 +238,8 @@ for weaponId in range(1, 2, 1) {
         title = WeaponTitleLookup[weaponId],
         description = "Beat any boss with the " + WeaponNameLookup[weaponId] + ".",
         points = 10,
-        trigger = Weapon == weaponId && validWorld &&
-            trigger_when(BeatLevel)
+        trigger = once(BossBattle) && never(LostLife || LostLifeCounter || NormalInStage) &&
+            Weapon == weaponId && validWorld && trigger_when(BeatLevel)
     )
 }
 
@@ -238,10 +247,11 @@ achievement(
     title = "A Kiwi And A Half",
     points = 25,
     description = "Beat any level without firing your weapon. Well, not World 1.",
-    trigger = WorldId > 0 && BeatLevel &&
+    trigger = never(prev(StageId) != StageId) &&
+        WorldId > 0 && once(NormalInStage) && BeatLevel &&
         disable_when(
             !Paused && TappedShoot && InGame && Music > 1,
-            until=prev(StageId) != StageId
+            until=(prev(StageId) != StageId || GameOver)
         )
 )
 
