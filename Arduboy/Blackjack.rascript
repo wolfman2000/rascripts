@@ -63,9 +63,17 @@ MessageDealerBlackjackSilence = low4(0x0294 + VersionOffset) == 1
 MessageDealerWin = Message == 2
 MessageDealerWinSilence = low4(0x0294 + VersionOffset) == 2
 MessagePlayerBlackjack = Message == 4
+MessagePlayerBlackjackSilence = low4(0x0294 + VersionOffset) == 4
 MessagePlayerWin = Message == 5
+MessagePlayerWinSilence = low4(0x0294 + VersionOffset) == 5
 MessagePush = Message == 6
 MessagePlayerBust = Message == 7
+MessagePlayerBustSilence = low4(0x294 + VersionOffset) == 7
+
+AmountWon = word(0x29d)
+AmountWonSilence = word(0x29d + VersionOffset)
+AmountLost = word(0x29f)
+AmountLostSilence = word(0x29f + VersionOffset)
 
 GameState = low4(0x02e9)
 GameStateSilence = low4(0x02e9 + VersionOffset)
@@ -181,7 +189,22 @@ DidPlayerDoubleDownSilence = bit0(0x0261 + VersionOffset) == 1
 IsPlayerDone = bit0(0x0260) == 1
 IsPlayerDoneSilence = bit0(0x0260 + VersionOffset) == 1
 
+
+// General Challenge Function: useful for Cheevos.
+// The first three parameters are arrays.
+// The fourth is an optional one to change trigger behavior.
+
+function Challenge(start, cancel, submit, triggerAll = false) {
+    anyStart = any_of(start, s => once(s))
+    allCancel = all_of(cancel, c => never(c))
+    if (triggerAll == true) {
+        return anyStart && allCancel && all_of(submit, s => trigger_when(s))
+    }
+    return anyStart && allCancel && all_of(submit, s => s)
+}
+
 // Cheevos Below
+
 
 achievement(
     title = "Min-Maxing",
@@ -198,15 +221,37 @@ achievement(
         PlayerSplitCardCountSilence > 0 && once(ContinueSilence))))
 )
 
+cardCountStart = [
+    LoudVersion && InitialBetState,
+    SilentVersion && InitialBetStateSilence
+]
+
+cardCountCancel = [
+    LoudVersion && prev(AmountLost) == 0 && AmountLost > 0 && (
+        MessageDealerWin || MessageDealerBlackjack || MessagePlayerBust
+    ),
+    SilentVersion && prev(AmountLostSilence) == 0 && AmountLostSilence > 0 && (
+        MessageDealerWinSilence || MessageDealerBlackjackSilence || MessagePlayerBustSilence
+    ),
+    LoudVersion && MessageWelcome,
+    SilentVersion && MessageWelcomeSilence
+]
+
+cardCountSubmit = [
+    (LoudVersion && repeated(5,
+        measured(prev(AmountWon) == 0 && AmountWon > 0 && 
+        (MessagePlayerWin || MessagePlayerBlackjack)))) ||
+    (SilentVersion && repeated(5,
+        measured(prev(AmountWonSilence) == 0 && AmountWonSilence > 0 &&
+        (MessagePlayerWinSilence || MessagePlayerBlackjackSilence))))
+]
+
 achievement(
     title = "Card Counter",
     id=215165,
     points = 10,
     description = "Win five hands in a row. Pushes maintain the streak.",
-    trigger = (LoudVersion && repeated(5, measured(prev(GameResult) != 1 && PlayerWins))
-        && never(LoudVersion && PlayerLose) && never(LoudVersion && MessageWelcome)) ||
-    (SilentVersion && repeated(5, measured(prev(GameResultSilence) != 1 && PlayerWinsSilence))
-        && never(SilentVersion && PlayerLoseSilence) && never(SilentVersion && MessageWelcomeSilence))
+    trigger = Challenge(cardCountStart, cardCountCancel, cardCountSubmit)
 )
 
 BankBrokeYou = (LoudVersion && PlayerPurse == 0 && PayingOut) ||
@@ -253,8 +298,11 @@ achievement(
     id=215169,
     points = 10,
     description = "Stay on your initial 20 hand, and still lose to a non-Blackjack 21.",
-    trigger = (LoudVersion && PlayerCard1T && PlayerCard2T && FinalWinner && MessageDealerWin) ||
-        (SilentVersion && PlayerCard1TS && PlayerCard2TS && FinalWinnerSilence && MessageDealerWinSilence)
+    trigger = (LoudVersion && PlayerCard1T && PlayerCard2T &&
+        FinalWinner && MessageDealerWin && prev(AmountLost) == 0 && AmountLost > 0) ||
+        (SilentVersion && PlayerCard1TS && PlayerCard2TS
+            && FinalWinnerSilence && MessageDealerWinSilence &&
+            prev(AmountLostSilence) == 0 && AmountLostSilence > 0)
 )
 
 // Leaderboard Below
