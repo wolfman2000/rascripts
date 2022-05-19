@@ -281,8 +281,8 @@ function Needs2AmmoDigits() => low4(0x9687) == 0 && low4(0x967F) == 0 && low4(0x
 //        0x10 - See Jim Run, Run Jim Run
 function CurrentStage() => byte(0xa1a7)
 StageNameLookup = {
-    0x00: "Anything but Tangerines",
-    0x01: "Anything but Tangerines - Granny Bonus",
+    0x00: "Anything But Tangerines",
+    0x01: "Anything But Tangerines - Granny Bonus",
     0x0a: "Lorenzen's Soil",
     0x02: "Puppy Love Part 1",
     0x09: "Villi People",
@@ -300,8 +300,8 @@ StageNameLookup = {
     0x10: "See Jim Run, Run Jim Run"
 }
 BaseStageNameLookup = {
-    0x00: "Anything but Tangerines",
-    0x01: "Anything but Tangerines",
+    0x00: "Anything But Tangerines",
+    0x01: "Anything But Tangerines",
     0x0a: "Lorenzen's Soil",
     0x02: "Puppy Love Part 1",
     0x09: "Villi People",
@@ -461,7 +461,7 @@ StageNameToFlagLookup = {
     0x0d: 0xa20c
 }
 LevelNumberToStageName = {
-    1: "Anything but Tangerines",
+    1: "Anything But Tangerines",
     2: "Lorenzen's Soil",
     3: "Puppy Love Part 1",
     4: "Villi People",
@@ -521,7 +521,10 @@ function BeatenLevelWithAllFlagsLeaderboard(levelNumber) {
 }
 
 function BeatenWithAllFlags(levelNumber) => 
-    EarthFlagClaimed(levelNumber) && WormFlagClaimed(levelNumber) && JimFlagClaimed(levelNumber) && LevelFlagClaimed(levelNumber) &&
+    EarthFlagClaimed(levelNumber) &&
+    WormFlagClaimed(levelNumber) &&
+    JimFlagClaimed(levelNumber) &&
+    LevelFlagClaimed(levelNumber) &&
     InLevel(levelNumber) && disable_when(InLevel(levelNumber + 1))
     
 function LevelNotBeaten(levelNumber) {
@@ -533,6 +536,10 @@ function LevelNotBeaten(levelNumber) {
 }
 // $A20F: Semi Stage Flag?
 //        Likes to be set to 0x81 after the level card disappears.
+function TransitionToCow(levelNumber) {
+    return IsJimAlive() && BeatenLevel(levelNumber) &&
+        byte(0xa20f) == 0 && prev(byte(0xa20f)) == 0x81
+}
 // $A216: Facing Direction?
 //        0x00: Facing Right
 //        0xFF: Facing Left
@@ -755,7 +762,7 @@ CreateBeatenLevelNormalCheevo(209714, 11, "Color Splash Did This Second?", 10)
 function CreateBeatenLevelDifficultCheevo(levelNumber, title, points) {
     achievement(
         title = title,
-        description = "Beat the level " + LevelNumberToStageName[levelNumber] + " on Difficult Difficulty",
+        description = format("Beat the level {0} on Difficult.", LevelNumberToStageName[levelNumber] ),
         points = points,
         trigger = unless(AnyCheat()) && never(InDemo()) && never(IsMenuMusic()) && OnDifficult() && BeatenLevel(levelNumber)
     )
@@ -774,7 +781,7 @@ CreateBeatenLevelDifficultCheevo(5, "Balloon Bombs Burst Bombastically", 10)
 // Replace 5748 with this. (Old name: [HARD] Udderly Abducted)
 CreateBeatenLevelDifficultCheevo(6, "Santa's Little Helper", 10)
 // Replace 5749 with this. (Old name: [HARD] Inflated Head)
-CreateBeatenLevelDifficultCheevo(7, "This is Udderly Rediculous", 10)
+CreateBeatenLevelDifficultCheevo(7, "This is Udderly Ridiculous", 10)
 // Replace 5750 with this. (Old name: [HARD] ISO 9000)
 CreateBeatenLevelDifficultCheevo(8, "Up Before Up", 10)
 // Replace 5751 with this. (Old name: [HARD] Puppies Three)
@@ -798,14 +805,15 @@ function CreateGameBeatenCheevo(id, title, description, onRightDifficulty) {
 CreateGameBeatenCheevo(209716, "Look Left, Right, and Up for Flying Taxis", "Beat the game.", true)
 
 // Update 5755 to end on taxi smash.
-CreateGameBeatenCheevo(209739, "...Stays in Lost Vegas", "Beat the game on Difficult Difficulty", OnDifficult())
+CreateGameBeatenCheevo(209739, "...Stays in Lost Vegas", "Beat the game on Difficult.", OnDifficult())
 
 function CreateAllFlagCheevo(levelNumber, title, points) {
     achievement(
         title = title,
         description = "In one session, beat " + LevelNumberToStageName[levelNumber] + " with all flags collected.",
         points = points,
-        trigger = unless(AnyCheat()) && never(InDemo()) && never(IsMenuMusic()) && BeatenWithAllFlags(levelNumber)
+        trigger = unless(AnyCheat()) &&
+            !InDemo() && !IsMenuMusic() && BeatenWithAllFlags(levelNumber)
     )
 }
 
@@ -870,7 +878,7 @@ function AddGunlessCheevo(title, levelNumber, points) {
 // Update 5870 for anti-cheating. ...and maybe improve the detection.
 achievement(
     title = "Fully Loaded",
-    description = "Have 2000 or More Bullets with your regular plasma gun",
+    description = "Have 2000 or More Bullets with your regular Plasma Gun.",
     points = 10,
     // Note to self: look into backup condition after never InDemo. Regular ammo possible to gain while using other weapons.
     trigger = unless(AnyCheat()) && never(InDemo()) && CurrentWeapon() == 0 && CurrentAmmoThousand() >= 2
@@ -887,7 +895,7 @@ achievement(
 function CreateBonusAreaSuccessCheevo(title, points, stageId) {
     achievement(
         title = title,
-        description = "Complete the secret area of " + BaseStageNameLookup[stageId],
+        description = "Complete the secret area of " + BaseStageNameLookup[stageId] + ".",
         points = points,
         trigger = unless(AnyCheat()) && never(InDemo()) && IsJimTeleporting() && prev(CurrentStage()) == stageId && CurrentStage() == BaseStageIdLookup[stageId]
     )
@@ -901,26 +909,26 @@ CreateBonusAreaSuccessCheevo("37 is a number", 10, 0x0d)
 // New cheevos for collecting & using meal worms.
 achievement(
     title = "Questions From Worms",
-    description = "Bring at least 9 meal worms to the game show.",
+    description = "In Villi People, bring at least 9 mealworms to The Game Show.",
     points = 10,
     trigger = unless(AnyCheat()) && never(InDemo()) && measured(CurrentWormCount() >= 9, when=CurrentStage() == 0x09) && prev(MusicTrack()) == 0 && MusicTrack() == 2
 )
 achievement(
     title = "At Least This Isn't the 50s",
-    description = "Answer at least three questions during the game show. Good luck!",
+    description = "In Villi People, answer at least three questions correctly during The Game Show. Good luck!",
     points = 10,
     // Life count check in play to prevent dying at the memory game and redoing.
     trigger = unless(AnyCheat()) && never(InDemo()) && never(CurrentStage() != 0x09) && never(LifeCount() < prev(LifeCount())) && repeated(3, AnsweredCorrectly())
 )
 achievement(
     title = "Strength From Worms",
-    description = "Bring at least 9 meal worms to the high striker.",
+    description = "In Inflated Head, bring at least 9 mealworms to the High Striker.",
     points = 10,
     trigger = unless(AnyCheat()) && never(InDemo()) && measured(CurrentWormCount() >= 9, when=CurrentStage() == 0x08 || CurrentStage() == 0x07) && CurrentStage() == 0x08 && prev(CurrentStage()) == 0x07
 )
 achievement(
     title = "Test Your Jumping Might!",
-    description = "Win at least three times on the high striker at the end of Inflated Head.",
+    description = "In Inflated Head, win at least three times on the High Striker.",
     points = 10,
     trigger = unless(AnyCheat()) && never(InDemo()) && never(CurrentStage() != 0x08) && repeated(3, WonHammerHeadPrize())
 )
@@ -928,7 +936,7 @@ achievement(
 // New ID for memory game cheevo.
 achievement(
     title = "Memory Madness",
-    description = "Complete the memory game just after the game show.",
+    description = "In Villi People, repeat all 12 sequences without error in the Memory Game.",
     points = 25,
     // Some extra nevers are added in to allow for resetting hits. This also includes if a death is taken during the game.
     trigger = unless(AnyCheat()) && never(InDemo()) && never(CurrentStage() != 0x09) && never(DidWormCountChange()) && HalfwayThroughMemoryGame() && trigger_when(CompletedMemoryGame())
@@ -954,14 +962,15 @@ CreatePeterPuppyProtectionPolicyCheevo("Snoopy", 10)
 function CreateDamagelessCheevo(title, levelNumber, stageId, boss, points) {
     achievement(
         title = title,
-        description = "Defeat " + boss + " on Difficult difficulty without taking damage.",
+        description = "Defeat " + boss + " on Difficult without taking damage.",
         points = points,
-        trigger = unless(AnyCheat()) && never(InDemo()) && OnDifficult() && CurrentStage() == stageId  && BossHasShownUp() &&
-            disable_when(PriorHealth() > CurrentHealth(), until= LifeCount() < prev(LifeCount()) || OutOfLevel(levelNumber)) && trigger_when(LevelFlagClaimed(levelNumber))
+        trigger = unless(AnyCheat()) && never(InDemo()) && OnDifficult() && CurrentStage() == stageId && BossHasShownUp() &&
+            disable_when(CurrentStage() == stageId && PriorHealth() > CurrentHealth(), until= LifeCount() < prev(LifeCount()) || OutOfLevel(levelNumber)) && trigger_when(TransitionToCow(levelNumber))
     )
 }
 
 // CreateDamagelessCheevo("Domination of Pedro Pupa", 2, 0x0a, "Perdo Pupa", 10)
+
 CreateDamagelessCheevo("Domination of Flamin' Yawn", 11, 0x0c, "Flamin' Yawn", 10)
 
 // New cheevo: don't get popped, but do it on one life.
@@ -1321,3 +1330,4 @@ CreateGeneralMealWormLevel(8, LevelOrderToByteLookup[8])
 CreateRp12()
 
 rich_presence_display("Jim trying to be groovy in Earthworm Jim 2.")
+
