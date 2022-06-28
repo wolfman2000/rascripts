@@ -1,226 +1,6 @@
 // ~Hack~ Rockman 3: The Last of Mushroom Kingdom?!
 // #ID = 18976
 
-// $000F: Energy To Fill
-//        When this is not 0, subtract 1 and add extra health. Repeat until 0.
-// $0014: Buttons Pressed This Frame
-//        Bit0: Right
-//        Bit1: Left
-//        Bit2: Down
-//        Bit3: Up
-//        Bit4: Start
-//        Bit5: Select
-//        Bit6: B
-//        Bit7: A
-// $0016: Buttons Held This Frame
-//        Bit0: Right
-//        Bit1: Left
-//        Bit2: Down
-//        Bit3: Up
-//        Bit4: Start
-//        Bit5: Select
-//        Bit6: B
-//        Bit7: A
-// $0022: Internal Stage Label
-//        This hack is heavily based on the MM3 engine, so SMB1 stages will "share" MM3 stages.
-//        Most of the IDs from the Wily "Fortress" stages and beyond should match, though.
-// $0027: Mega Man's X Position
-//        If consistent based on the screen data below, this could potentially be used for evil cheevos such as staying on one side of the screen.
-// $0030: Mega Man's Status
-//        0x00 = On the Ground
-//        0x01 = In the Air
-//        0x04 = Teleporting Down
-//        0x06 = Damaged
-//        0x09 = Boss Spawning (No Control)
-//        0x0c = Boss Defeated (No Control)
-//        0x0e = Dead
-//        0x11 = Teleporting Out
-// $003B: Number of Times Fired
-//        This could potentially be used for precision boss battle challenges.
-// $003F: Death Timer
-//        Upon death, count up 256 times. When it hits 0 again, either load the next life or transition to the game over screen.
-// $004F: Incrementing Counter
-//        It's unclear what this value represents.
-// $0099: General Movement Flag
-//        0x40: Cannot control Mega Man. This includes the title screen, the READY message, and boss door transitions.
-//        0x55: Can control Mega Man.
-// $00A0: Currently Equipped Weapon (Lower 4)
-//        0: Arm Cannon
-//        1: Gemini Laser
-//        2: Needle Arm
-//        3: Hard Knuckle
-//        4: Magnet Missile
-//        5: Top Spin
-//        6: Search Snake
-//        7: Rush Coil
-//        8: Spark Shot
-//        9: Rush Marine
-//        10: Shadow Blade
-//        11: Rush Jet
-// $00A1: Weapon Menu Navigation
-//        0x00: Top Left Option
-//        0x01: Top Right Option
-//        0x02: Middle Left Option
-//        0x03: Middle Right Option
-//        0x04: Bottom Left Option
-//        0x05: Bottom Right Option
-//        0x80: Next Page Option
-//        0xFF: Energy Tanks
-// $00A2: Mega Man HP Bar (AKA P Ammo)
-//        Value - 0x80 > 0: The HP bar is active.
-//        Actual HP is Value - 0x80, with a max HP amount of 0x1c.
-// $00A3: Ammo for GE (Gemini Laser)
-//        This weapon is available if Bit7 is 1.
-//        Max ammo is 0x1c.
-// $00A4: Ammo for NE (Needle Cannon)
-//        This weapon is available if Bit7 is 1.
-//        Max ammo is 0x1c.
-// $00A5: Ammo for HA (Hard Knuckle)
-//        This weapon is available if Bit7 is 1.
-//        Max ammo is 0x1c.
-// $00A6: Ammo for MA (Magnet Missile)
-//        This weapon is available if Bit7 is 1.
-//        Max ammo is 0x1c.
-// $00A7: Ammo for TO (Top Spin)
-//        This weapon is available if Bit7 is 1.
-//        Max ammo is 0x1c.
-// $00A8: Ammo for SN (Search Snake)
-//        This weapon is available if Bit7 is 1.
-//        Max ammo is 0x1c.
-// $00A9: Ammo for RC (Rush Coil)
-//        This weapon is available if Bit7 is 1.
-//        Max ammo is 0x1c.
-// $00AA: Ammo for SP (Spark Shock)
-//        This weapon is available if Bit7 is 1.
-//        Max ammo is 0x1c.
-// $00AB: Ammo for RM (Rush Marine)
-//        This weapon is available if Bit7 is 1.
-//        Max ammo is 0x1c.
-// $00AC: Ammo for SH (Shadow Blade)
-//        This weapon is available if Bit7 is 1.
-//        Max ammo is 0x1c.
-// $00AD: Ammo for RJ (Rush Jet)
-//        This weapon is available if Bit7 is 1.
-//        Max ammo is 0x1c.
-// $00AE: Number of Extra Lives
-//        This assumes 0 can count as a life. You can have more than 9 extra in this game.
-// $00AF: Number of E-Tanks
-//        You can only have up to 9.
-// $00B0: Backup Boss Health Bar
-//        This value apparently stays consistent even if the boss spawns additional enemies. Utilize this for more bosses.
-// $00B2: Is Mega Man in a Stage?
-//        0x00: Not in a Stage: Includes READY Text
-//        0x80: In a Stage
-// $00B3: Is Boss HP Bar Enabled?
-//        0x00: Disabled
-//        0x8e: Enabled
-// $00B4: Weapon Change Menu Offset
-//        0x00: Top Row is Arm Cannon
-//        0x06: Top Row is Search Snake
-// $00B5: Shots Fired Before Decrease
-//        This only comes into play for weapons that have more than 28 shots. If a shot doesn't decrease the energy bar, increase this by 1. If the shot would decrease ammo, reset to 0.
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $00C1: Suspected Instrument Bytes (4 bytes)
-// $00CE: Animation Based?
-//        When you fire a weapon, this is usually set to 0x07.
-// $00D9: Current Music
-//        0x00: Title Theme
-//        0x01: SMB1 Overworld
-//        0x02: SMB1 Underground
-//        0x03: SMB1 Underwater
-//        0x04: SMB1 Castle Theme
-//        0x05: SMB1 Coin Heaven
-//        0x06: SMB3 Fortress Theme
-//        0x07: SMB1 All Stars Bowser Battle
-//        0x08: Rescued Princess Peach / Game Clear Screen
-//        0x09: SMB3 Bowser Battle
-//        0x0c: Robot Master Battle
-//        0x0d: Wily Castle Battle
-//        0x0e: Password Theme
-//        0x0f: MM3 Credits Theme
-//        0x11: Protoman's Whistle
-//        0x38: SMB1 Flag
-//        0x39: SMB1 Game Over
-//        0x3A: Rescued Princess Peach
-//        0xF0: Silence to Extended Protoman Whistle
-// $00DA: Sound Effect Counter?
-//        Every time a sound effect plays, this goes up to 7, then hits 0 and starts again.
-// $00DB: Sound Effect Counter?
-//        This is a potential duplicate of 0xda.
-// $00F9: Camera X Offset from Origin (Big)
-//        Consider this the equivalent of SMB3's "Page" on the Overworld.
-// $00FC: Camera X Offset from Origin (Small)
-// $0300: Object Base State Table [32 bytes]
-//        Mega Man is always in the first slot. Other slots are added when drawn to the screen. The specific order is unclear.
-// $0320: Unclear ASM Pointer [32 bytes]
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $0340: X Coordinate Ratio Counter? [32 bytes]
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $0360: X Coordinate (Without Ratio?) [32 bytes]
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $0380: X Screen (Level Screen) [32 bytes]
-//        There are only so many screens per "stage" in this game.
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $03A0: Y Coordinate Ratio Counter? [32 bytes]
-//        For Mega Man's sprite, bits 6 and 7 keep oscillating. It is unclear why.
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $03C0: Y Coordinate (Without Ratio?) [32 bytes]
-//        It's not clear how often this one will be used. See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $03E0: Y Screen [32 bytes]
-//        Considering this is based off of the SMB1 engine, this value will likely stay 0x00 for most of the time.
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $0400: Horizontal Speed Low [32 bytes]
-//        This definition does not appear to make sense.
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $0420: Horizontal Speed High [32 bytes]
-//        This definition does not appear to make sense.
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $0440: Vertical Speed Low [32 bytes]
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $0460: Vertical Speed High [32 bytes]
-//        When you jump, this counts down from 0x05 (on land) to 0x00. When it hits 0 or you left go of A, it continues to count down until you land on the ground.
-//        When you are on the ground, stays at 0xFF.
-//        See See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $0480: Substance and Shape? [32 bytes]
-//        Unclear what this means.
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $04A0: Direction Bits [32 bytes]
-//        Unclear what this means. No obvious changes on Mega Man.
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $04C0: Enemy Number in Level [32 bytes]
-//        The first one should hopefully always be 0x00 since that is Mega Man.
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $04E0: Enemy HP [32 bytes]
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $04FE: Boss HP Wily Stage 4 Part 1)
-//        Go from 0x1C to 0x00 to start Phase 2.
-// $04FF: Boss HP (When Applicable)
-//        Each boss starts at 0x1C: bring down to 0x00 to win.
-//        This includes Break Man.
-// $0500: Object ASM Private Memory 1 [32 bytes]
-//        Unsure how useful this will be.
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $0520: Object ASM Private Memory 2 [32 bytes]
-//        Unsure how useful this will be.
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $0540: Object ASM Private Memory 3 [32 bytes]
-//        Unsure how useful this will be.
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $0560: Object ASM Private Memory 4 [32 bytes]
-//        Unsure how useful this will be.
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $0580: Sprite Flags [32 bytes]
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $05A0: Sprite Animations [32 bytes]
-//        In the case of Mega Man, this value cycles from 0x00 to 0x0a. When 0x0a is hit, Mega Man blinks until 0x00 is hit.
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $05C0: Sprite ID [32 bytes]
-//        For Mega Man, each value represents a different action from standing still to running to jumping to shooting.
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-// $05E0: Animation Frame Counter [32 bytes]
-//        Each sprite can have different cycles which affects the animation block above.
-//        See https://datacrystal.romhacking.net/wiki/Mega_Man_3:RAM_map for more.
-
 // Independent Functions Below
 
 // How much energy is in a bar? This can represent health or ammo.
@@ -282,6 +62,9 @@ HasShadowBlade = bit7(0xac) == 1
 LifeCount = bcd(byte(0xae))
 ETankCount = byte(0xaf)
 
+IsControllable = bit7(0xb2) == 1
+BecameControllable = IsControllable && prev(bit7(0xb2)) == 0
+
 BossTime = byte(0xb3) == 0x8e
 
 FiredMultiEnergyWeapon = prev(low4(0xb5)) != low4(0xb5)
@@ -323,13 +106,210 @@ BossHP = RemainingBar(0xb0)
 VisibleBossHP = RemainingBar(0xb0)
 
 // Dependent Functions Below
-function TeleportingDown() => PlayerStatus == 0x04
+function TeleportingDown() => PlayerStatus == 0x04 && prev(byte(0x50)) != 8
 function TeleportingOut() => PlayerStatus == 0x11
+
+// Is Mega Man starting a new stage?
+// Note both current and prior.
+
+StartStageLookup = {
+    // 1-1
+    0: [InternalStage == 0 && XScreen == 0 && BecameControllable],
+    // 1-2
+    200: [
+        InternalStage == 2 && XScreen == 0 && BecameControllable,
+        InternalStage == 2 && XScreen == 0 && prior(byte(0x22)) == 0 &&
+            prior(byte(0x380)) <= 16 && prior(byte(0x380)) >= 14 &&
+            TeleportingDown()
+    ],
+    // 1-3
+    100: [
+        InternalStage == 1 && XScreen == 0 && BecameControllable,
+        InternalStage == 1 && XScreen == 0 && prior(byte(0x22)) == 2 &&
+            prior(byte(0x380)) == 0x0a && TeleportingDown()
+    ],
+    // 2-1
+    16: [
+        InternalStage == 0 && XScreen == 16 && BecameControllable,
+        InternalStage == 0 && XScreen == 16 && prior(byte(0x22)) == 1 &&
+            prior(byte(0x380)) == 9 && TeleportingDown(),
+        InternalStage == 0 && XScreen == 16 && prior(byte(0x22)) == 2 &&
+            prior(byte(0x380)) > 0x0a && TeleportingDown()
+    ],
+    // 2-2
+    300: [
+        InternalStage == 3 && XScreen == 0 && BecameControllable,
+        InternalStage == 3 && XScreen == 0 && prior(byte(0x22)) == 0 &&
+            prior(byte(0x380)) >= 28 && prior(byte(0x380)) <= 30 &&
+            TeleportingDown()
+    ],
+    // 2-3
+    400: [
+        InternalStage == 4 && XScreen == 0 && BecameControllable,
+        InternalStage == 4 && XScreen == 0 && prior(byte(0x22)) == 3 &&
+            prior(byte(0x380)) == 11 && TeleportingDown()
+    ],
+    // 3-1,
+    500: [
+        InternalStage == 5 && XScreen == 0 && BecameControllable,
+        InternalStage == 5 && XScreen == 0 && prior(byte(0x22)) == 4 &&
+            prior(byte(0x380)) == 16 && TeleportingDown(),
+        InternalStage == 5 && XScreen == 0 && prior(byte(0x22)) == 2 &&
+            prior(byte(0x380)) > 0x0a && TeleportingDown()
+    ],
+    // 3-2
+    516: [
+        InternalStage == 5 && XScreen == 16 && BecameControllable,
+        InternalStage == 5 && XScreen == 16 && prior(byte(0x380)) >= 12 &&
+            prior(byte(0x380)) <= 14 && TeleportingDown()
+    ],
+    // 3-3
+    600: [
+        InternalStage == 6 && XScreen == 0 && BecameControllable,
+        InternalStage == 6 && XScreen == 0 && prior(byte(0x22)) == 5 &&
+            prior(byte(0x380)) == 29 && TeleportingDown()
+    ],
+    // 4-1
+    122: [
+        InternalStage == 1 && XScreen == 22 && BecameControllable,
+        InternalStage == 1 && XScreen == 22 &&
+            prior(byte(0x22)) == 6 && prior(byte(0x380)) == 9 && TeleportingDown(),
+        InternalStage == 1 && XScreen == 22 &&
+            prior(byte(0x22)) == 2 && prior(byte(0x380)) > 0x0a && TeleportingDown()
+    ],
+    // 4-2
+    213: [
+        InternalStage == 2 && XScreen == 13 && BecameControllable,
+        InternalStage == 2 && XScreen == 13 && prior(byte(0x22)) == 1 &&
+            prior(byte(0x380)) >= 36 && prior(byte(0x380)) <= 38 &&
+            TeleportingDown()
+    ],
+    // 4-3
+    705: [
+        InternalStage == 7 && XScreen == 5 && BecameControllable,
+        InternalStage == 7 && XScreen == 5 && prior(byte(0x22)) == 2 &&
+            prior(byte(0x380)) == 0x18 && TeleportingDown()
+    ],
+    // 5-1
+    800: [
+        InternalStage == 8 && XScreen == 0 && BecameControllable,
+        InternalStage == 8 && XScreen == 0 && prior(byte(0x22)) == 7 &&
+            prior(byte(0x380)) == 14 && TeleportingDown(),
+        InternalStage == 8 && XScreen == 0 && prior(byte(0x22)) == 2 &&
+            prior(byte(0x380)) > 0x18 && TeleportingDown()
+    ],
+    // 5-2
+    816: [
+        InternalStage == 8 && XScreen == 16 && BecameControllable,
+        InternalStage == 8 && XScreen == 16 && prior(byte(0x380)) >= 12 &&
+            prior(byte(0x380)) <= 14 && TeleportingDown()
+    ],
+    // 5-3
+    111: [
+        InternalStage == 1 && XScreen == 11 && BecameControllable,
+        InternalStage == 1 && XScreen == 11 && prior(byte(0x22)) == 8 &&
+            prior(byte(0x380)) == 28 && TeleportingDown()
+    ],
+    // 6-1
+    900: [
+        InternalStage == 9 && XScreen == 0 && BecameControllable,
+        InternalStage == 9 && XScreen == 0 && prior(byte(0x22)) == 1 &&
+            prior(byte(0x380)) == 20 && TeleportingDown(),
+        InternalStage == 9 && XScreen == 0 && prior(byte(0x22)) == 7 &&
+            prior(byte(0x380)) == 3 && TeleportingDown()
+    ],
+    // 6-2
+    915: [
+        InternalStage == 9 && XScreen == 15 && BecameControllable,
+        InternalStage == 9 && XScreen == 15 && prior(byte(0x380)) >= 11 &&
+            prior(byte(0x380)) <= 13 && TeleportingDown()
+    ],
+    // 6-3
+    1000: [
+        InternalStage == 10 && XScreen == 0 && BecameControllable,
+        InternalStage == 10 && XScreen == 0 && prior(byte(0x22)) == 9 &&
+            prior(byte(0x380)) == 28 && TeleportingDown()
+    ],
+    // 7-1
+    432: [
+        InternalStage == 4 && XScreen == 32 && BecameControllable,
+        InternalStage == 4 && XScreen == 32 && prior(byte(0x22)) == 10 &&
+            prior(byte(0x380)) == 10 && TeleportingDown(),
+        InternalStage == 4 && XScreen == 32 && prior(byte(0x22)) == 7 &&
+            prior(byte(0x380)) == 3 && TeleportingDown()
+    ],
+    // 7-2
+    313: [
+        InternalStage == 3 && XScreen == 13 && BecameControllable,
+        InternalStage == 3 && XScreen == 13 && prior(byte(0x22)) == 4 &&
+            prior(byte(0x380)) >= 43 && TeleportingDown()
+    ],
+    // 7-3
+    416: [
+        InternalStage == 4 && XScreen == 16 && BecameControllable,
+        InternalStage == 4 && XScreen == 16 && prior(byte(0x22)) == 3 &&
+            prior(byte(0x380)) == 24 && TeleportingDown()
+    ],
+    // 8-1
+    1100: [
+        InternalStage == 11 && XScreen == 0 && BecameControllable,
+        InternalStage == 11 && XScreen == 0 && prior(byte(0x22)) == 4 &&
+            prior(byte(0x380)) == 30 && TeleportingDown(),
+        InternalStage == 11 && XScreen == 0 && prior(byte(0x22)) == 7 &&
+            prior(byte(0x380)) == 3 && TeleportingDown()
+    ],
+    // 8-2
+    611: [
+        InternalStage == 6 && XScreen == 11 && BecameControllable,
+        InternalStage == 6 && XScreen == 11 && prior(byte(0x22)) == 11 &&
+            prior(byte(0x380)) >= 23 && TeleportingDown()
+    ],
+    // 8-3
+    716: [
+        InternalStage == 7 && XScreen == 16 && BecameControllable,
+        InternalStage == 7 && XScreen == 16 && prior(byte(0x22)) == 6 &&
+            prior(byte(0x380)) == 24 && TeleportingDown()
+    ],
+    // W-1
+    1200: [
+        InternalStage == 12 && XScreen == 0 && BecameControllable,
+        InternalStage == 12 && XScreen == 0 && prior(byte(0x22)) == 7 &&
+            prior(byte(0x380)) > 25 && TeleportingDown()
+    ],
+    // W-2
+    1300: [
+        InternalStage == 13 && XScreen == 0 && BecameControllable,
+        InternalStage == 13 && XScreen == 0 && prior(byte(0x22)) == 12 &&
+            prior(byte(0x380)) == 17 && TeleportingDown()
+    ],
+    // W-3
+    1500: [
+        InternalStage == 15 && XScreen == 0 && BecameControllable,
+        InternalStage == 15 && XScreen == 0 && prior(byte(0x22)) == 13 &&
+            prior(byte(0x380)) == 19 && TeleportingDown()
+    ],
+    // W-4
+    1600: [
+        InternalStage == 16 && XScreen == 0 && BecameControllable,
+        InternalStage == 16 && XScreen == 0 && prior(byte(0x22)) == 15 &&
+            prior(byte(0x380)) == 31 && TeleportingDown()
+    ],
+    // W-5
+    1700: [
+        InternalStage == 17 && XScreen == 0 && BecameControllable,
+        InternalStage == 17 && XScreen == 0 && prior(byte(0x22)) == 16 &&
+            prior(byte(0x380)) == 5 && TeleportingDown()
+    ]
+}
+
+function IsStartingStage(stage, screen) {
+    return StartStageLookup[stage * 100 + screen]
+}
 
 // Is Mega Man warping into the current screen?
 // This is mainly for starting leaderboards.
 function IsWarpingIn(stage, screen) {
-    return InternalStage == stage && XScreen == screen && TeleportingDown()
+    return StartStageLookup[stage * 100 + screen]
 }
 
 // Does Mega Man have a master weapon equipped?
@@ -555,7 +535,7 @@ function CreateRobotMasterBeatenCheevo(location, worldNumber, points) {
     stage = WorldNumberToInternalFirstStage[worldNumber]
     screen = WorldNumberToInternalBossScreen[worldNumber]
     first = WorldNumberToInternalFirstStageScreen[worldNumber]
-    redo = XScreen == first && TeleportingDown()
+    redo = InternalStage == stage && XScreen == first && BecameControllable
     achievement(
         title = "This Isn't " + location,
         points = points,
@@ -563,7 +543,7 @@ function CreateRobotMasterBeatenCheevo(location, worldNumber, points) {
         trigger = DefeatBossCommonCheevo(stage, screen, 0xb0) &&
             once(RobotMasterMusic && BossHP == 28) &&
             never(redo) &&
-            disable_when(IsDead, until=redo)
+            disable_when(IsDead, until=redo || TitleScreenMusic)
     )
 }
 
@@ -631,7 +611,7 @@ achievement(
 achievement(
     title = "Does This Count as Fast Travel?",
     points = 5,
-    description = "Take any warp zone in 2-2 or 4-2.",
+    description = "Take any warp zone in 1-2 or 4-2.",
     trigger = TookWorldWarp()
 )
 
@@ -644,9 +624,13 @@ achievement(
     title = "Leaving the Water is Easy",
     points = 5,
     description = "In 2-2, go over the wide pit and the water.",
-    trigger = InternalStage == 3 && XScreen == 8 && XCoords == 0x48 && 
+    trigger =
+        any_of(StartStageLookup[300], s => once(s)) &&
+        XScreen == 8 && XCoords == 0x48 && 
         (OffScreen || YCoords <= 0x34) &&
-        disable_when(XCoords == 0x48 && OnScreen && YCoords >= 0x5a, until=InternalStage == 3 && XScreen == 0)
+        never(
+            InternalStage == 3 && XCoords == 0x48 && OnScreen && YCoords >= 0x5a
+        )
 )
 
 // Add a cheevo for visiting the same coin heaven twice in one session.
@@ -665,14 +649,18 @@ achievement(
 // Add a cheevo in 7-2: reverse the situation of 2-2! Forbid Rush too.
 // Forbid: x 0x48, ScreenY 255 OR y 0x14 or lower
 // Target: just have it on screen transfer. so XSCreen == 22
-Restart72 = InternalStage == 3 && XScreen == 13 && TeleportingDown()
+Restart72 = StartStageLookup[313]
 achievement(
     title = "Leaving the Water is Cheap",
     points = 10,
     description = "In 7-2, stay in the water and traverse the pit. Having Rush equipped is forbidden.",
-    trigger = InternalStage == 3 && once(XScreen == 21) && XScreen == 22 &&
-        disable_when(XCoords >= 0x48 && HasRushEquipped(), until=Restart72) &&
-        disable_when(XCoords == 0x48 && (OffScreen || YCoords <= 0x34), until=Restart72)
+    trigger =
+        any_of(Restart72, s => once(s)) &&
+        once(XScreen == 21) && XScreen == 22 &&
+        never(InternalStage == 3 && XCoords >= 0x48 && HasRushEquipped()) &&
+        never(
+            InternalStage == 3 && XCoords == 0x48 && (OffScreen || YCoords <= 0x34)
+        )
 )
 
 // Add a cheevo in W-2: The original fortress maze.
@@ -754,27 +742,52 @@ achievement(
     DisableWily3Maze(8, 0xe1, 0x3a, 0x54)
 )
 
+function ChallengeCheevo(start, cancel, submit) {
+    lastSubmit = all_of(submit, s => s)
+    return any_of(start, s => once(s)) &&
+        all_of(cancel, c => never(c)) &&
+        lastSubmit
+}
+
+onTitle = TitleScreenMusic || CurrentMusic == 0xff
+PerfectRunCancel = [
+    HasMasterWeaponEquipped() && PressedB &&
+        prev(EquippedWeapon) > EquippedWeapon && !onTitle,
+    HasMasterWeaponEquipped() && PressedB &&
+        FiredMultiEnergyWeapon && !onTitle,
+    prev(ArmCannon) > ArmCannon && !onTitle,
+    prev(LifeCount) > LifeCount,
+    GameOverMusic,
+    TitleScreenMusic,
+]
+PerfectRunPause = [byte(0x78) == 1]
+
 // Perfect Run Cheevo: Stage 1 + Boss
 // Warping out via shortcut DOES NOT COUNT!
 function CreatePerfectRunRobotCheevo(title, worldNumber, points) {
     firstStage = WorldNumberToInternalFirstStage[worldNumber]
     firstScreen = WorldNumberToInternalFirstStageScreen[worldNumber]
     bossScreen = WorldNumberToInternalBossScreen[worldNumber]
-    redo = XScreen == firstScreen && TeleportingDown()
+    onTitle = TitleScreenMusic || CurrentMusic == 0xff
+    start = IsWarpingIn(firstStage, firstScreen)
+    submit = [
+        trigger_when(
+            once(InternalStage == firstStage && XScreen == bossScreen && RobotMasterMusic)
+        ),
+        trigger_when(
+            DefeatBossCommonCheevo(firstStage, bossScreen, 0xb0, true)
+        )
+    ]
+    cancel = []
+    for i in PerfectRunCancel {
+        array_push(cancel, i)
+    }
+    array_push(cancel, XScreen < bossScreen && TeleportingOut())
     achievement(
         title = title,
         points = points,
         description = "Travel to AND defeat " + WorldNumberToBoss[worldNumber] + " Man without taking damage or using master weapons. Rush is allowed.",
-        trigger = never(XScreen == firstScreen) && once(XScreen == bossScreen &&
-            RobotMasterMusic) &&
-            DefeatBossCommonCheevo(firstStage, bossScreen, 0xb0, true) &&
-            disable_when(HasMasterWeaponEquipped() && PressedB &&
-            prev(EquippedWeapon) > EquippedWeapon && !TitleScreenMusic && CurrentMusic != 0xff, until=once(IsDead) && redo) &&
-            disable_when(HasMasterWeaponEquipped() && PressedB &&
-            FiredMultiEnergyWeapon && !TitleScreenMusic && CurrentMusic != 0xff, until=once(IsDead) && redo) &&
-            disable_when(prev(ArmCannon) > ArmCannon &&
-            !TitleScreenMusic && CurrentMusic != 0xff, until=(once(IsDead) && redo)) &&
-            never(redo)
+        trigger = ChallengeCheevo(start, cancel, submit)
     )
 }
 
@@ -787,17 +800,17 @@ function CreatePerfectRunLevel2Cheevo(title, worldNumber, triggerScreen, points)
     if (worldNumber == 2 || worldNumber == 4) {
         normal = "normal "
     }
-    redo = once(IsDead) && XScreen == startScreen && TeleportingDown()
+    start = IsWarpingIn(startStage, startScreen)
+    submit = [
+        trigger_when(
+            XScreen == finishScreen && InternalStage == startStage && TeleportingOut()
+        )
+    ]
     achievement(
         title = title,
         points = points,
         description = "Travel through " + worldNumber + "-2 and get to the " + normal + "exit without taking damage or using master weapons. Rush is allowed.",
-        trigger = InternalStage == startStage && once(XScreen == triggerScreen) && trigger_when(XScreen == finishScreen && TeleportingOut()) &&
-            disable_when(HasMasterWeaponEquipped() && PressedB &&
-            prev(EquippedWeapon) > EquippedWeapon && !TitleScreenMusic && CurrentMusic != 0xff, until=once(redo)) &&
-            disable_when(HasMasterWeaponEquipped() && PressedB &&
-            FiredMultiEnergyWeapon && !TitleScreenMusic && CurrentMusic != 0xff, until=redo) &&
-            disable_when(prev(ArmCannon) > ArmCannon && !TitleScreenMusic && CurrentMusic != 0xff, until=redo)
+        trigger = ChallengeCheevo(start, PerfectRunCancel, submit)
     )
 }
 
@@ -806,17 +819,17 @@ function CreatePerfectRunLevel3Cheevo(title, worldNumber, triggerScreen, points)
     startStage = WorldNumberToInternalThirdStage[worldNumber]
     startScreen = WorldNumberToInternalThirdStageScreen[worldNumber]
     finishScreen = WorldNumberToInternalThirdStageFinish[worldNumber]
-    redo = once(IsDead) && XScreen == startScreen && TeleportingDown()
+    start = IsWarpingIn(startStage, startScreen)
+    submit = [
+        trigger_when(
+            XScreen == finishScreen && InternalStage == startStage && TeleportingOut()
+        )
+    ]
     achievement(
         title = title,
         points = points,
         description = "Travel through " + worldNumber + "-3 and get to the exit without taking damage or using master weapons. Rush is allowed.",
-        trigger = InternalStage == startStage && once(XScreen == triggerScreen) && trigger_when(XScreen == finishScreen && TeleportingOut()) &&
-            disable_when(HasMasterWeaponEquipped() && PressedB &&
-            prev(EquippedWeapon) > EquippedWeapon && !TitleScreenMusic && CurrentMusic != 0xff, until=once(redo)) &&
-            disable_when(HasMasterWeaponEquipped() && PressedB &&
-            FiredMultiEnergyWeapon && !TitleScreenMusic && CurrentMusic != 0xff, until=redo) &&
-            disable_when(prev(ArmCannon) > ArmCannon && !TitleScreenMusic && CurrentMusic != 0xff, until=redo)
+        trigger = ChallengeCheevo(start, PerfectRunCancel, submit)
     )
 }
 
@@ -850,18 +863,17 @@ CreatePerfectRunLevel3Cheevo("Blue Lightning", 8, 23, 10)
 function CreatePerfectRunWilyCheevo(title, wilyNumber, points, music, bossBarAddress) {
     firstStage = WilyNumberToStage[wilyNumber]
     bossScreen = WilyNumberToBossScreen[wilyNumber]
-    redo = once(IsDead) && XScreen == 0 && TeleportingDown()
     boss = WilyNumberToBossName[wilyNumber]
+    start = IsWarpingIn(firstStage, 0)
+    submit = [
+        trigger_when(once(XScreen == bossScreen && CurrentMusic == music)) &&
+        trigger_when(DefeatBossCommonCheevo(firstStage, bossScreen, bossBarAddress))
+    ]
     achievement(
         title = title,
         points = points,
         description = "Clear the whole stage, including " + boss + ", without taking damage or using master weapons. Rush is allowed.",
-        trigger = once(XScreen == bossScreen && CurrentMusic == music) && trigger_when(DefeatBossCommonCheevo(firstStage, bossScreen, bossBarAddress)) &&
-            disable_when(HasMasterWeaponEquipped() && PressedB &&
-            prev(EquippedWeapon) > EquippedWeapon && !TitleScreenMusic && CurrentMusic != 0xff, until=once(redo)) &&
-            disable_when(HasMasterWeaponEquipped() && PressedB &&
-            FiredMultiEnergyWeapon && !TitleScreenMusic && CurrentMusic != 0xff, until=redo) &&
-            disable_when(prev(ArmCannon) > ArmCannon && !TitleScreenMusic && CurrentMusic != 0xff, until=redo)
+        trigger = ChallengeCheevo(start, PerfectRunCancel, submit)
     )
 }
 
@@ -872,7 +884,7 @@ CreatePerfectRunWilyCheevo("Hot Pursuit in the Lost City of Wily", 4, 25, 0x09, 
 CreatePerfectRunWilyCheevo("Theme of e-102 Gamma", 5, 25, 0x07, 0xb0)
 
 // A helper variable for some standalone cheevos and leaderboards.
-Initial11Start = InternalStage == 0 && XScreen == 0 && TeleportingDown()
+Initial11Start = InternalStage == 0 && XScreen == 0 && BecameControllable
 OnFinalBossScreen = once(XScreen == WilyNumberToBossScreen[5] && CurrentMusic == 0x07)
 
 // And now to be nasty. Beat the whole game without robot master weapons grabbed.
@@ -883,7 +895,7 @@ achievement(
     trigger = once(Initial11Start) && once(Beat11()) && 
     never(WarpedToWorld2()) && never(WarpedToWorld3()) && never(WarpedToWorld4()) &&
     never(WarpedToWorld5()) && never(WarpedToWorld6()) && never(WarpedToWorld7()) && never(WarpedToWorld8()) &&
-    InternalStage == 17 && OnFinalBossScreen && trigger_when(BossHP == 0) &&
+    InternalStage == 17 && OnFinalBossScreen && trigger_when(prev(BossHP) > 0 && BossHP == 0) &&
     // When you beat a robot master, you gain the weapon shortly. Take advantage of it.
     disable_when(HasGeminiLaser || HasNeedleCannon || HasHardKnuckle || 
         HasMagnetMissile || HasTopSpin || HasSearchSnake || HasSparkShock || 
@@ -899,7 +911,7 @@ achievement(
     trigger = once(Initial11Start) && once(Beat11()) &&
         never(WarpedToWorld2()) && never(WarpedToWorld3()) && never(WarpedToWorld4()) &&
         never(WarpedToWorld5()) && never(WarpedToWorld6()) && never(WarpedToWorld7()) && never(WarpedToWorld8()) &&
-        InternalStage == 17 && OnFinalBossScreen && trigger_when(BossHP == 0) &&
+        InternalStage == 17 && OnFinalBossScreen && trigger_when(prev(BossHP) > 0 && BossHP == 0) &&
         disable_when(HasRushEquipped() && prev(EquippedWeapon) > EquippedWeapon, until=Initial11Start) &&
         disable_when(GameOverMusic, until=Initial11Start)
 )
