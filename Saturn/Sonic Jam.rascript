@@ -3488,270 +3488,37 @@ for i in range(0, 19) {
     }
 }
 
-leaderboard(
-    id = 36519, title = "Emerald Hill 1 - Score Attack",
-    description = "Beat Emerald Hill act 1 with the highest score",
-    start  = Sonic2 && JamTimeAttackZone == 0x00 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
+function S2ScoreAttackBoard(index) {
+    id = 36519 + index
+    if (index == 18) {
+        id = id - 1
+    }
+    else if (index == 17) {
+        id = id + 1
+    }
+    loc = S2ActOrderLookup[index]
+    zone = loc[0]
+    act = loc[1]
+    name = S2ActOrderNameLookup[index]
+    leaderboard(
+        id = id,
+        title = format("{0} - Score Attack", name),
+        description = format("Beat {0} with the highest score", S2ActOrderNameAltLookup[index]),
+        start = JamTimeAttackZone == zone && JamTimeAttackAct == act && JamTimeAttack &&
+            repeated(20, JamTimeAttackActive == 0x02) && JamTimeAttackActive == 0x01 &&
+            JamClassicElapsedTime == prev(JamClassicElapsedTime) && never(!Sonic2) &&
+            never(S1LifeLost) && S1TimeMinutes != 0xff && S1TimeSeconds != 0xff && S1TimeDecimal != 0xff,
+        cancel = always_false(),
+        submit = always_true(),
+        value = S1Score * 10,
+        format = "VALUE"
+    )
+}
 
-leaderboard(
-    id = 36520, title = "Emerald Hill 2 - Score Attack",
-    description = "Beat Emerald Hill act 2 with the highest score",
-    start  = Sonic2 && JamTimeAttackZone == 0x00 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
+for i in range(0, 18) {
+    S2ScoreAttackBoard(i)
+}
 
-leaderboard(
-    id = 36521, title = "Chemical Plant 1 - Score Attack",
-    description = "Beat Chemical Plant act 1 with the highest score",
-    start  = Sonic2 && JamTimeAttackZone == 0x01 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36522, title = "Chemical Plant 2 - Score Attack",
-    description = "Beat Chemical Plant act 2 with the highest score",
-    start  = Sonic2 && JamTimeAttackZone == 0x01 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36523, title = "Aquatic Ruin 1 - Score Attack",
-    description = "Beat Aquatic Ruin act 1 with the highest score",
-    start  = Sonic2 && JamTimeAttackZone == 0x02 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36524, title = "Aquatic Ruin 2 - Score Attack",
-    description = "Beat Aquatic Ruinl act 2 with the highest score",
-    start  = Sonic2 && JamTimeAttackZone == 0x02 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36525, title = "Casino Night 1 - Score Attack",
-    description = "Beat Casino Night act 1 with the highest score",
-    start  = Sonic2 && JamTimeAttackZone == 0x03 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) <= 0x1068 && 
-             never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-              prev(byte(0x1FFE13))) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36526, title = "Casino Night 2 - Score Attack",
-    description = "Beat Casino Night act 2 with the highest score",
-    start  = Sonic2 && JamTimeAttackZone == 0x03 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36527, title = "Hill Top 1 - Score Attack",
-    description = "Beat Hill Top act 1 with the highest score",
-    start  = Sonic2 && JamTimeAttackZone == 0x04 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36528, title = "Hill Top 2 - Score Attack",
-    description = "Beat Hill Top  act 2 with the highest score",
-    start  = Sonic2 && JamTimeAttackZone == 0x04 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36529, title = "Mystic Cave 1 - Score Attack",
-    description = "Beat Mystic Cave act 1 with the highest score",
-    start  = Sonic2 && JamTimeAttackZone == 0x05 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36530, title = "Mystic Cave 2 - Score Attack",
-    description = "Beat Mystic Cave act 2 with the highest score",
-    start  = Sonic2 && JamTimeAttackZone == 0x05 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36531, title = "Oil Ocean 1 - Score Attack",
-    description = "Beat Oil Ocean act 1 with the highest score",
-    start  = Sonic2 && JamTimeAttackZone == 0x06 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost),
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36532, title = "Oil Ocean 2 - Score Attack",
-    description = "Beat Oil Ocean act 2 with the highest score",
-    start  = Sonic2 && JamTimeAttackZone == 0x06 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36533, title = "Metropolis 1 - Score Attack",
-    description = "Beat Metropolis act 1 with the highest score",
-    start  = Sonic2 && JamTimeAttackZone == 0x07 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36534, title = "Metropolis 2 - Score Attack",
-    description = "Beat Metropolis act 2 with the highest score",
-    start  = Sonic2 && JamTimeAttackZone == 0x07 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36535, title = "Metropolis 3 - Score Attack",
-    description = "Beat Metropolis act 3 with the highest score",
-    start  = Sonic2 && JamTimeAttackZone == 0x07 && byte(0x1030FA) == 0x02 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36536, title = "Wing Fortress - Score Attack",
-    description = "Beat Wing Fortress with the highest score",
-    start  = Sonic2 && JamTimeAttackZone == 0x09 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36537, title = "Sky Chase - Score Attack",
-    description = "Beat Sky Chase with the highest score",
-    start  = Sonic2 && JamTimeAttackZone == 0x09 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
 
 leaderboard(
     id = 36577, title = "Sonic 2 & Knuckles Normal Any%",
@@ -3771,537 +3538,67 @@ leaderboard(
     format = "FRAMES", lower_is_better = true
 )
 
-leaderboard(
-    id = 36538, title = "Emerald Hill 1 - Time Attack",
-    description = "Beat Emerald Hill act 1 in the fastest time as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x00 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
+function S2KnuxTimeAttackBoard(index) {
+    id = 36538 + index
+    if (index > 17) {
+        id = id - 1
+    }
+    loc = S2ActOrderLookup[index]
+    zone = loc[0]
+    act = loc[1]
+    name = S2ActOrderNameLookup[index]
+    leaderboard(
+        id = id,
+        title = format("{0} & Knuckles - Time Attack", name),
+        description = format("Beat {0} in the fastest time as Knuckles", S2ActOrderNameAltLookup[index]),
+        start = JamTimeAttackZone == zone && JamTimeAttackAct == act && JamTimeAttack &&
+            repeated(20, JamTimeAttackActive == 0x02) && JamTimeAttackActive == 0x01 &&
+            JamClassicElapsedTime == prev(JamClassicElapsedTime) && never(!Knuckles2) &&
+            never(S1LifeLost) && S1TimeMinutes != 0xff && S1TimeSeconds != 0xff && S1TimeDecimal != 0xff,
+        cancel = always_false(),
+        submit = always_true(),
+        value = S1TimeElapsed,
+        format = "FRAMES",
+        lower_is_better = true
+    )
+}
 
-leaderboard(
-    id = 36539, title = "Emerald Hill 2 - Time Attack",
-    description = "Beat Emerald Hill act 2 in the fastest time as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x00 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
+for i in range(0, 19) {
+    if (i != 17) {
+        S2KnuxTimeAttackBoard(i)
+    }
+}
 
-leaderboard(
-    id = 36540, title = "Chemical Plant 1 - Time Attack",
-    description = "Beat Chemical Plant act 1 in the fastest time as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x01 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
+function S2KnuxScoreAttackBoard(index) {
+    id = 36557 + index
+    if (index == 18) {
+        id = id - 1
+    }
+    else if (index == 17) {
+        id = id + 1
+    }
+    loc = S2ActOrderLookup[index]
+    zone = loc[0]
+    act = loc[1]
+    name = S2ActOrderNameLookup[index]
+    leaderboard(
+        id = id,
+        title = format("{0} & Knuckles - Score Attack", name),
+        description = format("Beat {0} with the highest score", S2ActOrderNameAltLookup[index]),
+        start = JamTimeAttackZone == zone && JamTimeAttackAct == act && JamTimeAttack &&
+            repeated(20, JamTimeAttackActive == 0x02) && JamTimeAttackActive == 0x01 &&
+            JamClassicElapsedTime == prev(JamClassicElapsedTime) && never(!Knuckles2) &&
+            never(S1LifeLost) && S1TimeMinutes != 0xff && S1TimeSeconds != 0xff && S1TimeDecimal != 0xff,
+        cancel = always_false(),
+        submit = always_true(),
+        value = S1Score * 10,
+        format = "VALUE"
+    )
+}
 
-leaderboard(
-    id = 36541, title = "Chemical Plant 2 - Time Attack",
-    description = "Beat Chemical Plant act 2 in the fastest time as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x01 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36542, title = "Aquatic Ruin 1 - Time Attack",
-    description = "Beat Aquatic Ruin act 1 in the fastest time as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x02 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36543, title = "Aquatic Ruin 2 - Time Attack",
-    description = "Beat Aquatic Ruinl act 2 in the fastest time as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x02 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36544, title = "Casino Night 1 - Time Attack",
-    description = "Beat Casino Night act 1 in the fastest time as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x03 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36545, title = "Casino Night 2 - Time Attack",
-    description = "Beat Casino Night act 2 in the fastest time as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x03 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36546, title = "Hill Top 1 - Time Attack",
-    description = "Beat Hill Top act 1 in the fastest time as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x04 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36547, title = "Hill Top 2 - Time Attack",
-    description = "Beat Hill Top  act 2 in the fastest time as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x04 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36548, title = "Mystic Cave 1 - Time Attack",
-    description = "Beat Mystic Cave act 1 in the fastest time as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x05 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36549, title = "Mystic Cave 2 - Time Attack",
-    description = "Beat Mystic Cave act 2 in the fastest time as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x05 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36550, title = "Oil Ocean 1 - Time Attack",
-    description = "Beat Oil Ocean act 1 in the fastest time as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x06 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36551, title = "Oil Ocean 2 - Time Attack",
-    description = "Beat Oil Ocean act 2 in the fastest time as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x06 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36552, title = "Metropolis 1 - Time Attack",
-    description = "Beat Metropolis act 1 in the fastest time as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x07 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36553, title = "Metropolis 2 - Time Attack",
-    description = "Beat Metropolis act 2 in the fastest time as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x07 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36554, title = "Metropolis 3 - Time Attack",
-    description = "Beat Metropolis act 3 in the fastest time as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x07 && byte(0x1030FA) == 0x02 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36555, title = "Wing Fortress - Time Attack",
-    description = "Beat Wing Fortress in the fastest time as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x09 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36556, title = "Death Egg - Time Attack",
-    description = "Beat Death Egg  in the fastest time as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x0A && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36557, title = "Emerald Hill 1 - Score Attack",
-    description = "Beat Emerald Hill act 1 with the highest score as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x00 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36558, title = "Emerald Hill 2 - Score Attack",
-    description = "Beat Emerald Hill act 2 with the highest score as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x00 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36559, title = "Chemical Plant 1 - Score Attack",
-    description = "Beat Chemical Plant act 1 with the highest score as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x01 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36560, title = "Chemical Plant 2 - Score Attack",
-    description = "Beat Chemical Plant act 2 with the highest score as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x01 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE", lower_is_better = true
-)
-
-leaderboard(
-    id = 36561, title = "Aquatic Ruin 1 - Score Attack",
-    description = "Beat Aquatic Ruin act 1 with the highest score as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x02 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36562, title = "Aquatic Ruin 2 - Score Attack",
-    description = "Beat Aquatic Ruinl act 2 with the highest score",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x02 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36563, title = "Casino Night 1 - Score Attack",
-    description = "Beat Casino Night act 1 with the highest score as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x03 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36564, title = "Casino Night 2 - Score Attack",
-    description = "Beat Casino Night act 2 with the highest score as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x03 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36565, title = "Hill Top 1 - Score Attack",
-    description = "Beat Hill Top act 1 with the highest score as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x04 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36566, title = "Hill Top 2 - Score Attack",
-    description = "Beat Hill Top  act 2 with the highest score as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x04 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36567, title = "Mystic Cave 1 - Score Attack",
-    description = "Beat Mystic Cave act 1 with the highest score as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x05 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36568, title = "Mystic Cave 2 - Score Attack",
-    description = "Beat Mystic Cave act 2 with the highest score as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x05 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36569, title = "Oil Ocean 1 - Score Attack",
-    description = "Beat Oil Ocean act 1 with the highest score as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x06 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36570, title = "Oil Ocean 2 - Score Attack",
-    description = "Beat Oil Ocean act 2 with the highest score as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x06 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36571, title = "Metropolis 1 - Score Attack",
-    description = "Beat Metropolis act 1 with the highest score as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x07 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36572, title = "Metropolis 2 - Score Attack",
-    description = "Beat Metropolis act 2 with the highest score as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x07 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36573, title = "Metropolis 3 - Score Attack",
-    description = "Beat Metropolis act 3 with the highest score as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x02 && JamTimeAttackZone == 0x07 && byte(0x1030FA) == 0x02 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36574, title = "Wing Fortress - Score Attack",
-    description = "Beat Wing Fortress with the highest score as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x09 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
-
-leaderboard(
-    id = 36575, title = "Sky Chase - Score Attack",
-    description = "Beat Sky Chase with the highest score as Knuckles",
-    start  = byte(0x137136) == 0x03 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x09 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(20, byte(0x1030E9) == 0x02) && byte(0x1030E9) == 0x01 && word(0x10370E)
-              == prev(word(0x10370E)) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) ||
-              S1LifeLost) && byte(0x1FFE24) != 0xFF && S1TimeSeconds != 0xFF && 
-             S1TimeMinutes != 0xFF,
-    cancel = always_false(),
-    submit = always_true(),
-    value = measured((S1Score * 0x0A + 0x00)),
-    format = "VALUE"
-)
+for i in range(0, 18) {
+    S2KnuxScoreAttackBoard(i)
+}
 
 leaderboard(
     id = 36651, title = "Angel Island Zone Act 1 - Time Attack",
