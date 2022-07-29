@@ -1102,7 +1102,7 @@ achievement(
     trigger = S2AK && 
               S2NoDebug && S1NoDemo && JamClassicEasy && S2NoDeath && 
               S1ZoneId == 0x0E && prev(S1ScreenMode) == 0x0C && trigger_when(S1ScreenMode == 0x20) && 
-              (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) <= 0x780
+              S1TimeElapsed <= 0x780
 )
 
 achievement(
@@ -3452,389 +3452,49 @@ for i in range(0, 18) {
     S2KnuxScoreAttackBoard(i)
 }
 
-leaderboard(
-    id = 36651, title = "Angel Island Zone Act 1 - Time Attack",
-    description = "Clear the stage with the fastest time in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x00 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
+S3ZoneOrder = [
+    "Angel Island",
+    "Hydrocity",
+    "Marble Garden",
+    "Carnival Night",
+    "Icecap",
+    "Launch Base"
+]
 
-leaderboard(
-    id = 36652, title = "Angel Island Zone Act 1 - Score Attack",
-    description = "Clear the stage with the highest score in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x00 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((word(0x1FFE28) * 0x0A + byte(0x1FFE26) * 0xA0000 + 0x00)),
-    format = "SCORE"
-)
+function S3CommonBoard(index, id, goal, goal2, value, fmt, lower_is_better) {
+    zone = index / 2
+    act = index % 2
+    name = S3ZoneOrder[zone]
+    id = id + (index * 2)
+    leaderboard(
+        id = id,
+        title = format("{0} Zone Act {1} - {2} Attack", name, act + 1, goal),
+        description = format("Clear the stage with the {0} in Time Attack mode (no zips allowed)", goal2),
+        start = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == zone && JamTimeAttackAct == act &&
+            JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once(S1TimeElapsed == 0x00) &&
+            never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || S1LifeLost),
+        cancel = S1TimeElapsed != 0x00 &&
+            (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
+            ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) < prev(byte(0x1FFE13)))),
+        submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
+        value = value,
+        format = fmt,
+        lower_is_better = lower_is_better
+    )
+}
 
-leaderboard(
-    id = 36653, title = "Angel Island Zone Act 2 - Time Attack",
-    description = "Clear the stage with the fastest time in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x00 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
+function S3TimeAttackBoard(index) {
+    S3CommonBoard(index, 36651, "Time", "fastest time", S1TimeElapsed, "FRAMES", true)
+}
 
-leaderboard(
-    id = 36654, title = "Angel Island Zone Act 2 - Score Attack",
-    description = "Clear the stage with the highest score in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x00 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((word(0x1FFE28) * 0x0A + byte(0x1FFE26) * 0xA0000 + 0x00)),
-    format = "SCORE"
-)
+function S3ScoreAttackBoard(index) {
+    S3CommonBoard(index, 36652, "Score", "highest score", word(0x1FFE28) * 0x0A + byte(0x1FFE26) * 0xA0000, "SCORE", false)
+}
 
-leaderboard(
-    id = 36655, title = "Hydrocity Zone Act 1 - Time Attack",
-    description = "Clear the stage with the fastest time in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x01 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36656, title = "Hydrocity Zone Act 1 - Score Attack",
-    description = "Clear the stage with the highest score in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x01 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((word(0x1FFE28) * 0x0A + byte(0x1FFE26) * 0xA0000 + 0x00)),
-    format = "SCORE"
-)
-
-leaderboard(
-    id = 36657, title = "Hydrocity Zone Act 2 - Time Attack",
-    description = "Clear the stage with the fastest time in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x01 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36658, title = "Hydrocity Zone Act 2 - Score Attack",
-    description = "Clear the stage with the highest score in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x01 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((word(0x1FFE28) * 0x0A + byte(0x1FFE26) * 0xA0000 + 0x00)),
-    format = "SCORE"
-)
-
-leaderboard(
-    id = 36659, title = "Marble Garden Zone Act 1 - Time Attack",
-    description = "Clear the stage with the fastest time in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x02 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36660, title = "Marble Garden Zone Act 1 - Score Attack",
-    description = "Clear the stage with the highest score in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x02 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((word(0x1FFE28) * 0x0A + byte(0x1FFE26) * 0xA0000 + 0x00)),
-    format = "SCORE"
-)
-
-leaderboard(
-    id = 36661, title = "Marble Garden Zone Act 2 - Time Attack",
-    description = "Clear the stage with the fastest time in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x02 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36662, title = "Marble Garden Zone Act 2 - Score Attack",
-    description = "Clear the stage with the highest score in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x02 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((word(0x1FFE28) * 0x0A + byte(0x1FFE26) * 0xA0000 + 0x00)),
-    format = "SCORE"
-)
-
-leaderboard(
-    id = 36663, title = "Carnival Night Zone Act 1 - Time Attack",
-    description = "Clear the stage with the fastest time in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x03 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36664, title = "Carnival Night Zone Act 1 - Score Attack",
-    description = "Clear the stage with the highest score in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x03 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((word(0x1FFE28) * 0x0A + byte(0x1FFE26) * 0xA0000 + 0x00)),
-    format = "SCORE"
-)
-
-leaderboard(
-    id = 36665, title = "Carnival Night Zone Act 2 - Time Attack",
-    description = "Clear the stage with the fastest time in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x03 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36666, title = "Carnival Night Zone Act 2 - Score Attack",
-    description = "Clear the stage with the highest score in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x03 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((word(0x1FFE28) * 0x0A + byte(0x1FFE26) * 0xA0000 + 0x00)),
-    format = "SCORE"
-)
-
-leaderboard(
-    id = 36667, title = "Icecap Zone Act 1 - Time Attack",
-    description = "Clear the stage with the fastest time in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x04 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36668, title = "Icecap Zone Act 1 - Score Attack",
-    description = "Clear the stage with the highest score in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x04 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((word(0x1FFE28) * 0x0A + byte(0x1FFE26) * 0xA0000 + 0x00)),
-    format = "SCORE"
-)
-
-leaderboard(
-    id = 36669, title = "Icecap Zone Act 2 - Time Attack",
-    description = "Clear the stage with the fastest time in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x04 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36670, title = "Icecap Zone Act 2 - Score Attack",
-    description = "Clear the stage with the highest score in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x04 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((word(0x1FFE28) * 0x0A + byte(0x1FFE26) * 0xA0000 + 0x00)),
-    format = "SCORE"
-)
-
-leaderboard(
-    id = 36671, title = "Launch Base Zone Act 1 - Time Attack",
-    description = "Clear the stage with the fastest time in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x05 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36672, title = "Launch Base Zone Act 1 - Score Attack",
-    description = "Clear the stage with the highest score in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x05 && byte(0x1030FA) == 0x00 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((word(0x1FFE28) * 0x0A + byte(0x1FFE26) * 0xA0000 + 0x00)),
-    format = "SCORE"
-)
-
-leaderboard(
-    id = 36673, title = "Launch Base Zone Act 2 - Time Attack",
-    description = "Clear the stage with the fastest time in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x05 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
-    format = "FRAMES", lower_is_better = true
-)
-
-leaderboard(
-    id = 36674, title = "Launch Base Zone Act 2 - Score Attack",
-    description = "Clear the stage with the highest score in Time Attack mode (no zips allowed)",
-    start  = byte(0x137136) == 0x02 && byte(0x13713A) == 0x00 && JamTimeAttackZone == 0x05 && byte(0x1030FA) == 0x01 && 
-             JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
-              S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
-              prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
-             (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
-              ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
-                prev(byte(0x1FFE13)))),
-    submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((word(0x1FFE28) * 0x0A + byte(0x1FFE26) * 0xA0000 + 0x00)),
-    format = "SCORE"
-)
+for i in range(0, 11) {
+    S3TimeAttackBoard(i)
+    S3ScoreAttackBoard(i)
+}
 
 leaderboard(
     id = 37010, title = "Mushroom Hill Zone Act 1 - Time Attack",
@@ -3843,12 +3503,12 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
     submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
+    value = measured(S1TimeElapsed),
     format = "FRAMES", lower_is_better = true
 )
 
@@ -3859,7 +3519,7 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
@@ -3875,12 +3535,12 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
     submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
+    value = measured(S1TimeElapsed),
     format = "FRAMES", lower_is_better = true
 )
 
@@ -3891,7 +3551,7 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
@@ -3907,12 +3567,12 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
     submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
+    value = measured(S1TimeElapsed),
     format = "FRAMES", lower_is_better = true
 )
 
@@ -3923,7 +3583,7 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
@@ -3939,12 +3599,12 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
     submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
+    value = measured(S1TimeElapsed),
     format = "FRAMES", lower_is_better = true
 )
 
@@ -3955,7 +3615,7 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
@@ -3971,12 +3631,12 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
     submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
+    value = measured(S1TimeElapsed),
     format = "FRAMES", lower_is_better = true
 )
 
@@ -3987,7 +3647,7 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
@@ -4003,12 +3663,12 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
     submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
+    value = measured(S1TimeElapsed),
     format = "FRAMES", lower_is_better = true
 )
 
@@ -4019,7 +3679,7 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
@@ -4035,12 +3695,12 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
     submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
+    value = measured(S1TimeElapsed),
     format = "FRAMES", lower_is_better = true
 )
 
@@ -4051,7 +3711,7 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
@@ -4067,12 +3727,12 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
     submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
+    value = measured(S1TimeElapsed),
     format = "FRAMES", lower_is_better = true
 )
 
@@ -4083,7 +3743,7 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
@@ -4099,12 +3759,12 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
     submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
+    value = measured(S1TimeElapsed),
     format = "FRAMES", lower_is_better = true
 )
 
@@ -4115,12 +3775,12 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
     submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
+    value = measured(S1TimeElapsed),
     format = "FRAMES", lower_is_better = true
 )
 
@@ -4131,7 +3791,7 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
@@ -4147,12 +3807,12 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
     submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
+    value = measured(S1TimeElapsed),
     format = "FRAMES", lower_is_better = true
 )
 
@@ -4163,7 +3823,7 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
@@ -4179,12 +3839,12 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
     submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
+    value = measured(S1TimeElapsed),
     format = "FRAMES", lower_is_better = true
 )
 
@@ -4195,7 +3855,7 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
@@ -4211,12 +3871,12 @@ leaderboard(
              JamTimeAttack && repeated(10, byte(0x1030E9) == 0x02) && once((S1TimeMinutes * 0xE10 +
               S1TimeSeconds * 0x3C + byte(0x1FFE24)) == 0x00) && never((byte(0x1030F5) == 0x02 && bit7(0x1030EB) <
               prev(bit7(0x1030EB))) || S1LifeLost),
-    cancel = (S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24)) != 0x00 &&
+    cancel = S1TimeElapsed != 0x00 &&
              (((word(0x1D4010) - prev(word(0x1D4010))) > 0x100 && (word(0x1D4010) - prev(word(0x1D4010))) < 0x3000) ||
               ((byte(0x1030F5) == 0x02 && bit7(0x1030EB) < prev(bit7(0x1030EB))) || byte(0x1FFE13) <
                 prev(byte(0x1FFE13)))),
     submit = byte(0x1030E9) == 0x01 && word(0x10370E) == prev(word(0x10370E)),
-    value = measured((S1TimeMinutes * 0xE10 + S1TimeSeconds * 0x3C + byte(0x1FFE24))),
+    value = measured(S1TimeElapsed),
     format = "FRAMES", lower_is_better = true
 )
 
