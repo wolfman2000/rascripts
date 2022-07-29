@@ -3006,243 +3006,95 @@ achievement(
                prev(byte(0x1FFECC))))
 )
 
-achievement(
-    title = "And A Ring To Keep On Playing", description = "[Blue Spheres] Clear a blue sphere stage with difficulty 1.", points = 5,
-    id = 226152, badge = "250878", published = "6/13/2022 8:10:41 PM", modified = "7/25/2022 10:12:55 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x00
-)
+BSDifficulty = byte(0x1fffac)
 
-achievement(
-    title = "2 Player Modes", description = "[Blue Spheres] Clear a blue sphere stage with difficulty 2.", points = 5,
-    id = 226153, badge = "250879", published = "6/13/2022 8:10:41 PM", modified = "7/25/2022 10:12:56 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x01
-)
+BSNormalTitleLookup = [
+    "And A Ring To Keep On Playing",
+    "2 Player Modes",
+    "3 Unsung Heroes",
+    "4 Casinos",
+    "FIVE FLICKIES FREEEEEEEEEED!",
+    "6 Scrapped Brains",
+    "7 Chaos Emeralds",
+    "8 Hits To Freedom",
+    "9 Skies Chasing",
+    "10 Rings in TVs",
+    "11 Bumpers Bumping",
+    "12 Flipping See-Saws",
+    "13 MAX Levels"
+]
 
-achievement(
-    title = "3 Unsung Heroes", description = "[Blue Spheres] Clear a blue sphere stage with difficulty 3.", points = 5,
-    id = 226154, badge = "250880", published = "6/13/2022 8:10:41 PM", modified = "7/25/2022 10:12:56 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x02
-)
+function BSNormalCheevo(index) {
+    points = 5
+    if (index >= 9) {
+        points = 10
+    }
+    diff = format("{0}", index + 1)
+    if (index == 12) {
+        diff = "MAX"
+    }
+    achievement(
+        id = 226152 + index,
+        title = BSNormalTitleLookup[index],
+        points = points,
+        description = format("[Blue Spheres] Clear a blue sphere stage with difficulty {0}.", diff),
+        trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 &&
+            byte(0x1FE44D) == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == index
+    )
+}
 
-achievement(
-    title = "4 Casinos", description = "[Blue Spheres] Clear a blue sphere stage with difficulty 4.", points = 5,
-    id = 226155, badge = "250881", published = "6/13/2022 8:10:42 PM", modified = "7/25/2022 10:12:56 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x03
-)
+for i in range(0, 12) {
+    BSNormalCheevo(i)
+}
 
-achievement(
-    title = "FIVE FLICKIES FREEEEEEEEEED!", description = "[Blue Spheres] Clear a blue sphere stage with difficulty 5.", points = 5,
-    id = 226156, badge = "250882", published = "6/13/2022 8:10:42 PM", modified = "7/25/2022 10:12:57 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x04
-)
+function BSPerfectCheevo(index) {
+    points = 10
+    if (index >= 9) {
+        points = 25
+    }
+    diff = format("{0}", index + 1)
+    if (index == 12) {
+        diff = "MAX"
+    }
+    achievement(
+        id = 226165 + index,
+        title = format("Perfect {0}", diff),
+        points = points,
+        description = format("[Blue Spheres] Get a perfect run on a blue sphere stage with difficulty {0}.", diff),
+        trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 &&
+            byte(0x1FE44D) == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == index && word(0x1FE442) == 0x00
+    )
+}
 
-achievement(
-    title = "6 Scrapped Brains", description = "[Blue Spheres] Clear a blue sphere stage with difficulty 6.", points = 5,
-    id = 226157, badge = "250883", published = "6/13/2022 8:10:42 PM", modified = "7/25/2022 10:12:57 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x05
-)
+for i in range(0, 12) {
+    BSPerfectCheevo(i)
+}
 
-achievement(
-    title = "7 Chaos Emeralds", description = "[Blue Spheres] Clear a blue sphere stage with difficulty 7.", points = 5,
-    id = 226158, badge = "250884", published = "6/13/2022 8:10:43 PM", modified = "7/25/2022 10:12:57 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x06
-)
+BSColorCheevoData = [
+    ["Limes", "green", ((bit2(0x1FFFA7) * 0x04 + bit1(0x1FFFA7) * 0x02 + bit0(0x1FFFA7)) == 0x00)],
+    ["Apples", "red", (bit0(0x1fffa7) == 1 && bit1(0x1fffa7) == 0)],
+    ["Pomegranate", "pink", ((bit2(0x1FFFA7) * 0x04 + bit1(0x1FFFA7) * 0x02 + bit0(0x1FFFA7)) == 0x02)],
+    ["Blueberries", "blue", ((bit2(0x1FFFA7) * 0x04 + bit1(0x1FFFA7) * 0x02 + bit0(0x1FFFA7)) == 0x03)],
+    ["Melons", "gray", ((bit2(0x1FFFA7) * 0x04 + bit1(0x1FFFA7) * 0x02 + bit0(0x1FFFA7)) == 0x04)],
+    ["Plums", "cyan", ((bit2(0x1FFFA7) * 0x04 + bit1(0x1FFFA7) * 0x02 + bit0(0x1FFFA7)) == 0x06)],
+    ["Bananas", "yellow", ((bit2(0x1FFFA7) * 0x04 + bit1(0x1FFFA7) * 0x02 + bit0(0x1FFFA7)) == 0x07)]
+]
 
-achievement(
-    title = "8 Hits To Freedom", description = "[Blue Spheres] Clear a blue sphere stage with difficulty 8.", points = 5,
-    id = 226159, badge = "250885", published = "6/13/2022 8:10:43 PM", modified = "7/25/2022 10:12:58 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x07
-)
+function BSColorCheevo(index) {
+    data = BSColorCheevoData[index]
+    achievement(
+        id = 226178 + index,
+        title = "Shopping for " + data[0],
+        description = format("[Blue Spheres] Clear a blue sphere stage and collect a {0} chaos emerald.", data[1]),
+        points = 5,
+        trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 &&
+            byte(0x1FE44D) == 0x04 && word(0x1FE438) == 0x00 && data[2]
+    )
+}
 
-achievement(
-    title = "9 Skies Chasing", description = "[Blue Spheres] Clear a blue sphere stage with difficulty 9.", points = 5,
-    id = 226160, badge = "250886", published = "6/13/2022 8:10:43 PM", modified = "7/25/2022 10:12:58 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x08
-)
-
-achievement(
-    title = "10 Rings in TVs", description = "[Blue Spheres] Clear a blue sphere stage with difficulty 10.", points = 10,
-    id = 226161, badge = "250887", published = "6/13/2022 8:10:44 PM", modified = "7/25/2022 10:12:58 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x09
-)
-
-achievement(
-    title = "11 Bumpers Bumping", description = "[Blue Spheres] Clear a blue sphere stage with difficulty 11.", points = 10,
-    id = 226162, badge = "250888", published = "6/13/2022 8:10:44 PM", modified = "7/25/2022 10:12:59 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x0A
-)
-
-achievement(
-    title = "12 Flipping See-Saws", description = "[Blue Spheres] Clear a blue sphere stage with difficulty 12.", points = 10,
-    id = 226163, badge = "250889", published = "6/13/2022 8:10:44 PM", modified = "7/25/2022 10:12:59 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x0B
-)
-
-achievement(
-    title = "13 MAX Levels", description = "[Blue Spheres] Clear a blue sphere stage with difficulty MAX.", points = 10,
-    id = 226164, badge = "250890", published = "6/13/2022 8:10:45 PM", modified = "7/25/2022 10:12:59 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x0C
-)
-
-achievement(
-    title = "Perfect 1", description = "[Blue Spheres] Get a perfect on a blue sphere stage  with difficulty 1.", points = 10,
-    id = 226165, badge = "250891", published = "6/13/2022 8:10:45 PM", modified = "7/25/2022 10:13:00 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x00 && word(0x1FE442) == 0x00
-)
-
-achievement(
-    title = "Perfect 2", description = "[Blue Spheres] Get a perfect on a blue sphere stage with difficulty 2.", points = 10,
-    id = 226166, badge = "250892", published = "6/13/2022 8:10:45 PM", modified = "7/25/2022 10:13:00 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x01 && word(0x1FE442) == 0x00
-)
-
-achievement(
-    title = "Perfect 3", description = "[Blue Spheres] Get a perfect on a blue sphere stage with difficulty 3.", points = 10,
-    id = 226167, badge = "250893", published = "6/13/2022 8:10:46 PM", modified = "7/25/2022 10:13:00 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x02 && word(0x1FE442) == 0x00
-)
-
-achievement(
-    title = "Perfect 4", description = "[Blue Spheres] Get a perfect on a blue sphere stage with difficulty 4.", points = 10,
-    id = 226168, badge = "250894", published = "6/13/2022 8:10:46 PM", modified = "7/25/2022 10:13:01 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x03 && word(0x1FE442) == 0x00
-)
-
-achievement(
-    title = "Perfect 5", description = "[Blue Spheres] Get a perfect on a blue sphere stage with difficulty 5.", points = 10,
-    id = 226169, badge = "250895", published = "6/13/2022 8:10:46 PM", modified = "7/25/2022 10:13:01 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x04 && word(0x1FE442) == 0x00
-)
-
-achievement(
-    title = "Perfect 6", description = "[Blue Spheres] Get a perfect on a blue sphere stage with difficulty 6.", points = 10,
-    id = 226170, badge = "250896", published = "6/13/2022 8:10:47 PM", modified = "7/25/2022 10:13:01 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x05 && word(0x1FE442) == 0x00
-)
-
-achievement(
-    title = "Perfect 7", description = "[Blue Spheres] Get a perfect on a blue sphere stage with difficulty 7.", points = 10,
-    id = 226171, badge = "250897", published = "6/13/2022 8:10:47 PM", modified = "7/25/2022 10:13:02 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x06 && word(0x1FE442) == 0x00
-)
-
-achievement(
-    title = "Perfect 8", description = "[Blue Spheres] Get a perfect on a blue sphere stage with difficulty 8.", points = 10,
-    id = 226172, badge = "250898", published = "6/13/2022 8:10:47 PM", modified = "7/25/2022 10:13:02 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x07 && word(0x1FE442) == 0x00
-)
-
-achievement(
-    title = "Perfect 9", description = "[Blue Spheres] Get a perfect on a blue sphere stage with difficulty 9.", points = 10,
-    id = 226173, badge = "250899", published = "6/13/2022 8:10:48 PM", modified = "7/25/2022 10:13:02 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x08 && word(0x1FE442) == 0x00
-)
-
-achievement(
-    title = "Perfect 10", description = "[Blue Spheres] Get a perfect on a blue sphere stage with difficulty 10.", points = 25,
-    id = 226174, badge = "250900", published = "6/13/2022 8:10:48 PM", modified = "7/25/2022 10:13:03 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x09 && word(0x1FE442) == 0x00
-)
-
-achievement(
-    title = "Perfect 11", description = "[Blue Spheres] Get a perfect on a blue sphere stage with difficulty 11.", points = 25,
-    id = 226175, badge = "250901", published = "6/13/2022 8:10:48 PM", modified = "7/25/2022 10:13:03 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x0A && word(0x1FE442) == 0x00
-)
-
-achievement(
-    title = "Perfect 12", description = "[Blue Spheres] Get a perfect on a blue sphere stage with difficulty 12.", points = 25,
-    id = 226176, badge = "250902", published = "6/13/2022 8:10:49 PM", modified = "7/25/2022 10:13:03 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x0B && word(0x1FE442) == 0x00
-)
-
-achievement(
-    title = "Perfect MAX", description = "[Blue Spheres] Get a perfect on a blue sphere stage with difficulty MAX.", points = 25,
-    id = 226177, badge = "250903", published = "6/13/2022 8:10:49 PM", modified = "7/25/2022 10:13:04 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && byte(0x1FFFAC) == 0x0C && word(0x1FE442) == 0x00
-)
-
-achievement(
-    title = "Shopping For Limes", description = "[Blue Spheres] Clear a blue sphere stage and collect a green chaos emerald.", points = 5,
-    id = 226178, badge = "250904", published = "6/13/2022 8:10:49 PM", modified = "7/25/2022 10:13:04 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && (bit2(0x1FFFA7) * 0x04 + bit1(0x1FFFA7) * 0x02 + bit0(0x1FFFA7)) ==
-               0x00
-)
-
-achievement(
-    title = "Shopping For Apples", description = "[Blue Spheres] Clear a blue sphere stage and collect a red chaos emerald.", points = 5,
-    id = 226179, badge = "250905", published = "6/13/2022 8:10:50 PM", modified = "7/25/2022 10:13:04 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && ((bit2(0x1FFFA7) * 0x04 + bit1(0x1FFFA7) * 0x02 + bit0(0x1FFFA7)) ==
-               0x01) || (bit2(0x1FFFA7) * 0x04 + bit1(0x1FFFA7) * 0x02 + bit0(0x1FFFA7)) == 0x05
-)
-
-achievement(
-    title = "Shopping For Pomegranate", description = "[Blue Spheres] Clear a blue sphere stage and collect a pink chaos emerald.", points = 5,
-    id = 226180, badge = "250906", published = "6/13/2022 8:10:50 PM", modified = "7/25/2022 10:13:05 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && (bit2(0x1FFFA7) * 0x04 + bit1(0x1FFFA7) * 0x02 + bit0(0x1FFFA7)) ==
-               0x02
-)
-
-achievement(
-    title = "Shopping For Blueberries", description = "[Blue Spheres] Clear a blue sphere stage and collect a blue chaos emerald.", points = 5,
-    id = 226181, badge = "250907", published = "6/13/2022 8:10:50 PM", modified = "7/25/2022 10:13:05 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && (bit2(0x1FFFA7) * 0x04 + bit1(0x1FFFA7) * 0x02 + bit0(0x1FFFA7)) ==
-               0x03
-)
-
-achievement(
-    title = "Shopping For Melons", description = "[Blue Spheres] Clear a blue sphere stage and collect a gray chaos emerald.", points = 5,
-    id = 226182, badge = "250908", published = "6/13/2022 8:10:51 PM", modified = "7/25/2022 10:13:05 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && (bit2(0x1FFFA7) * 0x04 + bit1(0x1FFFA7) * 0x02 + bit0(0x1FFFA7)) ==
-               0x04
-)
-
-achievement(
-    title = "Shopping For Plums", description = "[Blue Spheres] Clear a blue sphere stage and collect a cyan chaos emerald.", points = 5,
-    id = 226183, badge = "250909", published = "6/13/2022 8:10:51 PM", modified = "7/25/2022 10:13:06 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && (bit2(0x1FFFA7) * 0x04 + bit1(0x1FFFA7) * 0x02 + bit0(0x1FFFA7)) ==
-               0x06
-)
-
-achievement(
-    title = "Shopping For Bananas", description = "[Blue Spheres] Clear a blue sphere stage and collect a yellow chaos emerald.", points = 5,
-    id = 226184, badge = "250910", published = "6/13/2022 8:10:51 PM", modified = "7/25/2022 10:13:06 PM",
-    trigger = dword(0x14F3B0) == 0xE1008111 && byte(0x13713A) == 0x01 && prev(byte(0x1FE44D)) == 0x03 && byte(0x1FE44D)
-               == 0x04 && word(0x1FE438) == 0x00 && (bit2(0x1FFFA7) * 0x04 + bit1(0x1FFFA7) * 0x02 + bit0(0x1FFFA7)) ==
-               0x07
-)
+for i in range(0, 6) {
+    BSColorCheevo(i)
+}
 
 achievement(
     title = "Triple Threat", description = "[Blue Spheres] Win three special stages in a row (no changing the code in the middle).", points = 5,
