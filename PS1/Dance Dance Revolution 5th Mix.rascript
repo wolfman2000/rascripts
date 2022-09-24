@@ -53,6 +53,56 @@
 //          0x2f=The Centre Of The Heart
 function currentSongId() => byte(0x0F2924)
 
+songMemoryDict = {
+    0x0c:"17才",
+    0x20:"ABSOLUTE",
+    0x25:"Abyss",
+    0x1d:"AFRONOVA PRIMEVAL",
+    0x1c:"AGAINST ALL ODDS (Definitive MIX)",
+    0x0d:"B4U glorious style",
+    0x0e:"BE TOGETHER",
+    0x05:"BROKEN MY HEART",
+    0x1f:"CAN'T STOP FALLIN' IN LOVE (SPEED MIX)",
+    0x06:"DANCING ALL ALONE",
+    0x1b:"DIVE",
+    0x2d:"DIVE ～more deep & deeper style～",
+    0x2b:"Do It Right",
+    0x21:"DXY!",
+    0x01:"DYNAMITE RAVE (Long ver.)",
+    0x04:"ECSTASY",
+    0x24:"Electro Tuned(the SubS mix)",
+    0x02:"Healing Vision",
+    0x29:"Healing Vision (Angelic mix)",
+    0x08:"HOT LIMIT",
+    0x1e:"INSERTION",
+    0x23:"I Was The One",
+    0x2a:"Look To The Sky",
+    0x10:"祭 JAPAN",
+    0x15:"MOONLIGHT SHADOW (New Vocal Version)",
+    0x17:"MOVIN ON (Extended Moon Mix)",
+    0x22:"Mr.T.(take me higher)",
+    0x14:"MY GENERATION(Fat Beat Mix)",
+    0x16:"NEVER ENDING STORY",
+    0x13:"NO LIMIT (RM Remix)",
+    0x2e:"NORI NORI NORI",
+    0x0f: "おどるポンポコリン",
+    0x2c:"ON THE JAZZ",
+    0x1a:"OOPS!...I DID IT AGAIN (Fired Up MIX)",
+    0x09:"PARANOiA ETERNAL",
+    0x27:"Radical Faith",
+    0x11:"Remember You",
+    0x18:"RIGHT NOW",
+    0x0a: "ロマンスの神様",
+    0x28:"サナ・モレッテ・ネ・エンテ",
+    0x03:"STILL IN MY HEART",
+    0x07:"SWING IT",
+    0x12:"TEST MY BEST",
+    0x2f:"The Centre Of The Heart (STONEBRIDGE CLUBMIX)",
+    0x26:"THE CUBE",
+    0x0b:"THE TWIST (Double Pump MIX)",
+    0x19:"TRIBAL DANCE (Almighty Mix)"
+}
+
 // Accurate chart data is required for the purpose of full combos.
 ChartData = {
     0x01: [354, 476, 643, 369, 508, 668],
@@ -198,7 +248,7 @@ songDict = {
     28:"MY GENERATION(Fat Beat Mix)",
     29:"NEVER ENDING STORY",
     30:"NO LIMIT (RM Remix)",
-    31:"Nori Nori Nori",
+    31:"NORI NORI NORI",
     32: "おどるポンポコリン",
     //32:"Odoru Ponpokorin",
     33:"ON THE JAZZ",
@@ -328,7 +378,7 @@ StartOffset = PlayerStartBase * PlayerOffset
 // Global game state
 GlobalState = byte(0xf2908)
 HereWeGo = prev(GlobalState) != 4 && GlobalState == 4
-EditMode = byte(GlobalState) == 0x2c
+EditMode = GlobalState == 0x2c
 GalleryMode = GlobalState == 0x33
 GlobalEvaluation = GlobalState == 0x06
 
@@ -362,8 +412,13 @@ function currentDifficultyP1() => byte(0x0F2998)
 //          0x03=Maniac
 function currentDifficultyP2() => byte(0x0FBC1C)
 
-function moneyScoreSingle() => dword(0xf293c + SingleOffset) - dword(0xf2940 + SingleOffset)
-function moneyScoreDouble() => dword(0xfbbc0 + DoubleOffset) - dword(0xfbbc4 + DoubleOffset)
+function runningScoreStart() => dword(0xe96bc + StartOffset)
+
+function priorScoreStart() => dword(0xe96b8 + StartOffset)
+
+function moneyScoreStart() => runningScoreStart() - priorScoreStart()
+function moneyScoreSingle() => dword(0xf2940 + SingleOffset) - dword(0xf293c + SingleOffset)
+function moneyScoreDouble() => dword(0xfbbc4 + DoubleOffset) - dword(0xfbbc0 + DoubleOffset)
 
 // $0F29C4: [Game] Player 1 Grade of current song [8-bit]
 //          Calculated in real time during the song using EX score
@@ -398,29 +453,34 @@ function littleOffSingle() => bit2(0xf29a0 + SingleOffset) == 0
 function littleOffDouble() => bit2(0xfbc24 + DoubleOffset) == 0
 
 // How many perfects?
+function judgePerfectStart() => dword(0xe9720 + StartOffset)
 function judgePerfectSingle() => dword(0xf29a4 + SingleOffset)
 function judgePerfectDouble() => dword(0xfbc28 + DoubleOffset)
 
 // How many greats?
+function judgeGreatStart() => dword(0xe9724 + StartOffset)
 function judgeGreatSingle() => dword(0xf29a8 + SingleOffset)
 function judgeGreatDouble() => dword(0xfbc2c + DoubleOffset)
 
 // How many goods?
-function judgePerfectSingle() => dword(0xf29ac + SingleOffset)
-function judgePerfectDouble() => dword(0xfbc30 + DoubleOffset)
+function judgeGoodStart() => dword(0xe9728 + StartOffset)
+function judgeGoodSingle() => dword(0xf29ac + SingleOffset)
+function judgeGoodDouble() => dword(0xfbc30 + DoubleOffset)
 
 // How many boos?
-function judgePerfectSingle() => dword(0xf29b0 + SingleOffset)
-function judgePerfectDouble() => dword(0xfbc34 + DoubleOffset)
+function judgeBooStart() => dword(0xe972c + StartOffset)
+function judgeBooSingle() => dword(0xf29b0 + SingleOffset)
+function judgeBooDouble() => dword(0xfbc34 + DoubleOffset)
 
 // How many misses?
-function judgePerfectSingle() => dword(0xf29b4 + SingleOffset)
-function judgePerfectDouble() => dword(0xfbc38 + DoubleOffset)
+function judgeMissStart() => dword(0xe9730 + StartOffset)
+function judgeMissSingle() => dword(0xf29b4 + SingleOffset)
+function judgeMissDouble() => dword(0xfbc38 + DoubleOffset)
 
 // What was the last judgment?
 function lastJudgeStart() => byte(0xea90a + StartOffset)
-function lastJudgeSingle() => dword(0xf3b8e + SingleOffset)
-function lastJudgeDouble() => dword(0xfce12 + DoubleOffset)
+function lastJudgeSingle() => byte(0xf3b8e + SingleOffset)
+function lastJudgeDouble() => byte(0xfce12 + DoubleOffset)
 
 // $0FBBC4: [Game] Player 2 In-song current score [32-bit]
 //          Does not include bonus
@@ -433,6 +493,8 @@ function currentBonusP2() => dword(0x0FBBC8)
 // $0FBC48: [Game] Player 2 Grade of current song [8-bit]
 //          Calculated in real time during the song using EX score (see 0x0f29c4)
 function currentGradeP2() => byte(0x0FBC48)
+
+function MenuSelection() => byte(0x10d812)
 
 function GameLevel() => low4(0x116d00)
 
@@ -465,7 +527,7 @@ function konamiCode() => byte(0x14A746)
 
 function songStatus() => byte(0x105128)
 
-function getPlayStyle() => bit2(0xf2920)
+function getPlayStyle() => byte(0xf2920)
 
 // $0f29bc: [Game] P1 Current number of steps that have played in song [16-bit]
 function totalStepsPlayedP1() => word(0x0f29bc)
@@ -534,22 +596,9 @@ function lessonSectionsMastered(lesson) {
     tally = 0
     lessonDataLocation = 0x117c30 + (lesson - 1) * 8
     for section in range(0,7) {
-        tally = tally + bit2(lessonDataLocation + section)
+        tally = tally + bit1(lessonDataLocation + section)
     }
     return tally
-}
-
-function danceMasterGradeTally(style, difficulty) {
-    gradeLocation = 0x116d66 + (style * 3) + difficulty
-    gradeTally = 0
-    target = 47
-    for i in range (0, target) {
-        if (byte(gradeLocation) != 0 && low4(gradeLocation) <= 3) {
-            gradeTally = gradeTally + 1
-        }
-        gradeLocation = gradeLocation + 0x40
-    }
-    return gradeTally
 }
 
 // Lesson Mode achievements
@@ -596,6 +645,27 @@ for i in ComboPoints {
 // Clear X songs to unlock a new song
 
 function totalSongsCleared() => dword(0x116ca0)
+
+unlockAddressDict = {
+    1: [0x117c98],
+    2: [0x117c9c],
+    3: [0x117c74],
+    4: [0x117c80],
+    5: [0x117c68],
+    6: [0x117c90],
+    7: [0x117c6c],
+    8: [0x117c60],
+    9: [0x117c78],
+    10: [0x117c88],
+    11: [0x117c64],
+    12: [0x117c7c],
+    13: [0x117c70],
+    14: [0x117cfc, 0x117d00],
+    15: [0x117c8c],
+    16: [0x117c94, 0x117cdc, 0x117ce4, 0x117cec, 0x117cf4],
+    17: [0x117c84],
+    18: [0x117d04, 0x117d08]
+}
 
 unlockCountDict = {
     1:5,
@@ -662,13 +732,12 @@ unlockNameDict = {
 
 function UnlockTrigger(i) {
     return programStatus() == 0x02 &&
-        totalSongsCleared() == prev(totalSongsCleared()) + 1 &&
-        totalSongsCleared() == unlockCountDict[i]
+        all_of(unlockAddressDict[i], u => prev(word(u)) == 0 && word(u) == 0xffff)
 }
 
 function KonamiTrigger() {
     return prev(konamiCode()) == 9 && konamiCode() == 0 && GalleryMode &&
-        prev(word(0x117ce4)) == 0 && word(0x117ce4) == 0xffff
+        all_of(unlockAddressDict[16], u => prev(word(u)) == 0 && word(u) == 0xffff)
 }
 
 function SongUnlockCheevo(i) {
@@ -680,7 +749,7 @@ function SongUnlockCheevo(i) {
             unlockCountDict[i]
         ),
         points = 5,
-        trigger = UnlockTrigger(i) || KonamiTrigger()
+        trigger = UnlockTrigger(i)
     )
 }
 
@@ -689,10 +758,12 @@ function DiveDeeperCheevo() {
     achievement(
         title = unlockTitleDict[16],
         description = format(
-            "Unlock {0} either by clearing {1} songs or via Konami Code."
+            "Unlock {0} either by clearing {1} songs or via Konami Code.",
+            unlockNameDict[16],
+            unlockCountDict[16]
         ),
         points = 5,
-        trigger = standardTrigger
+        trigger = standardTrigger || KonamiTrigger()
     )
 }
 
@@ -702,39 +773,50 @@ for i in range(1, 18) {
         SongUnlockCheevo(i)
     }
     else {
-        achievement(
-        title = unlockTitleDict[i],
-        description = "Unlock " + unlockNameDict[i] + " by clearing " + unlockCountDict[i] + " songs",
-        points = 5,
-        trigger = programStatus() == 0x02 &&
-            totalSongsCleared() == prev(totalSongsCleared()) + 1 &&
-            totalSongsCleared() == unlockCountDict[i]
-        )
+        DiveDeeperCheevo()
     }
 }
 
-// Dance Master cheevos (on hold)
+// Dance Master cheevos
+
+function danceMasterGradeTrigger(style, difficulty) {
+    gradeBase = 0x116d66
+    targets = []
+    for i in range(0, 46) {
+        //if (difficulty == 1 || (i != 30 && i != 43)) {
+            gradeTarget = gradeBase + (i * 0x40) + ((style - 1) * 3) + (difficulty - 1)
+            array_push(targets, gradeTarget)
+        //}
+    }
+    return all_of(targets, t => bitcount(t) != 0 && low4(t) <= 3) &&
+        any_of(targets, t => prev(low4(t)) == 0 || prev(low4(t)) >= 4)
+}
 
 function DanceMasterCheevo(styleId, diffId) {
+    fallback = ""
+    if (diffId > 1) {
+        fallback = " This includes the redundant preview song charts."
+    }
     achievement(
         title = format(
             "Dance Master - {0} {1}",
-            styleDict[styleId],
+            styleDict[styleId - 1],
             difficultyDict[diffId]
         ),
-        points = danceMasterPointValues[diffId],
+        points = danceMasterPointValues[diffId - 1],
         description = format(
-            "Get all As on every song in {0} {1}.",
-            styleDict[styleId],
-            difficultyDict[diffId]
+            "Get all As on every song in {0} {1}.{2}",
+            styleDict[styleId - 1],
+            difficultyDict[diffId],
+            fallback
         ),
-        trigger = danceMasterGradeTally(styleId, diffId) == 47
+        trigger = programStatus() == 2 && danceMasterGradeTrigger(styleId, diffId)
     )
 }
 
 for i in range(1, 2) {
     for j in range(1, 3) {
-        // DanceMasterCheevo(i, j)
+        DanceMasterCheevo(i, j)
     }
 }
 
@@ -768,12 +850,16 @@ for i in range(1,45) {
 }
 // Ideally, be more exact and use the items above. Maybe another day.
 achievement(
-    title = "Why Must Information Care About This?",
+    title = "And Now To Anger Everyone",
     points = 25,
     description = "Get a Perfect Full Combo on any chart.",
     trigger = !Versus && littleOffStart() &&
         once(HereWeGo) && trigger_when(atResultsScreen()) &&
         never(lastJudgeStart() > 1) &&
+        never(judgeGoodStart() > prev(judgeGoodStart())) &&
+        never(judgeBooStart() > prev(judgeBooStart())) &&
+        never(judgeMissStart() > prev(judgeMissStart())) &&
+        never(GlobalState == 0x0c) &&
         GameLevel() >= 3
 )
 
@@ -792,7 +878,12 @@ function SingleFullComboCheevo(songId, diffId) {
     // Don't stress about diet mode this time around.
     common = currentSongId() == songId && Single && littleOffSingle() &&
         diffTarget && once(HereWeGo) &&
-        never(lastJudgeSingle() > 2) && trigger_when(atResultsScreen()) &&
+        never(runningScoreStart() != priorScoreStart() && lastJudgeSingle() > 2) &&
+        never(judgeGoodStart() > prev(judgeGoodStart())) &&
+        never(judgeBooStart() > prev(judgeBooStart())) &&
+        never(judgeMissStart() > prev(judgeMissStart())) &&
+        never(GlobalState == 0x0c) &&
+        trigger_when(atResultsScreen()) &&
         GameLevel() >= 3
     achievement(
         title = format("{0} Single {1} FC", songEng, diff),
@@ -817,7 +908,12 @@ function DoubleFullComboCheevo(songId, diffId) {
     // Don't stress about diet mode this time around.
     common = currentSongId() == songId && Double && littleOffDouble() &&
         diffTarget && once(HereWeGo) &&
-        never(lastJudgeDouble() > 2) && trigger_when(atResultsScreen()) &&
+        never(runningScoreStart() != priorScoreStart() && lastJudgeDouble() > 2) &&
+        never(judgeGoodStart() > prev(judgeGoodStart())) &&
+        never(judgeBooStart() > prev(judgeBooStart())) &&
+        never(judgeMissStart() > prev(judgeMissStart())) &&
+        never(GlobalState == 0x0c) &&
+        trigger_when(atResultsScreen()) &&
         GameLevel() >= 3
     achievement(
         title = format("{0} Double {1} FC", songEng, diff),
@@ -849,11 +945,15 @@ galleryTitles = {
 }
 
 for i in range(10, 100, 10) {
+    target = (228 * i / 100)
     achievement(
         title = galleryTitles[i] + " Gallery",
         description = "Unlock " + i + "% of the game's 228 gallery pictures",
         points = galleryPointValues[i],
-        trigger = prev(countGalleryPictures()) == ((228 * i / 100) - 1) && measured(countGalleryPictures() == (228 * i / 100))
+        trigger =
+            (programStatus() == 2 || GalleryMode) &&
+            prev(countGalleryPictures()) < target &&
+            measured(countGalleryPictures() >= target)
     )
 }
 
@@ -865,7 +965,7 @@ achievement(
 )
 
 achievement(
-    title = "A Classic With Different Letters?",
+    title = "A Classic With Different Letters? [m]",
     description = "Unlock the remaining BeForU pictures via Konami Code. Hint: 224.",
     points = 2,
     trigger = KonamiTrigger()
@@ -876,7 +976,7 @@ achievement(
     title = "So... Many... Edits!",
     description = "Export one edit from the Data Bank to your memory card.",
     points = 1,
-    trigger = byte(0x10d812) == 5 && byte(0x192aa8) <= 8 && word(0x192aa8) <= 3771 &&
+    trigger = MenuSelection() == 5 && byte(0x192aa8) <= 8 &&
         byte(0x192abd) != 0 && prev(byte(0x192ab5)) == 3 && byte(0x192ab5) == 5
 )
 
@@ -885,7 +985,7 @@ achievement(
     title = "Let Your Imagination Run Wild",
     points = 5,
     description = "Create and save one edit containing at least 50 arrows.",
-    trigger = byte(0x10d812) == 4 && EditMode &&
+    trigger = MenuSelection() == 4 && EditMode &&
         word(0x152dc8) >= 50 && byte(0x152e2f) != 0 &&
         byte(0x152e49) == 1 && prev(byte(0x152e5e)) == 0x24 &&
         byte(0x152e5e) == 0x19
@@ -918,18 +1018,23 @@ for i in range(1, 47) {
 // Leaderboards
 
 function SingleMoneyLeaderboard(songId, diffId) {
-    diff = difficultyDict[diffId]
+    diff = difficultyDict[diffId] + " "
+    diffComp = currentDifficultySingle() == diffId
+    if ((songId >= 46)) {
+        diff = ""
+        diffComp = always_true()
+    }
     leaderboard(
         title = format(
-            "{0} Single {1} Money Score",
-            songDict[songId],
+            "{0} Single {1}Money Score",
+            songMemoryDict[songId],
             diff
         ),
         description = format(
             "Get the highest money score you can! (Same as UI)"
         ),
         start = programStatus() == 2 && songStatus() == 8 && GlobalEvaluation &&
-            Single && currentDifficultySingle() == diffId &&
+            Single && diffComp &&
             currentSongId() == songId && GameLevel() >= 3,
         cancel = always_false(),
         submit = always_true(),
@@ -938,18 +1043,23 @@ function SingleMoneyLeaderboard(songId, diffId) {
 }
 
 function SingleExLeaderboard(songId, diffId) {
-    diff = difficultyDict[diffId]
+    diff = difficultyDict[diffId] + " "
+    diffComp = currentDifficultySingle() == diffId
+    if ((songId >= 46)) {
+        diff = ""
+        diffComp = always_true()
+    }
     leaderboard(
         title = format(
-            "{0} Single {1} EX Score",
-            songDict[songId],
+            "{0} Single {1}EX Score",
+            songMemoryDict[songId],
             diff
         ),
         description = format(
             "Get the highest EX score you can! (2P + G)"
         ),
         start = programStatus() == 2 && songStatus() == 8 && GlobalEvaluation &&
-            Single && currentDifficultySingle() == diffId &&
+            Single && diffComp &&
             currentSongId() == songId && GameLevel() >= 3,
         cancel = always_false(),
         submit = always_true(),
@@ -958,18 +1068,23 @@ function SingleExLeaderboard(songId, diffId) {
 }
 
 function DoubleMoneyLeaderboard(songId, diffId) {
-    diff = difficultyDict[diffId]
+    diff = difficultyDict[diffId] + " "
+    diffComp = currentDifficultyDouble() == diffId
+    if ((songId >= 46)) {
+        diff = ""
+        diffComp = always_true()
+    }
     leaderboard(
         title = format(
-            "{0} Double {1} Money Score",
-            songDict[songId],
+            "{0} Double {1}Money Score",
+            songMemoryDict[songId],
             diff
         ),
         description = format(
             "Get the highest money score you can! (Same as UI)"
         ),
         start = programStatus() == 2 && songStatus() == 8 && GlobalEvaluation &&
-            Double && currentDifficultyDouble() == diffId &&
+            Double && diffComp &&
             currentSongId() == songId && GameLevel() >= 3,
         cancel = always_false(),
         submit = always_true(),
@@ -978,18 +1093,23 @@ function DoubleMoneyLeaderboard(songId, diffId) {
 }
 
 function DoubleExLeaderboard(songId, diffId) {
-    diff = difficultyDict[diffId]
+    diff = difficultyDict[diffId] + " "
+    diffComp = currentDifficultyDouble() == diffId
+    if ((songId >= 46)) {
+        diff = ""
+        diffComp = always_true()
+    }
     leaderboard(
         title = format(
-            "{0} Double {1} EX Score",
-            songDict[songId],
+            "{0} Double {1}EX Score",
+            songMemoryDict[songId],
             diff
         ),
         description = format(
             "Get the highest EX score you can! (2P + G)"
         ),
         start = programStatus() == 2 && songStatus() == 8 && GlobalEvaluation &&
-            Double && currentDifficultyDouble() == diffId &&
+            Double && diffComp &&
             currentSongId() == songId && GameLevel() >= 3,
         cancel = always_false(),
         submit = always_true(),
@@ -1002,7 +1122,7 @@ for i in range(1, 47) {
     SingleExLeaderboard(i, 1)
     DoubleMoneyLeaderboard(i, 1)
     DoubleExLeaderboard(i, 1)
-    if i != 31 && i != 44 {
+    if i < 46 {
         SingleMoneyLeaderboard(i, 2)
         SingleExLeaderboard(i, 2)
         DoubleMoneyLeaderboard(i, 2)
@@ -1016,9 +1136,144 @@ for i in range(1, 47) {
 
 // Rich Presence
 
-//rich_presence_conditional_display(
-//    GlobalState == 0,
-//    "Booting Up DDR 5th Mix"
-//)
+RpScoreIcon = "💯"
 
-//rich_presence_display("Playing Dance Dance Revolution 5th Mix")
+RpSongName = rich_presence_lookup("SongSelection", currentSongId(), songMemoryDict, "No Song")
+RpPlayStyle = rich_presence_lookup("PlayStyle", getPlayStyle() - 1, styleDict)
+RpDifficulty = rich_presence_lookup("PADifficulty", currentDifficultyStart(), difficultyDict)
+RpPerfect = rich_presence_macro("Number", judgePerfectStart())
+RpGreat = rich_presence_macro("Number", judgeGreatStart())
+RpGood = rich_presence_macro("Number", judgeGoodStart())
+RpBoo = rich_presence_macro("Number", judgeBooStart())
+RpMiss = rich_presence_macro("Number", judgeMissStart())
+RpScore = rich_presence_macro("Number", moneyScoreStart())
+
+rich_presence_conditional_display(
+    GlobalState == 0x1c,
+    "Welcome to DDR 5th Mix"
+)
+
+rich_presence_conditional_display(
+    Versus,
+    "Playing DDR 5th Mix with a Friend"
+)
+
+rich_presence_conditional_display(
+    MenuSelection() == 1,
+    "Working Out to DDR 5th Mix Tunes"
+)
+
+rich_presence_conditional_display(
+    GlobalState == 4,
+    "Playing {0} {1} {2}: {3}/{4}/{5}/{6}/{7} {8} {9}",
+    RpSongName,
+    RpPlayStyle,
+    RpDifficulty,
+    RpPerfect,
+    RpGreat,
+    RpGood,
+    RpBoo,
+    RpMiss,
+    RpScoreIcon,
+    RpScore
+)
+
+rich_presence_conditional_display(
+    GlobalState >= 1 && GlobalState < 4,
+    "About to Play {0} {1} {2}",
+    RpSongName,
+    RpPlayStyle,
+    RpDifficulty
+)
+
+rich_presence_conditional_display(
+    GlobalState >= 5 && GlobalState <= 6,
+    "Results of {0} {1} {2}: {3}/{4}/{5}/{6}/{7} {8} {9}",
+    RpSongName,
+    RpPlayStyle,
+    RpDifficulty,
+    RpPerfect,
+    RpGreat,
+    RpGood,
+    RpBoo,
+    RpMiss,
+    RpScoreIcon,
+    RpScore
+)
+
+rich_presence_conditional_display(
+    GlobalState == 0x0c,
+    "Thinking of Playing {0} {1} {2}",
+    RpSongName,
+    RpPlayStyle,
+    RpDifficulty
+)
+
+rich_presence_conditional_display(
+    GlobalState == 0x1a,
+    "Caution! Extreme Motions Are Dangerous!"
+)
+
+rich_presence_conditional_display(
+    GlobalState >= 0x13 && GlobalState <= 0x18,
+    "Congrats on Completing a Set"
+)
+
+rich_presence_conditional_display(
+    GlobalState == 0x00 || GlobalState == 0x1d || (GlobalState >= 0x22 && GlobalState <= 0x24),
+    "Watching Intro Loop"
+)
+
+rich_presence_conditional_display(
+    GlobalState == 0x25,
+    "Viewing Set High Scores"
+)
+
+// TODO: Identify the Lesson
+rich_presence_conditional_display(
+    GlobalState == 0x2a,
+    "Going Through Lesson Mode"
+)
+
+// TODO: Identify the song, style, and difficulty
+rich_presence_conditional_display(
+    GlobalState == 0x2b,
+    "Training On A Song"
+)
+
+rich_presence_conditional_display(
+    GlobalState == 0x2c,
+    "Creating Custom Charts"
+)
+
+rich_presence_conditional_display(
+    GlobalState == 0x2e,
+    "Viewing Score Records"
+)
+
+rich_presence_conditional_display(
+    GlobalState == 0x2f,
+    "Setting Up Options"
+)
+
+rich_presence_conditional_display(
+    GlobalState == 0x30,
+    "Reviewing Information"
+)
+
+rich_presence_conditional_display(
+    GlobalState == 0x31,
+    "Preparing a Memory Card for a Nearby Arcade Apparently"
+)
+
+rich_presence_conditional_display(
+    GlobalState == 0x32,
+    "Looking at the MANY Edits within the Data Bank"
+)
+
+rich_presence_conditional_display(
+    GlobalState == 0x33,
+    "Viewing the DDR Gallery"
+)
+
+rich_presence_display("Playing Dance Dance Revolution 5th Mix")
