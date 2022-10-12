@@ -92,13 +92,11 @@ for index in range(0, 99, 1) {
 }
 AllMissionsBeaten = TotalMissionScore == 300
 
-// Companion to Game State: Last Major Item?
-PlayingSongs = dword(0x2b6df0) == 0x0107661a ||
-    dword(0x2b6df0) == 0x0129437a || dword(0x2b6df0) == 0x0117120a
-PlayingCourses = dword(0x2b6df0) == 0x00f0289a
-PlayingAnything = PlayingSongs || PlayingCourses
-PlayingNonstop = dword(0x2b6df0) == 0x00ffd48a
-AnyCourse = (PlayingCourses || PlayingNonstop)
+// What course are we in? 
+// This appears to stay zero when only playing songs.
+CourseId = byte(0x58e6c6)
+
+AnyCourse = CourseId != 0
 
 // Sanity check to be sure we're in the right song at the right time.
 VerifySongId = byte(0x58e6d4)
@@ -149,8 +147,6 @@ P1Freeze = byte(0x26a0f4) == 0
 P2Freeze = byte(0x26a0f4 + 4) == 0
 PAFreeze = byte(0x26a0f4 + ActiveModOffset) == 0
 
-RemovedSteps = PALittle || PAFreeze
-
 // What difficulty on the music wheel?
 PASelectMusicDiff = low4(0x58a390 + PlayerStyleCombo)
 
@@ -168,12 +164,15 @@ PADanceGauge = word(0x53a42e + ActiveOffset)
 
 // Marvelous Counts (If not in a course mode, treat as a Perfect)
 PAMarvelous = word(0x53a4e4 + ActiveOffset)
+PAMarvelousSession = word(0x53a558 + ActiveOffset)
 
 // Perfect Count (If not in a course mode, add Marvelous to this secretly)
 PAPerfect = word(0x53a4e8 + ActiveOffset)
+PAPerfectSession = word(0x53a55c + ActiveOffset)
 
 // Great Count
 PAGreat = word(0x53a4ec + ActiveOffset)
+PAGreatSession = word(0x53a560 + ActiveOffset)
 
 // Good Count
 PAGood = word(0x53a4f0 + ActiveOffset)
@@ -190,6 +189,7 @@ PATotalCourseSteps = word(0x53a574 + ActiveOffset)
 
 // Freeze OK Count
 PAOK = word(0x53a504 + ActiveOffset)
+PAOKSession = word(0x53a578 + ActiveOffset)
 
 // Freeze NG (No Good) Count
 PANG = word(0x53a508 + ActiveOffset)
@@ -203,6 +203,8 @@ PATotalCourseHolds = word(0x53a584 + ActiveOffset)
 
 // Scores
 PAScoreEvaluation = dword(0x53a544 + ActiveOffset)
+PACourseScoreEvaluation = dword(0x53a434 + ActiveOffset)
+PANonstopScoreEvaluation = dword(0x53a5b8 + ActiveOffset)
 
 // Max Combo Earned
 PAMaxCombo = word(0x53a54c + ActiveOffset)
@@ -210,8 +212,8 @@ PAMaxCombo = word(0x53a54c + ActiveOffset)
 // Difficulty of the chart (once finally in-game)
 PAGameDiff = low4(0x53a49c + ActiveOffset)
 
-// Difficulty of the course
-PACourseDiff = low4(0x53a40c + ActiveOffset)
+// Difficulty of the course (shared with all players)
+PACourseDiff = low4(0x58e6d8)
 
 // How many lives left when using the battery gauge?
 PABattery = byte(0x53a430 + ActiveOffset)
@@ -342,7 +344,7 @@ ChartData = {
     9: [104, 0, 128, 20, 214, 11, 277, 20, 0, 0, 157, 12, 237, 6, 270, 9, 0, 0],
     10: [98, 0, 130, 12, 198, 10, 263, 17, 0, 0, 121, 8, 211, 25, 258, 17, 0, 0],
     11: [133, 0, 238, 0, 321, 0, 443, 0, 0, 0, 241, 0, 323, 0, 432, 0, 0, 0],
-    12: [92, 0, 113, 13, 168, 34, 204, 43, 0, 0, 89, 11, 137, 29, 169, 20, 0, 0],
+    12: [92, 0, 113, 14, 168, 34, 204, 43, 0, 0, 89, 11, 137, 29, 169, 20, 0, 0],
     13: [90, 0, 164, 0, 244, 0, 346, 0, 0, 0, 165, 0, 225, 0, 314, 0, 0, 0],
     14: [96, 0, 110, 0, 149, 0, 206, 0, 0, 0, 87, 0, 160, 0, 219, 1, 0, 0],
     15: [110, 0, 200, 0, 296, 0, 397, 0, 0, 0, 175, 0, 296, 0, 378, 0, 0, 0],
@@ -368,7 +370,7 @@ ChartData = {
     35: [94, 0, 141, 1, 186, 15, 292, 15, 0, 0, 118, 5, 203, 21, 280, 9, 0, 0],
     36: [102, 0, 123, 2, 190, 14, 326, 3, 0, 0, 123, 8, 169, 9, 270, 13, 0, 0],
     37: [100, 0, 131, 0, 184, 9, 249, 1, 0, 0, 134, 0, 186, 3, 232, 1, 0, 0],
-    38: [67, 0, 143, 0, 168, 0, 212, 0, 0, 0, 130, 0, 180, 0, 220, 0, 0, 0],
+    38: [67, 0, 143, 0, 188, 0, 212, 0, 0, 0, 130, 0, 180, 0, 220, 0, 0, 0],
     39: [148, 0, 201, 29, 264, 16, 360, 9, 0, 0, 192, 4, 279, 0, 331, 14, 0, 0],
     40: [93, 0, 126, 0, 232, 0, 308, 0, 0, 0, 119, 0, 211, 0, 288, 0, 0, 0],
     41: [62, 0, 74, 2, 154, 6, 212, 12, 0, 0, 90, 1, 167, 9, 276, 5, 0, 0],
@@ -610,9 +612,9 @@ for lockCount in range(5, 200, 5) {
     if (lockCount == 45 || lockCount % 15 != 0) {
         byteOffset = (lockCount - 5) / 40
         bitOffset = (lockCount - 5) % 40
-        playingStuff = PlayingSongs
+        playingStuff = CourseId == 0
         if (lockCount == 35 || lockCount == 145) {
-            playingStuff = PlayingAnything
+            playingStuff = always_true()
         }
         unlockBit = false
         tBit = bit7
@@ -760,6 +762,19 @@ NonstopTitleUnlock = {
     9: "Serious Mode Engage!"
 }
 
+NonstopTitleBits = {
+    0: bit0(0x2b051d),
+    1: bit1(0x2b051d),
+    2: bit2(0x2b051d),
+    3: bit3(0x2b051d),
+    4: bit4(0x2b051d),
+    5: bit5(0x2b051d),
+    6: bit6(0x2b051d),
+    7: bit7(0x2b051d),
+    8: bit0(0x2b051e),
+    9: bit1(0x2b051e)
+}
+
 ChallengeSongsLength = {
     1: 3,
     2: 4,
@@ -817,11 +832,14 @@ NonstopSongs = {
     0x21: [[0x31, 4], [61, 4], [39, 4], [56, 4]],
 }
 
+NonstopStart = GameState >= 0x07 && GameState <= 0x17 && prev(GameState) == 0xb2
+
 function NonstopClearTrigger(courseId, diffId) {
-    always = Single && GameMode && AnyCourse &&
+    always = Single && GameMode &&
+        CourseId == courseId &&
         PACourseDiff == diffId &&
         PAFailed == 0 && PADanceGauge > 0 && PAState == 6 &&
-        never(OnMenus) && never(SelectingMusic)
+        never(OnMenus)
 
     courseData = NonstopSongs[courseId]
     stepCount = 0
@@ -836,45 +854,15 @@ function NonstopClearTrigger(courseId, diffId) {
         holdCount = holdCount + ChartData[songId][index + 1]
     }
     
-    always = always &&
-        once(prior(VerifySongId) == courseId && VerifySongId == courseData[0][0]) &&
-        once(prev(VerifySongId) == courseData[0][0] && VerifySongId == courseData[1][0]) &&
-        once(prev(VerifySongId) == courseData[1][0] && VerifySongId == courseData[2][0]) &&
-        once(prev(VerifySongId) == courseData[2][0] && VerifySongId == courseData[3][0])
-
     return always && PATotalCourseSteps == stepCount && PATotalCourseHolds == holdCount
 }
 
 for ns in NonstopTitleUnlock {
-    byteOffset = ns % 8
-    tBit = bit0
-    bitOffset = ns / 8
-    if (bitOffset == 1) {
-        tBit = bit1
-    }
-    else if (bitOffset == 2) {
-        tBit = bit2
-    }
-    else if (bitOffset == 3) {
-        tBit = bit3
-    }
-    else if (bitOffset == 4) {
-        tBit = bit4
-    }
-    else if (bitOffset == 5) {
-        tBit = bit5
-    }
-    else if (bitOffset == 6) {
-        tBit = bit6
-    }
-    else if (bitOffset == 7) {
-        tBit = bit7
-    }
+    tBit = NonstopTitleBits[ns]
     
-    coreUnlock = GameMode && PlayingCourses &&
-        prev(tBit(UnlockedNonstopBase + byteOffset)) == 0 &&
-        tBit(UnlockedNonstopBase + byteOffset) == 1 &&
-        never(OnMenus)
+    coreUnlock = GameMode && PAState == 6 &&
+        prev(tBit) < tBit &&
+        never(SelectingMusic) && never(OnMenus)
         
     backupUnlock = PostMissionEasyUnlockCheck
     if (PostMissionUnlockSwitch == false) {
@@ -962,9 +950,9 @@ ChallengeTitleIds = {
 function ChallengeCourseTrigger(courseId) {
     target = word(0x2af180 + 32 + (40 * (courseId - 1)))
     return GameMode && SinglePlayerOnly &&
-        once(OniStart && SongId == courseId) &&
-        OniAlive && PAState == 6 && never(GameState == 0x01)
-        && prev(target) + 1 == target
+        OniAlive && PAState == 6 &&
+        never(GameState == 0x01) &&
+        prev(target) + 1 == target
 }
 
 for index in ChallengeTitleUnlock {
@@ -975,7 +963,7 @@ for index in ChallengeTitleUnlock {
     targetNumber = ChallengeTitleNumber[index]
     bits = ChallengeTitleBits[index]
     bitFlips = byte(bits[0]) -
-        prev(byte(bits[0])) == bits[1]
+        prior(byte(bits[0])) == bits[1]
     conditions = []
     priorConditions = []
     
@@ -990,7 +978,10 @@ for index in ChallengeTitleUnlock {
         plural = "course"
     }
     
-    coreUnlock = PlayingCourses && bitFlips && never(OnMenus)
+    coreUnlock = InGameState == 9 && bitFlips &&
+        OniAlive && MenuOption == 0 &&
+        never(prev(InGameState) != 5 && SelectingMusic) &&
+        never(OnMenus)
     backupUnlock = PostMissionEasyUnlockCheck
     if (PostMissionUnlockSwitch == false) {
         backupUnlock = AllMissionsBeaten &&
@@ -1097,6 +1088,10 @@ function SingleFullComboCheevo(songId, songName) {
     if (songId == 56) {
         points = 25
     }
+    earnedGood = PAGood > prev(PAGood)
+    earnedAlmost = PAAlmost > prev(PAAlmost)
+    earnedBoo = PABoo > prev(PABoo)
+    earnedNG = PANG > prev(PANG)
     achievement(
         points = points,
         title = songName + " Full Combo",
@@ -1104,7 +1099,7 @@ function SingleFullComboCheevo(songId, songName) {
         trigger = GameMode && Single && !AnyCourse &&
         VerifySongId == songId && SongId == songId &&
         once(PAState == 4 && prev(PAState) < 4) &&
-        disable_when(PAGood > 0 || PAAlmost > 0 || PABoo > 0 || PANG > 0,
+        disable_when(earnedGood || earnedAlmost || earnedBoo || earnedNG,
             until=SelectingMusic || OnMenus) &&
         trigger_when(ValidStepData(songId, false, true, true, true)) &&
         trigger_when(PAState == 6) &&
@@ -1221,7 +1216,7 @@ function ScoreSongLeaderboard(songId, diffId) {
     diffName = GameDiffLookup[diffId]
     reuseCondition = GameMode && SinglePlayerOnly && !AnyCourse &&
         PADanceGauge > 0 && PAGameDiff == diffId &&
-        VerifySongId == songId && SongId == songId && PassedSongOrCourse && never(RemovedSteps)
+        VerifySongId == songId && SongId == songId && PassedSongOrCourse
     leaderboard(
         title = format("{0} {1} Machine Score", songName, diffName),
         description = format(
@@ -1243,9 +1238,9 @@ function ExSongLeaderboard(songId, diffId) {
         description = format("Get the highest EX score you can on {0} {1}.", songName, diffName),
         start = GameMode && SinglePlayerOnly && !AnyCourse &&
             VerifySongId == songId && SongId == songId &&
-            PADanceGauge == 500 && PAGameDiff == diffId && InGameplayRedux && never(RemovedSteps),
+            PADanceGauge == 500 && PAGameDiff == diffId && InGameplayRedux,
         cancel = PADanceGauge == 0 ||
-            (CurrentStageA == 0xffff && CurrentStageB == 0xffff),
+            (CurrentStageA == 0xffff && CurrentStageB == 0xffff) || SelectingMusic,
         submit = PassedSongOrCourse,
         value = PAMarvelous * 2 + PAPerfect * 2 + PAOK * 2 + PAGreat,
         format = "VALUE"
@@ -1272,13 +1267,32 @@ for songId in range(1, 71) {
 
 // Nonstop Leaderboards
 
+ScoreNonstopId = {
+    0x15: [45118, 45123],
+    0x16: [45126, 45133],
+    0x17: [45135, 45139],
+    0x18: [45142, 45144],
+    0x19: [45146, 45148],
+    0x1a: [45150, 45152],
+    0x1b: [45154, 45156],
+    0x1c: [45158, 45160],
+    0x1d: [45162, 45164],
+    0x1e: [45166, 45168],
+    0x1f: [45170, 45172],
+    0x20: [45174, 45176],
+    0x21: [45178, 45180]
+}
+
 function ScoreNonstopLeaderboard(courseId, diffId) {
     courseName = CourseTitleLookup[courseId]
     diffName = NonstopDiffLookup[diffId]
-    cond = GameMode && SinglePlayerOnly && PlayingCourses &&
-        SongId == courseId && PACourseDiff == diffId && InGameState == 9 && never(RemovedSteps)
+    cond = GameMode && SinglePlayerOnly &&
+        CourseId == courseId &&
+        PACourseDiff == diffId && InGameState == 9 &&
+        never(OnMenus)
     leaderboard(
-        title = format("{0} {1} EX Score", courseName, diffName),
+        id = ScoreNonstopId[courseId][diffId],
+        title = format("{0} {1} Money Score", courseName, diffName),
         description = format(
             "Get the highest machine score you can on the {0} {1} Nonstop Course.",
             courseName,
@@ -1287,19 +1301,38 @@ function ScoreNonstopLeaderboard(courseId, diffId) {
         start = cond,
         cancel = PADanceGauge == 0 || PAFailed == 1 || OnMenus,
         submit = always_true(),
-        value = PAScoreEvaluation,
+        value = PANonstopScoreEvaluation,
         format = "SCORE"
     )
+}
+
+ExNonstopId = {
+    0x15: [45121, 45125],
+    0x16: [45128, 45132],
+    0x17: [45137, 45141],
+    0x18: [45143, 45145],
+    0x19: [45147, 45149],
+    0x1a: [45151, 45153],
+    0x1b: [45155, 45157],
+    0x1c: [45159, 45161],
+    0x1d: [45163, 45165],
+    0x1e: [45167, 45169],
+    0x1f: [45171, 45173],
+    0x20: [45175, 45177],
+    0x21: [45179, 45181]
 }
 
 function ExNonstopLeaderboard(courseId, diffId) {
     courseName = CourseTitleLookup[courseId]
     diffName = NonstopDiffLookup[diffId]
-    cond = GameMode && SinglePlayerOnly && PlayingCourses &&
-        SongId == courseId && PACourseDiff == diffId && InGameState == 9 && never(RemovedSteps)
+    cond = GameMode && SinglePlayerOnly &&
+        CourseId == courseId &&
+        PACourseDiff == diffId && InGameState == 9 &&
+        never(OnMenus)
     leaderboard(
+        id = ExNonstopId[courseId][diffId],
         title = format(
-            "{0} {1} Nonstop Course EX Score",
+            "{0} {1} EX Score",
             courseName,
             diffName
         ),
@@ -1309,9 +1342,10 @@ function ExNonstopLeaderboard(courseId, diffId) {
             diffName
         ),
         start = cond,
-        cancel = PADanceGauge == 0 || PAFailed == 1 || OnMenus,
+        cancel = PADanceGauge == 0 || PAFailed == 1 || OnMenus || SelectingMusic,
         submit = always_true(),
-        value = PAMarvelous * 2 + PAPerfect * 2 + PAOK * 2 + PAGreat,
+        value = PAMarvelousSession * 2 + PAPerfectSession * 2 +
+            PAOKSession * 2 + PAGreatSession,
         format = "VALUE"
     )
 }
@@ -1327,17 +1361,16 @@ for index in NonstopCheevoNumbers {
 
 function ExChallengeLeaderboard(courseId) {
     courseName = CourseTitleLookup[courseId]
-    cond = GameMode && SinglePlayerOnly && PlayingCourses &&
+    cond = GameMode && SinglePlayerOnly && 
         once(SongId == courseId && OniStart) && InGameState == 9 &&
-        GameState == 6 &&
-        never(GameState == 1)
+        never(GameState == 1) && never(prev(InGameState) != 0x05 && SelectingMusic)
     leaderboard(
         title = format("{0} Challenge Course EX Score", courseName),
         description = format("Get the highest EX score you can on the {0} Challenge Course.", courseName),
         start = cond,
-        cancel = always_false(),
+        cancel = PAFailed == 1 || OnMenus || SelectingMusic,
         submit = always_true(),
-        value = PAScoreEvaluation,
+        value = PACourseScoreEvaluation,
         format = "VALUE"
     )
 }
@@ -1352,8 +1385,8 @@ for index in ChallengeTitleCheevo {
 
 RpSongTraining = rich_presence_lookup("SongTraining", byte(0x58e6d4), SongTitleLookup, "Something")
 RpSong = rich_presence_lookup("Song", SongId, SongTitleLookup, "Something")
-RpCourse = rich_presence_lookup("Course", SongId, CourseTitleLookup, "Something")
-RpCourseKind = rich_presence_lookup("Kind", SongId, CourseKindLookup)
+RpCourse = rich_presence_lookup("Course", CourseId, CourseTitleLookup, "Something")
+RpCourseKind = rich_presence_lookup("Kind", CourseId, CourseKindLookup)
 RpCourseDiff = rich_presence_lookup("CourseDiff", PACourseDiff, NonstopDiffLookup)
 RpSelectDiff = rich_presence_lookup("Difficulty", PASelectMusicDiff, GameDiffLookup)
 RpGameDiff = rich_presence_lookup("Difficulty", PAGameDiff, GameDiffLookup)
@@ -1501,20 +1534,20 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    PlayingSongs && SinglePlayerOnly && SelectingOptions,
+    CourseId == 0 && SinglePlayerOnly && SelectingOptions,
     "Customizing The Experience For {0}",
     RpSong
 )
 
 rich_presence_conditional_display(
-    AnyCourse && SinglePlayerOnly && SelectingOptions && SongId >= 0x15,
+    GameState == 0xb2 && SinglePlayerOnly && SelectingOptions && SongId >= 0x15,
     "Customizing The Experience For {0} ({1})",
     RpCourse,
     RpCourseKind
 )
 
 rich_presence_conditional_display(
-    PlayingSongs && SinglePlayerOnly && EvaluationScreen,
+    CourseId == 0 && SinglePlayerOnly && EvaluationScreen,
     "Results Of {0} {1} - {2}/{3}/{4}/{5}/{6}/{7} Max Combo {8} Score {9}",
     RpSong,
     RpGameDiff,
@@ -1529,7 +1562,8 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    AnyCourse && SinglePlayerOnly && EvaluationScreen && SongId >= 0x15,
+    CourseId >= 0x15 && SinglePlayerOnly && EvaluationScreen && 
+    never(OnMenus),
     "Results Of {0} {1} - {8}/{2}/{3}/{4}/{5}/{6}/{7} Max Combo {9} Score {10}",
     RpCourse,
     RpCourseDiff,
@@ -1545,7 +1579,8 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    AnyCourse && SinglePlayerOnly && EvaluationScreen,
+    CourseId < 0x15 && CourseId != 0 && SinglePlayerOnly && EvaluationScreen &&
+    never(OnMenus),
     "Results Of {0} ({1}) - {8}/{2}/{3}/{4}/{5}/{6}/{7} Max Combo {9} Score {10}",
     RpCourse,
     RpCourseKind,
@@ -1561,7 +1596,7 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    PlayingSongs && SinglePlayerOnly && Passed && SongId == VerifySongId,
+    CourseId == 0 && SinglePlayerOnly && Passed && SongId == VerifySongId,
     "Playing {0} {1} - {2}/{3}/{4}/{5}/{6}/{7}",
     RpSong,
     RpGameDiff,
@@ -1574,7 +1609,7 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    PlayingSongs && SinglePlayerOnly && InGameplayRedux && SongId == VerifySongId,
+    CourseId == 0 && SinglePlayerOnly && InGameplayRedux && SongId == VerifySongId,
     "Playing {0} {1} - {2}/{3}/{4}/{5}/{6}/{7}",
     RpSong,
     RpGameDiff,
@@ -1587,7 +1622,8 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    AnyCourse && SinglePlayerOnly && PAFailed == 1 && SongId >= 0x15,
+    CourseId >= 0x15 && SinglePlayerOnly && PAFailed == 1 &&
+    never(OnMenus),
     "Failed on {0} {1} - {8}/{2}/{3}/{4}/{5}/{6}/{7}",
     RpCourse,
     RpCourseDiff,
@@ -1601,7 +1637,8 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    AnyCourse && SinglePlayerOnly && PAFailed == 1 && SongId < 0x15,
+    CourseId < 0x15 && CourseId != 0 && SinglePlayerOnly && PAFailed == 1 &&
+    never(OnMenus),
     "Failed on {0} ({1}) - {8}/{2}/{3}/{4}/{5}/{6}/{7}",
     RpCourse,
     RpCourseKind,
@@ -1615,7 +1652,8 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    AnyCourse && SinglePlayerOnly && InGameplayRedux && SongId >= 0x15,
+    CourseId >= 0x15 && SinglePlayerOnly && InGameplayRedux &&
+    never(OnMenus),
     "Playing {0} {1} - {8}/{2}/{3}/{4}/{5}/{6}/{7}",
     RpCourse,
     RpCourseDiff,
@@ -1629,7 +1667,8 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    AnyCourse && SinglePlayerOnly && InGameplayRedux && SongId < 0x15,
+    CourseId < 0x15 && CourseId != 0 && SinglePlayerOnly && InGameplayRedux &&
+    never(OnMenus),
     "Playing {0} ({1}) 🔋x{9} - {8}/{2}/{3}/{4}/{5}/{6}/{7}",
     RpCourse,
     RpCourseKind,
@@ -1644,7 +1683,7 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    AnyCourse && SinglePlayerOnly && SelectingMusic && SongId >= 0x15,
+    SinglePlayerOnly && SelectingMusic && CourseId >= 0x15,
     "Thinking About Playing {0} {2} ({1})",
     RpCourse,
     RpCourseKind,
@@ -1652,20 +1691,20 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    AnyCourse && SinglePlayerOnly && SelectingMusic && SongId < 0x15,
+    SinglePlayerOnly && SelectingMusic && CourseId < 0x15,
     "Thinking About Playing {0} ({1})",
     RpCourse,
     RpCourseKind
 )
 
 rich_presence_conditional_display(
-    PlayingSongs && SinglePlayerOnly && SelectingMusic,
+    CourseId == 0 && SinglePlayerOnly && SelectingMusic,
     "Thinking About Playing {0}",
     RpSong
 )
 
 rich_presence_conditional_display(
-    PlayingSongs && LoadingWheel,
+    CourseId == 0 && LoadingWheel,
     "Select Your Music."
 )
 
