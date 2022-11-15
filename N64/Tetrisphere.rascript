@@ -68,6 +68,8 @@ function SelectedVsCpu() => SelectedMode1P() == 4
 //          0x02 - Practice
 //          0x03 - Options
 //          0x04 - Training
+function MainMenu() => byte(0x0e0756)
+function InPractice() => MainMenu() == 2
 // $0E075A: VS Menu Selection
 //          0x00 - Battle
 //          0x01 - Rules
@@ -760,8 +762,15 @@ CreateVsModeAchievement("Watson", 4, 50)
 
 // Reusable code for Lines Mode
 function TriggerLinesMode(episodeNumber) {
-    return NotCheating() && never(OnInitialMenu()) && 
-      once(InLinesMode() && EpisodeMenuSelection() == episodeNumber && CurrentLevelUi() == 1) && measured(repeated(10, EarnedVictoryJingle()))
+    return NotCheating() && never(OnInitialMenu()) &&
+        never(prev(EpisodeMenuSelection()) != EpisodeMenuSelection()) &&
+        once(
+            InLinesMode() && EpisodeMenuSelection() == episodeNumber &&
+            CurrentLevelUi() == 1
+        ) &&
+        measured(
+            repeated(10, EpisodeMenuSelection() == episodeNumber && EarnedVictoryJingle())
+        )
 }
 
 function CreateLinesModeAchievement(title, episode, points) {
@@ -781,8 +790,11 @@ CreateLinesModeAchievement("Curved Lines", 4, 50)
 
 // Reusable function for Rescue Mode.
 function TriggerRescueMode(episodeNumber) {
-    return NotCheating() && never(OnInitialMenu()) && 
-      once(InRescueMode() && EpisodeMenuSelection() == episodeNumber && CurrentLevelUi() == 1) && measured(repeated(10, EarnedVictoryJingle()))
+    return NotCheating() && never(OnInitialMenu()) &&
+        never(prev(EpisodeMenuSelection()) != EpisodeMenuSelection()) &&
+        once(InRescueMode() && EpisodeMenuSelection() == episodeNumber &&
+        CurrentLevelUi() == 1) &&
+        measured(repeated(10, EpisodeMenuSelection() == episodeNumber && EarnedVictoryJingle()))
 }
 
 function CreateRescueModeAchievement(title, episode, points) {
@@ -807,8 +819,13 @@ CreateRescueModeAchievement("Apollo 13", 9, 50)
 
 // Reusable function for Hide & Seek Mode.
 function TriggerHideAndSeek(episodeNumber) {
-    return NotCheating() && never(OnInitialMenu()) && 
-      once(InHideAndSeek() && EpisodeMenuSelection() == episodeNumber && CurrentLevelUi() == 1) && measured(EpisodeMenuSelection() == episodeNumber && repeated(30, EarnedVictoryJingle()))
+    return NotCheating() && never(OnInitialMenu()) &&
+        never(prev(EpisodeMenuSelection()) != EpisodeMenuSelection()) &&
+        once(
+            InHideAndSeek() && EpisodeMenuSelection() == episodeNumber &&
+            CurrentLevelUi() == 1
+        ) &&
+        measured(repeated(30, EpisodeMenuSelection() == episodeNumber && EarnedVictoryJingle()))
 }
 
 function CreateHideAndSeekAchievement(title, episode, points) {
@@ -829,7 +846,7 @@ CreateHideAndSeekAchievement("Hide the Teddy", 4, 50)
 achievement(
     title = "One-Hit Wonder", description = "Clear Practice Mode in ONE piece drop.", points = 5,
     id = 196554, badge = "228089", published = "2/6/2022 7:31:02 PM", modified = "3/19/2022 6:37:14 PM",
-    trigger = NotCheating() && disable_when(repeated(2,
+    trigger = NotCheating() && InPractice() && disable_when(repeated(2,
                Player1PressedA() > prev(Player1PressedA())), until=GameStateA() != 37) && once(once(Player1PressedA() >
                prev(Player1PressedA())) && VictoryJingle() == 1 && never(GameStateA() != 37))
 )
@@ -837,7 +854,7 @@ achievement(
 achievement(
     title = "And Now, Your Moment of Zen", description = "Clear Practice Mode with all shapes, 5 layers, and 99 core pieces to remove.", points = 10,
     id = 196555, badge = "228090", published = "2/6/2022 7:31:03 PM", modified = "3/27/2022 2:32:07 AM",
-    trigger = NotCheating() && PracticeModeLayerCount() == 5 && 
+    trigger = NotCheating() && InPractice() && PracticeModeLayerCount() == 5 && 
               PracticeModeCoreCount() == 99 && (PracticeModePieceL() + PracticeModePieceI() + PracticeModePieceLine() + PracticeModePieceSquare() +
                PracticeModePieceT() + PracticeModePieceZ()) == 6 && EarnedVictoryJingle()
 )
