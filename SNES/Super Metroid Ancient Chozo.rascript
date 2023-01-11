@@ -130,7 +130,7 @@ NorfairMissiles = [
     [3, 0xd878, 0xaade],
     [6, 0xd878, 0xb283],
     [2, 0xd879, 0xb510],
-    [4, 0xd879, 0xb40a],
+    [1, 0xd879, 0xb40a],
     [5, 0xd879, 0xb656]
 ]
 
@@ -140,7 +140,7 @@ NorfairSuperMissiles = [
 
 NorfairPowerBombs = [
     [3, 0xd877, 0xab64],
-    [1, 0xd879, 0xb5d5],
+    [4, 0xd879, 0xb5d5],
     [3, 0xd879, 0xb55a],
 ]
 
@@ -289,7 +289,7 @@ achievement(
 )
 
 achievement(
-    title = "Always With The Guardians...",
+    title = "Always With The Guardians... [m]",
     description = "Defeat the Torizo after picking up the Bombs.",
     points = 5,
     trigger = Room(0x9804) && WonBoss(2, 0xd828)
@@ -531,7 +531,7 @@ achievement(
     title = "There's The Earth Shattering Kaboom",
     description = "Escape Zebes by yourself.",
     points = 10,
-    trigger = BossBeaten(1, 0xd82d) && Room(0x92fd) && EnteredGunship &&
+    trigger = BossBeaten(1, 0xd82d) && Room(0x91f8) && EnteredGunship &&
         !HasItem(7, 0xd821)
 )
 
@@ -539,7 +539,7 @@ achievement(
     title = "Cannon Respecting Canon",
     description = "Escape Zebes -- but save the animals first!",
     points = 10,
-    trigger = BossBeaten(1, 0xd82d) && Room(0x92fd) && EnteredGunship &&
+    trigger = BossBeaten(1, 0xd82d) && Room(0x91f8) && EnteredGunship &&
         HasItem(7, 0xd821)
 )
 
@@ -579,7 +579,7 @@ achievement(
     title = "No Bionic Commander",
     description = "Escape Zebes without ever collecting the Grappling Beam.",
     points = 25,
-    trigger = BossBeaten(1, 0xd82d) && Room(0x92fd) && EnteredGunship &&
+    trigger = BossBeaten(1, 0xd82d) && Room(0x91f8) && EnteredGunship &&
         !HasItem(6, 0x9a5)
 )
 
@@ -587,7 +587,7 @@ achievement(
     title = "No Rush To Finish",
     description = "Escape Zebes without ever collecting the Speed Booster.",
     points = 25,
-    trigger = BossBeaten(1, 0xd82d) && Room(0x92fd) && EnteredGunship &&
+    trigger = BossBeaten(1, 0xd82d) && Room(0x91f8) && EnteredGunship &&
         !HasItem(5, 0x9a5)
 )
 
@@ -595,14 +595,14 @@ achievement(
     title = "No Chill At All",
     description = "Escape Zebes without ever collecting the Ice Beam.",
     points = 25,
-    trigger = BossBeaten(1, 0xd82d) && Room(0x92fd) && EnteredGunship &&
+    trigger = BossBeaten(1, 0xd82d) && Room(0x91f8) && EnteredGunship &&
         !HasItem(1, 0x9a8)
 )
 
 // Speedrun Tricks
 
 achievement(
-    title = "Catch You On The Flip Side",
+    title = "Catch You On The Flip Side [m]",
     description = "Claim the Bombs, but avoid the battle with the Torizo.",
     points = 10,
     trigger = Room(0x9879) && LastRoom(0x9804) &&
@@ -652,10 +652,10 @@ achievement(
 
 // This specific cheevo needs to use Reset Next If, but
 // the ability to do so in RATools is limited.
-pondLeft = once(LastRoom(0x948c) && Room(0x95ff)) &&
-    never(Room(0x948c)) && trigger_when(Room(0x93fe))
-pondRight = once(LastRoom(0x93fe) && Room(0x95ff)) &&
-    never(Room(0x93fe)) && trigger_when(Room(0x948c))
+pondLeft = once(LastRoom(0x948c) && Room(0x95ff) && never(Room(0x948c))) &&
+    trigger_when(Room(0x93fe))
+pondRight = once(LastRoom(0x93fe) && Room(0x95ff) && never(Room(0x93fe))) &&
+     trigger_when(Room(0x948c))
 
 achievement(
     title = "That's Enough Baths For One Day",
@@ -679,8 +679,8 @@ achievement(
         never(GsGameOver) &&
         never(EquippedSpeedBooster) &&
         never(EquippedSpaceJump) &&
-        trigger_when(WonBoss(0, 0xd82b)) &&
-        trigger_when(PickedUpItem(7, 0xd880))
+        trigger_when(once(WonBoss(0, 0xd82b))) &&
+        trigger_when(once(PickedUpItem(7, 0xd880)))
 )
 
 achievement(
@@ -850,23 +850,130 @@ HudWeaponLookup = {
     5: "X-Ray Scope"
 }
 
+InGameMinutes = byte(0x9de)
+
 RpArea = rich_presence_lookup("Area", byte(0x79f), AreaLookup)
 RpWeapon = rich_presence_lookup("Weapon", byte(0x9d2), HudWeaponLookup)
 RpInGameHours = rich_presence_macro("Number", byte(0x9e0))
-RpInGameMinutes = rich_presence_macro("Number", byte(0x9de))
+RpInGameMinutes = rich_presence_macro("Number",InGameMinutes)
 
+HyperBeamLookup = {
+    0: "",
+    1: "🌈! "
+}
+ChargeBeamLookup = {
+    0: "",
+    1: "✴/"
+}
+IceBeamLookup = {
+    0: "",
+    1: "❄/"
+}
+WaveBeamLookup = {
+    0: "",
+    1: "~/"
+}
+SpazerBeamLookup = {
+    0: "",
+    1: "☰/"
+}
+PlasmaBeamLookup = {
+    0: "",
+    1: "⟿"
+}
+
+HyperBeam = bit7(0xa77)
+RpHyper = rich_presence_lookup("Hyper", HyperBeam, HyperBeamLookup)
+RpCharge = rich_presence_lookup("Charge", bit4(0x9a7), ChargeBeamLookup)
+RpIceBeam = rich_presence_lookup("Ice", bit1(0x9a6), IceBeamLookup)
+RpWaveBeam = rich_presence_lookup("Wave", bit0(0x9a6), WaveBeamLookup)
+RpSpazerBeam = rich_presence_lookup("Spazer", bit2(0x9a6), SpazerBeamLookup)
+RpPlasmaBeam = rich_presence_lookup("Plasma", bit3(0x9a6), PlasmaBeamLookup)
+
+ItemPercentage = bitcount(0xd870) +
+    bitcount(0xd871) +
+    bitcount(0xd872) +
+    bitcount(0xd873) +
+    bitcount(0xd874) +
+    bitcount(0xd875) +
+    bitcount(0xd876) +
+    bitcount(0xd877) +
+    bitcount(0xd878) +
+    bitcount(0xd879) +
+    bitcount(0xd87a) +
+    bitcount(0xd880) +
+    bitcount(0xd881) +
+    bitcount(0xd882) +
+    bitcount(0xd883) +
+    bitcount(0xd88f)
+
+RpItemPercentage = rich_presence_macro("Number", ItemPercentage)
+RpInGameTime = rich_presence_value(
+    "IGT", 
+    byte(0x9da) + byte(0x9dc) * 60 + byte(0x9de) * 3600 + byte(0x9e0) * 216000,
+    "FRAMES"
+)
+RpClock = "⌚"
+RpEnergyTank = "🅴"
+RpMissile = "🚀"
+RpSuperMissile = "🅢🚀"
+RpBomb = "🅟💣"
+
+rich_presence_conditional_display(
+    GameState >= 0x26 && GameState <= 0x27 && InGameMinutes <= 9,
+    "Your Mission is Completed Successfully. " +
+    "Clear Time {0}:0{1} " +
+    "Item Percentage: {2}%",
+    RpInGameHours,
+    RpInGameMinutes,
+    RpItemPercentage
+)
 rich_presence_conditional_display(
     GameState >= 0x26 && GameState <= 0x27,
     "Your Mission is Completed Successfully. " +
-    "Clear Time {0}:{1}",
+    "Clear Time {0}:{1} " +
+    "Item Percentage: {2}%",
     RpInGameHours,
-    RpInGameMinutes
+    RpInGameMinutes,
+    RpItemPercentage
 )
+
 rich_presence_conditional_display(
     GsIntro || (GameState >= 0x1e && GameState <= 0x25), "Mission Debriefing"
 )
-rich_presence_display(
-    "Samus In {0} Equipped with {1}",
+
+rich_presence_conditional_display(
+    HyperBeam == 1,
+    "Samus in {0} using {1} {4} {2}:{3}",
     RpArea,
-    RpWeapon
+    RpWeapon,
+    RpClock,
+    RpInGameTime,
+    RpHyper
+)
+
+rich_presence_display(
+    "Samus in {0} using {1} | {4}{5}{6}{7}{8} " +
+    "{9}/{10}{11} {12}/{13}{14} {15}/{16}{17} {18}/{19}{20} {2}{3}",
+    RpArea,
+    RpWeapon,
+    RpClock,
+    RpInGameTime,
+    RpCharge,
+    RpIceBeam,
+    RpWaveBeam,
+    RpSpazerBeam,
+    RpPlasmaBeam,
+    rich_presence_macro("Number", word(0x9c2) + word(0x9d6)),
+    rich_presence_macro("Number", word(0x9c4) + word(0x9d4)),
+    RpEnergyTank,
+    rich_presence_macro("Number", byte(0x9c6)),
+    rich_presence_macro("Number", byte(0x9c8)),
+    RpMissile,
+    rich_presence_macro("Number", byte(0x9ca)),
+    rich_presence_macro("Number", byte(0x9cc)),
+    RpSuperMissile,
+    rich_presence_macro("Number", byte(0x9ce)),
+    rich_presence_macro("Number", byte(0x9d0)),
+    RpBomb
 )
