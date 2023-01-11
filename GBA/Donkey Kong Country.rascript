@@ -503,6 +503,7 @@ function SRankCheevo(i) {
         points = 10,
         description = format("[DK Attack] Get an S Rank on {0}.", stage),
         trigger = once(prev(byte(0x1000)) == 0xff && byte(0x1000) == i) &&
+            never(byte(0x1000) != i && byte(0x1000) != 0xff && word(0x1a1) > 0x100) &&
             never(byte(0x1000) == 0x20 && byte(0x8f) == 0xff) && 
             never(byte(0x1014) == 0x00 && GlobalState == 0x89) &&
             never(byte(0x1014) != 0x01 && byte(0x1014) != 0x05) &&
