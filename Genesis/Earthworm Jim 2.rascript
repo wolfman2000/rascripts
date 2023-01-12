@@ -508,7 +508,8 @@ function OutOfLevel(levelNumber) {
     return none_of(validIds, id => id == currentStage)
 }
 
-function BeatenLevel(levelNumber) =>  InLevel(levelNumber) && LevelFlagClaimed(levelNumber)
+function BeatenLevel(levelNumber) =>  InLevel(levelNumber) &&
+    LevelFlagClaimed(levelNumber)
 
 function BeatenLevelWithoutAllFlagsLeaderboard(levelNumber) {
     levelbyte = LevelOrderToByteLookup[levelNumber]
@@ -550,6 +551,10 @@ function TransitionToCow(levelNumber) {
 // $A320: Countdown to Cow
 //        When this hits 0, the cow at the end of the level says "Well Done".
 //        This countdown may be used for other purposes.
+
+function OnCowScreen() => MusicTrack() == 0xff && byte(0xa380) == 0x03 &&
+    byte(0xa384) == 0x06 && byte(0xa389) == 0x82 && byte(0xfa38) == 0x0f
+
 // $A4A2: meat hp / Pedro pupa  hp [hard]
 function BossHasShownUp() => once(byte(0xa4a2) > 0)
 // $A510: Pedro pupa Health
@@ -650,7 +655,7 @@ function IsGameOver() => byte(0xfbcf) == 0xFF && IsDeadJim() && LifeCount() == 0
 //        0x00: In the Air
 // $FBE3: Misc Animation/Sound Thing
 //        This can be lined up with the camera position to know when Psy-Crow gets Taxi'ed. (Watch for value 0x08 here and 4a/49 on the camera x-position ones.)
-function IsPsycrowTaxied() => (word(0xfb94) == 0x4a1e) && byte(0xfbe3) == 0x08
+function IsPsycrowTaxied() => (word(0xfb94) >= 0x4a1e) && byte(0xfbe3) == 0x08
 // $FC14: Meal Worms Collected (One's Digit) 
 // These are only relevant in Villi People/Salamander and Inflated Head.
 function DidWormCountChange() => prev(low4(0xFC14)) != low4(0xFC14)
@@ -731,7 +736,10 @@ function CreateBeatenLevelNormalCheevo(id, levelNumber, title, points) {
         title = title,
         description = "Beat the level " + LevelNumberToStageName[levelNumber] + ".",
         points = points,
-        trigger = unless(AnyCheat()) && never(InDemo()) && never(IsMenuMusic()) && BeatenLevel(levelNumber)
+        trigger = unless(AnyCheat()) &&
+        never(InDemo()) &&
+        never(IsMenuMusic()) &&
+        BeatenLevel(levelNumber) && OnCowScreen()
     )
 }
 
@@ -764,7 +772,11 @@ function CreateBeatenLevelDifficultCheevo(levelNumber, title, points) {
         title = title,
         description = format("Beat the level {0} on Difficult.", LevelNumberToStageName[levelNumber] ),
         points = points,
-        trigger = unless(AnyCheat()) && never(InDemo()) && never(IsMenuMusic()) && OnDifficult() && BeatenLevel(levelNumber)
+        trigger = unless(AnyCheat()) &&
+        never(InDemo()) &&
+        never(IsMenuMusic()) &&
+        OnDifficult() &&
+        BeatenLevel(levelNumber) && OnCowScreen()
     )
 }
 
@@ -797,15 +809,29 @@ function CreateGameBeatenCheevo(id, title, description, onRightDifficulty) {
         title = title,
         description = description,
         points = 25,
-        trigger = unless(AnyCheat()) && never(InDemo()) && onRightDifficulty && CurrentStage() == 0x10 && IsPsycrowTaxied()
+        trigger = unless(AnyCheat()) &&
+            never(InDemo()) &&
+            onRightDifficulty &&
+            CurrentStage() == 0x10 &&
+            IsPsycrowTaxied()
     )
 }
 
 // Update 5672 to end on taxi smash. (Maybe move the icon to difficult mode)
-CreateGameBeatenCheevo(209716, "Look Left, Right, and Up for Flying Taxis", "Beat the game.", true)
+CreateGameBeatenCheevo(
+    209716,
+    "Look Left, Right, and Up for Flying Taxis",
+    "Beat the game.",
+    true
+)
 
 // Update 5755 to end on taxi smash.
-CreateGameBeatenCheevo(209739, "...Stays in Lost Vegas", "Beat the game on Difficult.", OnDifficult())
+CreateGameBeatenCheevo(
+    209739,
+    "...Stays in Lost Vegas",
+    "Beat the game on Difficult.",
+    OnDifficult()
+)
 
 function CreateAllFlagCheevo(levelNumber, title, points) {
     achievement(
@@ -964,8 +990,16 @@ function CreateDamagelessCheevo(title, levelNumber, stageId, boss, points) {
         title = title,
         description = "Defeat " + boss + " on Difficult without taking damage.",
         points = points,
-        trigger = unless(AnyCheat()) && never(InDemo()) && OnDifficult() && CurrentStage() == stageId && BossHasShownUp() &&
-            disable_when(CurrentStage() == stageId && PriorHealth() > CurrentHealth(), until= LifeCount() < prev(LifeCount()) || OutOfLevel(levelNumber)) && trigger_when(TransitionToCow(levelNumber))
+        trigger = unless(AnyCheat()) &&
+            never(InDemo()) &&
+            OnDifficult() &&
+            CurrentStage() == stageId &&
+            BossHasShownUp() &&
+            disable_when(
+                CurrentStage() == stageId && PriorHealth() > CurrentHealth(),
+                until=LifeCount() < prev(LifeCount()) || OutOfLevel(levelNumber)
+            )
+            && trigger_when(TransitionToCow(levelNumber))
     )
 }
 
