@@ -240,7 +240,7 @@ StageLookup = {
     0x18: "Ripto's Mondo Volcano",
 }
 
-LangOffset = bit5(0xd0) * 10
+LangOffset = bit5(0xd0) * 0x10
 
 CheatProtection = bit1(0x0026C8 + LangOffset) == 0x00 && 
               bit2(0x0026C8 + LangOffset) == 0x00 &&
@@ -831,10 +831,14 @@ function Music(val) {
     return byte(0x850 + LangOffset) == val// && byte(0x3280 + LangOffset) == val
 }
 
+function CheckersMusic() {
+    return __ornext(Music(0x6c) || Music(0x98))
+}
+
 achievement(
     title = "Reverse The Charge", description = "In Dragon Draughts, get a piece to the end of the board.", points = 5,
     id = 243210, badge = "270081", published = "8/27/2022 2:33:02 AM", modified = "9/13/2022 4:55:13 PM",
-    trigger = Music(0x6C) &&
+    trigger = CheckersMusic() &&
         byte(0x006422) == 0x00 && byte(0x006423) == 0x00 && byte(0x00645A) == 0x01 &&
         tbyte(0x046E88) == tbyte(0x046EA0) &&
         ((bit1(tbyte(0x046E88) + 0x00C9C9) > prev(bit1(tbyte(0x046E88) + 0x00C9C9))) ||
@@ -846,7 +850,7 @@ achievement(
 achievement(
     title = "Domination Victory", description = "In Dragon Draughts, win by capturing all opposing pieces.", points = 10,
     id = 243211, badge = "270082", published = "8/27/2022 2:33:10 AM", modified = "9/13/2022 4:55:13 PM",
-    trigger = Music(0x6C) && byte(0x006422) == 0x00 && byte(0x006423) == 0x00 && byte(0x00645A) == 0x01 && tbyte(0x046E88) ==
+    trigger = CheckersMusic() && byte(0x006422) == 0x00 && byte(0x006423) == 0x00 && byte(0x00645A) == 0x01 && tbyte(0x046E88) ==
                tbyte(0x046EA0) && byte(tbyte(0x046E88) + 0x00C990) <= 0x03 && byte(tbyte(0x046E88) + 0x00C992) <= 0x03 && 
               byte(tbyte(0x046E88) + 0x00C994) <= 0x03 && byte(tbyte(0x046E88) + 0x00C996) <= 0x03 && 
               byte(tbyte(0x046E88) + 0x00C999) <= 0x03 && byte(tbyte(0x046E88) + 0x00C99B) <= 0x03 && 
@@ -885,7 +889,7 @@ achievement(
 achievement(
     title = "The Winning Move Is Not To Play", description = "In Dragon Draughts, have a game end with someone not allowed to move.", points = 10,
     id = 243212, badge = "270083", published = "8/27/2022 2:33:15 AM", modified = "9/13/2022 4:55:12 PM",
-    trigger = Music(0x6C) && byte(0x006422) == 0x00 && byte(0x006423) == 0x00 && byte(0x00645A) == 0x01 &&
+    trigger = CheckersMusic() && byte(0x006422) == 0x00 && byte(0x006423) == 0x00 && byte(0x00645A) == 0x01 &&
         tbyte(0x046E88) == tbyte(0x046EA0) &&
         ((bit0(tbyte(0x046E88) + 0x00C990) == 0x01) ||
         (bit0(tbyte(0x046E88) + 0x00C992) == 0x01) ||
