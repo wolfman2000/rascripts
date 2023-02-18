@@ -419,10 +419,12 @@ achievement(
 
 achievement(
     title = "The Symbol Of Destruction",
-    description = "Pick up the Screw Attack after defeating the Golden Torizo.",
+    description = "Pick up the Screw Attack and defeat the Golden Torizo. Order no longer matters.",
     points = 5,
-    trigger = PriorRoom(0xb283) && Room(0xb6c1) && PickedUpItem(7, 0xd879) &&
-        BossBeaten(2, 0xd82a)
+    trigger = 
+        BossBeaten(2, 0xd82a) && HasItem(7, 0xd879) &&
+        ((Room(0xb6c1) && PickedUpItem(7, 0xd879)) ||
+        (Room(0xb283) && WonBoss(2, 0xd82a)))
 )
 
 achievement(
@@ -683,6 +685,10 @@ achievement(
         trigger_when(once(PickedUpItem(7, 0xd880)))
 )
 
+SuperMetroidHealthDrain = prev(word(0x9c2)) - word(0x9c2) < 9 &&
+    prev(word(0x9c2)) != word(0x9c2)
+LostHealth = word(0x9c2) < prev(word(0x9c2))
+
 achievement(
     title = "Since When Are Kiddie Pools Dangerous? [m]",
     description = "Pick up the Energy Tank in the Wrecked Ship without getting damaged -- no Space Jump!",
@@ -690,6 +696,7 @@ achievement(
     trigger = once(EnteredRoom(0xcc27) && !HasItem(4, 0xd880)) &&
         never(EquippedSpaceJump) &&
         never(GsIntro) &&
+        never(LostHealth) &&
         never(GsGameOver) &&
         never(Room(0xcbd5)) &&
         trigger_when(PickedUpItem(4, 0xd880))
@@ -721,10 +728,6 @@ achievement(
     points = 5,
     trigger = LastRoom(0xad5e) && Room(0xb656) && !BossBeaten(0, 0xd82a)
 )
-
-SuperMetroidHealthDrain = prev(word(0x9c2)) - word(0x9c2) < 9 &&
-    prev(word(0x9c2)) != word(0x9c2)
-LostHealth = word(0x9c2) < prev(word(0x9c2))
 
 achievement(
     title = "Hugs Are Overrated...This Time [m]",
@@ -939,7 +942,7 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    GsIntro || (GameState >= 0x1e && GameState <= 0x25), "Mission Debriefing"
+    GsIntro || (GameState >= 0x1e && GameState <= 0x25) || GameState == 0x55, "Mission Debriefing"
 )
 
 rich_presence_conditional_display(
