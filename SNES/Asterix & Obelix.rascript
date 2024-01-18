@@ -1,421 +1,513 @@
 // Asterix & Obelix
-// #ID = 2501
+// #ID = 393
 
-ALookup = {
-    0x00: "Britania Act 1",
-    0x01: "Britania Act 2",
-    0x02: "Britania Act 2",
-    0x03: "Britania Act 3",
-    0x04: "Britania Act 3",
-    0x05: "Britania Act 4",
-    0x06: "Helvetia Act 1",
-    0x07: "Helvetia Act 2",
-    0x08: "Helvetia Act 3",
-    0x09: "Helvetia Act 4 ",
-    0x0a: "Helvetia Act 4 ",
-    0x0b: "Greece Act 1",
-    0x0c: "Greece Act 2",
-    0x0d: "Greece Act 3",
-    0x0e: "Greece Act 4",
-    0x0f: "Hispania Act 1",
-    0x10: "Hispania Act 2",
-    0x11: "Hispania Act 3",
-    0x12: "Hispania Act 4",
-    0x13: "Game Ending",
-}
+StarsInStage = byte(0x102f) + byte(0x1031)
+StarsInEval = byte(0x1037) + byte(0x1039)
 
-CLookup = {
-    0: "Astérix",
-    1: "Obélix",
-}
+Timer = word(0x1075)
 
-ClivesLookup = {
-    0: "👱🏻‍♂️",
-    1: "👨🏻‍🦰",
-}
+StageId = byte(0x1097)
+MapId = byte(0x1099)
 
-DLookup = {
-    0: "Easy",
-    1: "Medium",
-    2: "Hard",
-}
+function MainMenu() => StageId == 0
+function TitleScreen() => byte(0x1090) == 0
+function StageComplete() => StageId == 0x34
 
-StageId = byte(0xc06e)
-PlaceId = byte(0xc071)
-Health = byte(0xc08c)
-Lives = byte(0xc08d)
-Stars = byte(0xc08e)
-Coins = byte(0xc090)
-Difficulty = byte(0xc0d1)
-Char = byte(0xc0f0)
-RugbyScore = byte(0xc0f4)
-MusicId = byte(0xc201)
-GameState = word(0xdffe)
+TwoPlayersActive = byte(0x101c) != 0xff && byte(0x101e) != 0xff
+P2Disabled = disable_when(
+    byte(0x1090) == 0xff && StageId != 0 && TwoPlayersActive,
+    until=MainMenu()
+)
 
-function CurrTime() => byte(0xc080) * 10 + byte(0xc07f)
-function PrevTime() => prev(byte(0xc080)) * 10 + prev(byte(0xc07f))
-function PriorTime() => prior(byte(0xc080)) * 10 + prior(byte(0xc07f))
+InvinDisabled = disable_when(byte(0xee8) != 0 && byte(0x1095) != 0)
 
-function LostHealth() => Health < prev(Health)
-function LostHealthOverflow() => prev(Health) == 0 && Health == 8 && MusicId != 0x70
-function GotHit() => byte(0xc063) < 0xff && prev(byte(0xc063)) != 0xff
-function LostLife() => Lives < prev(Lives)
-function DeathMusic() => MusicId == 0x70 && prev(MusicId) != 0x70
-function TimeUp() => GameState == 0x73e
-function GameOver() => GameState == 0x755
-function CharSelect() => GameState == 0x37d
+Diff = byte(0x116f)
+P1Char = byte(0x1171)
+P2Char = byte(0x1173)
 
-function StageFinish(futureStage) {
-    if (futureStage > 0x0f) {
-        return 0x767
+PALives = byte(0x101b + (bit0(0x1171) * 2))
+PAHealthUi = byte(0x5f + (bit0(0x1171) * 0x2c))
+
+Hard = Diff == 3
+
+P1Obe = P1Char == 1
+P1Ast = P1Char == 2
+
+P2Obe = P2Char == 1
+P2Ast = P2Char == 2
+
+function BeatStage(val, place) {
+    always = prev(StageId) == val
+    fallback = StageComplete()
+    if val == 5 && place == 4 {
+        fallback = StageId == 6
     }
-    if (futureStage == 6 || futureStage == 0x0b || futureStage == 0x0f) {
-        return 0x3f6
+    else if val == 0x1a {
+        fallback = StageId == 0x0a
     }
-    return 0x77b
+    else if val == 0x1d {
+        fallback = StageId == 0x0e
+    }
+    else if val == 0x11 && place == 0x0f {
+        // Intentionally empty
+    }
+    else if val >= 0x11 {
+        fallback = StageId == val + 1
+    }
+    return always && fallback
 }
 
-NormalStageData = [
-    ["Wild Hogs", "Britania", "1", 0x01],
-    ["Hill Side", "Britania", "2", 0x03],
-    ["Prison Break", "Britania", "3", 0x05],
-    ["Londinium Vs. Roma", "Britania", "4", 0x06],
-    ["Get out of My Swamp", "Helvetia", "1", 0x07],
-    ["Sailing Away", "Helvetia", "2", 0x08],
-    ["Do You Wanna Build a Snowman?", "Helvetia", 3, 0x09],
-    ["Bank Heist", "Helvetia", "4", 0x0b],
-    ["A Pirates Life for Me", "Greece", "1", 0x0c],
-    ["Attack of the Killer Plants", "Greece", "2", 0x0d],
-    ["Street Rat", "Greece", "3", 0x0e],
-    ["Champion!", "Greece", "4", 0x0f],
-    ["Ahoy!", "Hispania", "1", 0x10],
-    ["Slippery Slopes", "Hispania", "2", 0x11],
-    ["Ready, A- FIRE!", "Hispania", "3", 0x12],
-    ["Running of the Bulls", "Hispania", "4", 0x13]
+function BeatStageMap(map) {
+    if map == 1 || map == 3 {
+        map = map + 0x15
+    }
+    fallback = MapId == map && StageComplete() && prev(StageId) < 0x1f
+    if (map == 4) {
+        fallback = prev(StageId) == 5 && StageId == 6
+    }
+    else if (map == 8) {
+        fallback = prev(StageId) == 0x1a && StageId == 0x0a
+    }
+    else if (map == 0x0c || (map >= 0x1b && map <= 0x1d)) {
+        fallback = prev(StageId) == 0x1d && StageId == 0x0e
+    }
+    else if (map == 0x10) {
+        fallback = prev(StageId) == 0x11 && StageId == 0x12
+    }
+    else if (map == 0x14) {
+        fallback = prev(StageId) == 0x15 && StageId == 0x16
+    }
+    return fallback
+}
+
+function BeatStageMapless(map) {
+    fallback = StageComplete() && prev(StageId) < 0x1f
+    if (map == 4) {
+        fallback = prev(StageId) == 5 && StageId == 6
+    }
+    else if (map == 8) {
+        fallback = prev(StageId) == 0x1a && StageId == 0x0a
+    }
+    else if (map == 0x0c || (map >= 0x1b && map <= 0x1d)) {
+        fallback = prev(StageId) == 0x1d && StageId == 0x0e
+    }
+    else if (map == 0x10) {
+        fallback = prev(StageId) == 0x11 && StageId == 0x12
+    }
+    else if (map == 0x14) {
+        fallback = prev(StageId) == 0x15 && StageId == 0x16
+    }
+    return fallback
+}
+
+BonusFinish = (prev(byte(0x105f)) + prev(byte(0x1061)) < 100) &&
+    (byte(0x105f) + byte(0x1061) == 100)
+
+CharLookup = {
+    1: "Obelix",
+    2: "Asterix"
+}
+
+DiffLookup = {
+    1: "Easy",
+    2: "Normal",
+    3: "Hard"
+}
+
+MapLookup = {
+    0x00: "The Gaul",
+    0x01: "Britania Act 1 - The Crossing",
+    0x16: "Britania Act 1 - The Crossing",
+    0x02: "Britania Act 2 - Countryside",
+    0x17: "Britania Act 2 - Countryside",
+    0x03: "Britania Act 3 - London",
+    0x18: "Britania Act 3 - London",
+    0x04: "Britania Act 4 - Rugby",
+    0x05: "Helvetia Act 5 - Swiss Frontier",
+    0x06: "Helvetia Act 6 - The Lake",
+    0x07: "Helvetia Act 7 - The Mountains",
+    0x08: "Helvetia Act 8 - The Bank",
+    0x19: "Helvetia Act 8 - The Bank",
+    0x09: "Grecia Act 9 - Piraeus",
+    0x0a: "Grecia Act 10 - Countryside",
+    0x0b: "Grecia Act 11 - Olympia",
+    0x0c: "Grecia Act 12 - Result",
+    0x0d: "Egyptia Act 13 - The Desert",
+    0x0e: "Egyptia Act 14 - The Nile",
+    0x0f: "Egyptia Act 15 - The Desert Camp",
+    0x10: "Egyptia Act 16 - The Palace",
+    0x11: "Hispania Act 17 - The Pirate Ship",
+    0x12: "Hispania Act 18 - The Pyrenees",
+    0x13: "Hispania Act 19 - The Roman Camp",
+    0x14: "Hispania Act 20 - Gladiator",
+}
+
+CharacterLookup = {
+    0x00: "Titlescreen",
+    0x01: "Obelix is in",
+    0x02: "Asterix is in",
+}
+
+// Achievements
+
+// Why do some stages have two triggers?
+MainStageTrigger = [
+    [0, 2, "The Gaul", 5],
+    // Britania
+    [1, 3, "The Crossing", 5],
+    [2, 4, "Britania's Countryside", 5],
+    [3, 5, "London", 10],
+    [4, 5, "Rugby", 10],
+    // Helvetia,
+    [5, 7, "Swiss Frontier", 5],
+    [6, 8, "The Lake", 5],
+    [7, 9, "The Mountains", 10],
+    [8, 0x1a, "The Bank", 10],
+    // Grecia
+    [9, 0x0b, "Piraeus", 5],
+    [10, 0x0c, "Grieca's Countryside", 5],
+    [11, 0x0d, "Olympia", 10],
+    [12, 0x1d, "Result", 10],
+    // Egyptia
+    [13, 0x0f, "The Desert", 5],
+    [14, 0x10, "The Nile", 5],
+    [15, 0x11, "The Desert Camp", 10],
+    [16, 0x11, "The Palace", 10],
+    // Hispania
+    [17, 0x12, "The Pirate Ship", 5],
+    [18, 0x13, "The Pyrenees", 5],
+    [19, 0x14, "The Roman Camp", 10],
+    [20, 0x15, "The Gladiator", 10]
 ]
 
-function NormalStageCheckpoint(index) {
-    checkpoint = always_true()
-    if (index >= 1 && index <= 3) {
-        checkpoint = once(
-            PlaceId == NormalStageData[0][3] &&
-            GameState == StageFinish(NormalStageData[0][3])
+for i in range(1, 2) {
+    for j in MainStageTrigger {
+        char = CharLookup[3 - i]
+        achievement(
+            title = format("{0} and {1}", char, j[2]),
+            points = j[3],
+            description = format("Complete {0} as {1}", MapLookup[j[0]], char),
+            trigger = BeatStage(j[1], j[0]) && never(MainMenu()) && P1Char == 3 - i
         )
     }
-    else if (index >= 5 && index <= 7) {
-        checkpoint = once(
-            PlaceId == NormalStageData[4][3] &&
-            GameState == StageFinish(NormalStageData[4][3])
-        )
-    }
-    else if (index >= 9 && index <= 11) {
-        checkpoint = once(
-            PlaceId == NormalStageData[8][3] &&
-            GameState == StageFinish(NormalStageData[8][3])
-        )
-    }
-    else if (index >= 13 && index <= 15) {
-        checkpoint = once(
-            PlaceId == NormalStageData[12][3] &&
-            GameState == StageFinish(NormalStageData[12][3])
-        )
-    }
-    return checkpoint
 }
 
-function BeatStage(index, stageData) {
-    return Difficulty != 0 && NormalStageCheckpoint(index) &&
-        never(CharSelect()) &&
-        PlaceId == stageData[3] && GameState == StageFinish(stageData[3])
-}
-
-function NormalStageCheevo(index) {
-    stageData = NormalStageData[index]
-    points = 5
-    desc = format(
-        "Beat {0} act {1}",
-        stageData[1],
-        stageData[2]
-    )
-    if (index == 15) {
-        points = 10
-        desc = desc + " and beat the game"
-    }
+function HardModeCheevo(stageData, title, location, points) {
+    mission = tally_of(stageData, length(stageData), s => once(BeatStageMap(s[0])))
     achievement(
-        title = stageData[0],
+        title = title,
         points = points,
-        id = 6862 + index,
-        description = desc,
-        trigger = BeatStage(index, stageData)
+        description = format("Clear all stages of {0} consecutively on Hard Mode.", location),
+        trigger = InvinDisabled && P2Disabled &&
+            measured(mission, Diff == 3) && never(MainMenu())
     )
 }
 
-for i in range(0, 15) {
-    NormalStageCheevo(i)
-}
+HardModeCheevo([[0, 2], [0x16, 3], [2, 4], [0x18, 5], [4, 5]], "Vincens Britania", "Britania (and Gaul)", 10)
+HardModeCheevo([[5, 7], [6, 8], [7, 9], [8, 0x1a]], "Vincens Helvetia", "Helvetia", 10)
+HardModeCheevo([[9, 0x0b], [10, 0x0c], [11, 0x0d], [12, 0x1d]], "Vincens Grecia", "Grecia", 10)
+HardModeCheevo([[13, 0x0f], [14, 0x10], [15, 0x11], [16, 0x11]], "Vincens Egyptia", "Egyptia", 25)
+HardModeCheevo([[17, 0x12], [18, 0x13], [19, 0x14], [20, 0x15]], "Vincens Hispania", "Hispania", 25)
 
-function BonusStageCheevo(index) {
-    stageData = NormalStageData[index]
-    points = 5
-    desc = format("Beat {0} act {1} with all 10 bonus stars.", stageData[1], stageData[2])
-    achievement(
-        title = format("Seeing Stars in {0} Act {1}", stageData[1], stageData[2]),
-        points = points,
-        description = desc,
-        trigger = BeatStage(index, stageData) && Stars == 10
-    )
-}
-
-for i in range(0, 15) {
-    if (i != 3 && i != 7 && i != 11 && i != 15) {
-        BonusStageCheevo(i)
-    }
-}
-
-CurrentStageData = [
-    [0, 0],
-    [1, 2],
-    [3, 4],
-    [5, 5],
-    [6, 6],
-    [7, 7],
-    [8, 8],
-    [9, 10],
-    [11, 11],
-    [12, 12],
-    [13, 13],
-    [14, 14],
-    [15, 15],
-    [16, 16],
-    [17, 17],
-    [18, 18]
+ReducedCheevoData = [
+    [0, 2, "in Gallia", 5],
+    [1, 3, "in Transitu (Aqua)", 5],
+    [0x16, 3, "in Transitu (Terra)", 5],
+    [2, 4, "in Britania in Agris", 5],
+    [3, 5, "in London", 10],
+    [5, 6, "in Finibus Helvetia", 5],
+    [6, 8, "Lacus", 5],
+    [7, 9, "Montibus", 10],
+    [8, 0x1a, "Ripae", 10],
+    [9, 0x0b, "Piraeo", 5],
+    [10, 0x0c, "in Grecia in Patria", 5],
+    [11, 0x0d, "Olympiae", 10],
+    [13, 0x0f, "in Solitudine", 5],
+    [14, 0x10, "Nili", 5],
+    [15, 0x11, "in Desertum Castra", 10],
+    [16, 0x11, "Palatium", 10],
+    [17, 0x12, "in Navis Pirata", 5],
+    [18, 0x13, "in Pyrenaeis", 5],
+    [19, 0x14, "in Castris Romanorum", 10]
 ]
 
-MissionData = [
-    "without taking damage",
-    "without taking damage",
-    "without taking damage",
-    "without taking damage",
-    "without taking damage",
-    "without taking damage",
-    "without taking damage",
-    "without taking damage",
-    "without taking damage",
-    "without taking damage",
-    "without taking damage",
-    "without taking damage",
-    "without taking damage",
-    "without taking damage",
-    "without taking damage",
-    "without losing two lives"
-]
-
-function InStage(index) =>
-    StageId >= CurrentStageData[index][0] &&
-    StageId <= CurrentStageData[index][1]
-
-function Stage14ChallengeCheevo(index) {
-    stageData = NormalStageData[index]
-    achievement(
-        title = format(
-            "Mission Successful In {0} Act {1}",
-            stageData[1],
-            stageData[2]
-        ),
-        points = 10,
-        description = "Score 3 points in Britania Act 4 without losing the ball.",
-        trigger = InStage(index) && disable_when(
-            LostHealth(),
-            until = CharSelect() || 
-            (prev(word(0xc017)) > 0x100 && word(0xc017) == 0x37) || MusicId == 0x70
-        ) && disable_when(
-            DeathMusic(),
-            until = GameOver() || CharSelect() || MusicId != 0x70
-        ) && Difficulty != 0 &&
-        never(GameOver()) &&
-        trigger_when(prev(RugbyScore) + 3 == RugbyScore)
-        
+function ReducedDamageCheevo(cheevoData) {
+    fbLoc = MapLookup[cheevoData[0]]
+    if (cheevoData[2] == "in Transitu (Aqua)") {
+        fbLoc = "the water portion of " + fbLoc
+    }
+    else if (cheevoData[2] == "in Transitu (Terra)") {
+        fbLoc = "the land portion of " + fbLoc
+    }
+    fbBeat = BeatStageMap(cheevoData[0])
+    if (cheevoData[2] == "in Transitu (Aqua)") {
+        fbBeat = prev(StageId) == 2 && StageId == 0x17
+    }
+    activate = (
+        Timer > prev(Timer) ||
+        (MapId == cheevoData[0] && prev(MapId) == cheevoData[0] - 1)
     )
-}
-
-function Stage34ChallengeCheevo(index) {
-    stageData = NormalStageData[index]
-    achievement(
-        title = format(
-            "Mission Successful In {0} Act {1}",
-            stageData[1],
-            stageData[2]
-        ),
-        points = 10,
-        description = "Score all six points in the Olympic Games.",
-        trigger = Difficulty != 0 && InStage(index) &&
-            never(GameOver()) &&
-            BeatStage(index, NormalStageData[index]) &&
-            byte(0xcbaa) == 6
-    )
-}
-
-function Stage44ChallengeCheevo(index) {
-    stageData = NormalStageData[index]
-    achievement(
-        title = format(
-            "Mission Successful In {0} Act {1}",
-            stageData[1],
-            stageData[2]
-        ),
-        points = 10,
-        description = "Beat Hispania act 4 before losing two lives.",
-        trigger = InStage(index) && never(
-                repeated(2, StageId == 0x12 && Lives < prev(Lives))
-            ) && never(CharSelect()) && never(GameOver()) &&
-            trigger_when(BeatStage(index, NormalStageData[index]))
-    )
-}
-
-TimerValid = CurrTime() < PriorTime()
-
-function ChallengeCheevo(index) {
-    stageData = NormalStageData[index]
-    currData = CurrentStageData[index]
-    challenge = disable_when(
-        (GotHit()),
-        until=GameOver() || CharSelect() || TimeUp() ||
-            StageId < currData[0] && prev(StageId) < currData[0] ||
-            StageId > currData[1] && prev(StageId) > currData[1] ||
-            !InStage(index) ||
-            (MusicId != 0x70 && prev(MusicId) == 0x70 && currData[0] == currData[1]) ||
-            (MusicId != 0x70 && prev(MusicId) == 0x70 && StageId != currData[1])
-    ) &&
-    disable_when(
-        (DeathMusic()),
-        until=GameOver() || CharSelect() || TimeUp() ||
-            !InStage(index) ||
-            (MusicId != 0x70 && prev(MusicId) == 0x70 && currData[0] == currData[1]) ||
-            (MusicId != 0x70 && prev(MusicId) == 0x70 && StageId != currData[1])
-    )
-    stageObj = "Beat"
-    finish = GameState == StageFinish(stageData[3])
-    if (currData[1] == 0x0a) {
-        finish = sum_of(range(0, 9), i => byte(0xc5b8 + i)) == 10
+    if (cheevoData[2] == "in Transitu (Terra)") {
+        activate = Timer > prev(Timer) || (MapId == 0x16 && prev(MapId) == 0x01)
+    }
+    else if cheevoData[0] == 3 {
+        activate = Timer > prev(Timer) && StageId == 4
+    }
+    else if cheevoData[0] == 9 {
+        activate = Timer > prev(Timer) || (MapId == 0x09 && prev(MapId) == 0x19)
+    }
+    else if cheevoData[0] == 11 {
+        activate = activate && StageId == 0x0c
+    }
+    else if cheevoData[0] == 13 {
+        activate = (
+            Timer > prev(Timer) ||
+            (MapId == cheevoData[0] &&
+                prev(MapId) >= cheevoData[0] - 2) &&
+                prev(MapId) <= cheevoData[0] - 1
+        )
+    }
+    mapDisable = MapId != cheevoData[0]
+    if (cheevoData[0] == 2) {
+        mapDisable = mapDisable && MapId != 0x17
+    }
+    else if (cheevoData[0] == 3) {
+        mapDisable = mapDisable && MapId != 0x18
+    }
+    else if (cheevoData[0] == 8) {
+        mapDisable = mapDisable && MapId != 0x19
+    }
+    else if (cheevoData[0] == 11) {
+        mapDisable = mapDisable && StageId >= 0x1b
     }
     achievement(
-        title = format(
-            "Mission Successful In {0} Act {1}",
-            stageData[1],
-            stageData[2]
-        ),
-        points = 10,
+        title = format("Superfuerat Per {0}", cheevoData[2]),
+        points = cheevoData[3],
         description = format(
-            "{3} {0} act {1} {2}.",
-            stageData[1],
-            stageData[2],
-            MissionData[index],
-            stageObj
+            "Clear {0} without losing half your maximum health. Recovering health has no effect.",
+            fbLoc
         ),
-        trigger = Difficulty != 0 && challenge && 
-            never(MusicId == 0x71) &&
-            never(GameState >= 0x160 && GameState <= 0x180) &&
-            never(GameState == 0x36d) &&
-            trigger_when(TimerValid) &&
-            trigger_when(finish)
+        trigger = InvinDisabled && P2Disabled &&
+            never(mapDisable) && never(StageId >= 0x1f && StageId < 0x34) &&
+            once(activate) &&
+            disable_when(
+                repeated(0x14, PAHealthUi < prev(PAHealthUi)),
+                until=Timer > prev(Timer) || TitleScreen()
+            ) &&
+            disable_when(
+                once(PALives < prev(PALives) || PALives == 0xff),
+                until=Timer > prev(Timer) || TitleScreen()
+            ) &&
+            trigger_when(fbBeat)
     )
 }
 
-for i in range(0, 15) {
-    if i == 3 {
-        Stage14ChallengeCheevo(i)
-    }
-    else if (i == 11) {
-        Stage34ChallengeCheevo(i)
-    }
-    else if (i == 15) {
-        Stage44ChallengeCheevo(i)
-    }
-    else {
-        ChallengeCheevo(i)
-    }
+for i in ReducedCheevoData {
+    ReducedDamageCheevo(i)
 }
 
+// Rugby
 achievement(
-    title = "The Classic",
+    title = "Competens Ludos",
     points = 10,
-    description = "Beat the entire game as Asterix.",
-    trigger = never(CharSelect()) && Char == 0 && once(BeatStage(0, NormalStageData[0])) &&
-        BeatStage(15, NormalStageData[15])
+    description = "Complete a Try in Rugby (3 points) while only needing one attempt.",
+    trigger = InvinDisabled && P2Disabled && MapId == 4 &&
+        byte(0x260a) == 1 && prev(byte(0x260a)) == 1 && byte(0xf2a5) == 0 &&
+        trigger_when(3 + prev(byte(0xf7a)) == byte(0xf7a))
 )
 
 achievement(
-    title = "The Original",
-    points = 10,
-    description = "Beat the entire game as Obelix.",
-    trigger = never(CharSelect()) && Char == 1 && once(BeatStage(0, NormalStageData[0])) &&
-        BeatStage(15, NormalStageData[15])
-)
-
-achievement(
-    title = "Hard Work Pays Off",
+    title = "Competens Olympia",
     points = 25,
-    description = "Beat the entire game on Hard Mode.",
-    trigger = never(CharSelect()) && Difficulty == 2 && once(BeatStage(0, NormalStageData[0])) &&
-        BeatStage(15, NormalStageData[15])
+    description = "Win all three events in the Olympics.",
+    trigger = InvinDisabled && P2Disabled && StageId >= 0x1b && StageId <= 0x1d &&
+        byte(0x10f5) == 9 && prev(byte(0x10f5)) == 6
 )
 
-// Leaderboards
-
-leaderboard(
-    title = "Hispania Act 2 Bonus Stage Validator",
-    description = "This bonus stage is accessible after all.",
-    start = InStage(13) && BeatStage(13, NormalStageData[13]) && Stars == 10,
-    cancel = always_false(),
-    submit = always_true(),
-    value = 1000
+achievement(
+    title = "Competens Tauro Pugnatum",
+    points = 10,
+    description = "Be successful in Bull Fighting: do it within 3 lives!",
+    trigger = InvinDisabled && P2Disabled &&
+        once(MapId == 0x14 && prev(MapId) != 0x14) &&
+        never(repeated(3, PALives < prev(PALives))) &&
+        never(PALives == 0) &&
+        trigger_when(prev(StageId) == 0x15) &&
+        trigger_when(StageId == 0x16)
 )
 
-function FixedLeaderboard(diff, char) {
-    diffName = DLookup[diff]
-    charName = CLookup[char]
-    leaderboard(
-        title = format(
-            "{0} {1} RTA",
-            diffName,
-            charName
-        ),
+BonusStageCheevo = [
+    [[0], "in Gallia"],
+    [[1, 0x16], "in Transitu"],
+    [[2, 0x17], "in Britania in Agris"],
+    [[3, 0x18], "in London"],
+    [[5], "in Finibus Helvetia"],
+    [[6], "Lacus"],
+    [[7], "Montibus"],
+    [[9], "Piraeo"],
+    [[10], "in Grecia in Patria"],
+    [[11], "Olympiae"],
+    [[13], "in Solitudine"],
+    [[14], "Nili"],
+    [[15], "in Desertum Castra"],
+    [[17], "in Navis Pirata"],
+    [[18], "in Pyrenaeis"],
+    [[19], "in Castris Romanorum"]
+]
+
+function ActivateBonusStageCheevo(cheevoData) {
+    validMaps = always_false()
+    for i in cheevoData[0] {
+        validMaps = validMaps || MapId == i
+    }
+    mapLoc = cheevoData[0][0]
+    beatMap = array_pop(cheevoData[0])
+    
+    achievement(
+        title = format("Videntes Stellas {0}", cheevoData[1]),
+        points = 5,
         description = format(
-            "Beat the game with {0} on {1} difficulty as quick as you can.",
-            charName,
-            diffName
+            "Clear {0} after collecting all 10 stars.",
+            MapLookup[mapLoc]
         ),
-        start = Char == char && Difficulty == diff &&
-            PlaceId == 0 && PrevTime() == 0 && CurrTime() != 0,
-        cancel = GameState == word(0x0755),
-        submit = PlaceId == 0x13 && GameState == 0x767,
-        value = always_true(),
-        format = "MILLISECS",
-        lower_is_better = true
+        trigger = InvinDisabled && P2Disabled &&
+            measured(StarsInStage == 10, when=__ornext(validMaps)) &&
+            BeatStageMapless(mapLoc)
     )
 }
 
-for i in range(0, 2) {
-    for j in range(0, 1) {
-        FixedLeaderboard(i, j)
-    }
+for i in BonusStageCheevo {
+    ActivateBonusStageCheevo(i)
 }
+
+achievement(
+    title = "Bonus Perfectio",
+    points = 5,
+    description = format("Clear any bonus stage with 100% completion."),
+    trigger = InvinDisabled && P2Disabled && StageId >= 0x1f &&
+        prev(byte(0x105f)) + prev(byte(0x1061)) < 100 &&
+        byte(0x105f) + byte(0x1061) == 100
+)
 
 // Rich Presence
 
-RpCharLookup = rich_presence_lookup("C", Char, CLookup)
+EmojiStar = "⭐"
+RpMap = rich_presence_lookup("Map", MapId, MapLookup)
+RpP1Char = rich_presence_lookup("Char", P1Char, CharLookup)
+RpP2Char = rich_presence_lookup("Char", P2Char, CharLookup)
+RpStars = rich_presence_macro("Number", StarsInStage)
+
+rich_presence_conditional_display(TitleScreen() || MainMenu(), "Titlescreen")
+
+rich_presence_conditional_display(StageId == 0x16, "The End")
 
 rich_presence_conditional_display(
-    StageId != 0x00 || byte(0x00C07D) != 0x00,
-    "{0} in {1} on {2} [⭐{3}] [💰{4}] [{5}{6}]",
-    RpCharLookup,
-    rich_presence_lookup("A", StageId, ALookup, "Bonus Level"),
-    rich_presence_lookup("D", Difficulty, DLookup),
-    rich_presence_macro("Number", Stars),
-    rich_presence_macro("Number", Coins),
-    rich_presence_lookup("Clives", Char, ClivesLookup),
-    rich_presence_macro("Number", Lives)
+    TwoPlayersActive && prior(StageId) < 0x1f && StageId == 0x34,
+    "{0} and {1} are done with {2}",
+    RpP1Char,
+    RpP2Char,
+    RpMap
 )
 
-rich_presence_display("Astérix and Obélix")
+
+rich_presence_conditional_display(
+    prior(StageId) < 0x1f && StageId == 0x34,
+    "{0} is done with {1}",
+    RpP1Char,
+    RpMap
+)
+
+rich_presence_conditional_display(
+    TwoPlayersActive && StageId == 0x0C,
+    "{0} and {1} are in Grecia Act 11 - Olympia {2}{3}",
+    RpP1Char,
+    RpP2Char,
+    EmojiStar,
+    RpStars
+)
+
+rich_presence_conditional_display(
+    StageId == 0x0C,
+    "{0} is in Grecia Act 11 - Olympia {1}{2}",
+    RpP1Char,
+    EmojiStar,
+    RpStars
+)
+
+rich_presence_conditional_display(
+    TwoPlayersActive && StageId == 0x1B,
+    "{0} and {1} are in Grecia Act 12 - Running",
+    RpP1Char,
+    RpP2Char
+)
+
+rich_presence_conditional_display(
+    StageId == 0x1B,
+    "{0} is in Grecia Act 12 - Running",
+    RpP1Char
+)
+
+rich_presence_conditional_display(
+    TwoPlayersActive && StageId == 0x1C,
+    "{0} and {1} are in Grecia Act 12 - The Hurdles",
+    RpP1Char,
+    RpP2Char
+)
+
+rich_presence_conditional_display(
+    StageId == 0x1C,
+    "{0} is in Grecia Act 12 - The Hurdles",
+    RpP1Char
+)
+
+rich_presence_conditional_display(
+    TwoPlayersActive && StageId == 0x1D,
+    "{0} and {1} are in Grecia Act 12 - The Javelin",
+    RpP1Char,
+    RpP2Char
+)
+
+rich_presence_conditional_display(
+    StageId == 0x1D,
+    "{0} is in Grecia Act 12 - The Javelin",
+    RpP1Char
+)
+
+InBonusStage = (StageId >= 0x1f && StageId < 0x34) ||
+    (prior(StageId) >= 0x1f && prior(StageId) < 0x34)
+
+rich_presence_conditional_display(
+    TwoPlayersActive && InBonusStage,
+    "{0} and {1} are in {2} (Bonus Stage)",
+    RpP1Char,
+    RpP2Char,
+    RpMap
+)
+
+rich_presence_conditional_display(
+    InBonusStage,
+    "{0} is in {1} (Bonus Stage)",
+    RpP1Char,
+    RpMap
+)
+
+rich_presence_conditional_display(
+    TwoPlayersActive,
+    "{0} and {1} are in {2} {3}{4}",
+    RpP1Char,
+    RpP2Char,
+    RpMap,
+    EmojiStar,
+    RpStars
+)
+
+rich_presence_display("{0} is in {1} {2}{3}",
+    RpP1Char,
+    RpMap,
+    EmojiStar,
+    RpStars
+)
+
+
+
 
