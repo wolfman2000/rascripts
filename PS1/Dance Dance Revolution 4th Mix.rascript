@@ -128,6 +128,63 @@ SongWalk = 0x20
 SongXana = 0x2b
 SongYoung = 0x1e
 
+SongOrderLookup = {
+    SongP59: 0,
+    Song1234: 1,
+    SongB4U: 2,
+    SongBaby: 3,
+    SongBoys: 4,
+    SongBumble: 5,
+    SongBurn: 6,
+    SongDam: 7,
+    SongDance: 8,
+    SongDont: 9,
+    SongDream: 10,
+    SongEat: 11,
+    SongEra: 12,
+    SongFollow: 13,
+    SongFuru: 14,
+    SongGetMe: 15,
+    SongGimme: 16,
+    SongGotcha: 17,
+    SongGroove: 18,
+    SongHaveMellow: 19,
+    SongHeroHappy: 20,
+    SongHeroKcp: 21,
+    SongHigher: 22,
+    SongHolic: 23,
+    SongHypno: 24,
+    SongIfYou: 25,
+    SongInHeat: 26,
+    SongItOnly: 27,
+    SongKick: 28,
+    SongLead: 29,
+    SongLets: 30,
+    SongLove: 31,
+    SongMake: 32,
+    SongMidnite: 33,
+    SongMusic: 34,
+    SongMy: 35,
+    SongNeverGonna: 36,
+    SongNeverLet: 37,
+    SongNight: 38,
+    SongOneTwo: 39,
+    SongOnly: 40,
+    SongOrionAM: 41,
+    SongOrionCiv: 42,
+    SongPink: 43,
+    SongSaint: 44,
+    SongShake: 45,
+    SongShare: 46,
+    SongShooting: 47,
+    SongSynchro: 48,
+    SongThe7: 49,
+    SongTrip: 50,
+    SongWalk: 51,
+    SongXana: 52,
+    SongYoung: 53
+}
+
 DemoP59 = 0x40
 Demo1234 = 0x68
 DemoB4U = 0x63
@@ -893,7 +950,7 @@ function CreateSongUnlockCheevo(songCount) {
     cheevoTitle = SongUnlockCheevoTitleLookup[songCount]
     achievement(
         title = cheevoTitle,
-        points = 5,
+        points = 2,
         description = "Unlock " + songTitle + " by clearing " + songCount + " songs.",
         trigger = InGameMode &&
             prev(TotalSongsCleared) == songCount - 1 &&
@@ -905,17 +962,42 @@ for songIndex in range(5, 100, 5) {
     CreateSongUnlockCheevo(songIndex)
 }
 
+function CreateSongPercentageCheevo(title, points, target) {
+    playTargets = []
+    for i in range(0, 53) {
+        array_push(playTargets, 0xe4e8c + (i * 0x58))
+    }
+    allHits = tally_of(playTargets, target, s => once(word(s) != 0))
+    deltaProtection = tally_of(playTargets, target - 1, s => once(prev(word(s)) != 0))
+    achievement(
+        title = title,
+        points = points,
+        description = format("Clear {0} unique songs.", target),
+        trigger = InGameMode &&
+            never(GameState <= 1) &&
+            never(GameState == 3) &&
+            never(GameState > 6 && GameState < 0x0c) &&
+            never(GameState > 0x0d) &&
+            deltaProtection && measured(allHits, when=always_true(), format="percent")
+    )
+}
+
+CreateSongPercentageCheevo("A Quarter Of A Fourth", 2, 14)
+CreateSongPercentageCheevo("A Half Of A Fourth", 3, 27)
+CreateSongPercentageCheevo("Three Quarters Of A Fourth", 5, 41)
+CreateSongPercentageCheevo("A Whole Of A Fourth", 10, 54)
+
 function CreateManiacClearCheevo(songId) {
     songTitle = AllSongIdLookup[songId]
     demoId = SongToDemoLookup[songId]
     achievement(
         title = songTitle + " Maniac",
-        points = 10,
-        description = "Clear " + songTitle + " on Maniac difficulty. No Double Play. No Little Mod allowed.",
+        points = 3,
+        description = "Clear " + songTitle + " on Single Maniac difficulty. No Double Play. No Little Mod allowed.",
         trigger = InGameMode && !InternalDifficultyEasy &&
             prior(SongId) == demoId && SongId == songId &&
             prev(TotalSongsCleared) == TotalSongsCleared - 1 &&
-            (!Double) &&
+            (PlayerStyle < 2) &&
             ((Player1Active && never(Player1LittleOn) && 
                 Player1DiffManiac && never(Player1FailedChart)) || 
             (Player2Active && never(Player2LittleOn) &&
@@ -927,13 +1009,12 @@ function CreatePerfectClearCheevo(songId) {
     songTitle = AllSongIdLookup[songId]
     demoId = SongToDemoLookup[songId]
     achievement(
-        title = songTitle + " Perfect",
+        title = "[VOID] " + songTitle + " Perfect",
         points = 25,
         description = "Get a Full Perfect Combo on " + songTitle +
             " without the Little Mod. No Double Play.",
         trigger = InGameMode && prior(SongId) == demoId && SongId == songId &&
             prev(TotalSongsCleared) == TotalSongsCleared - 1 &&
-            (!Double) &&
             ((Player1Active && never(Player1LittleOn) && never(Player1FailedChart) &&
                 Player1Greats == 0 && Player1Goods == 0 &&
                 Player1Boos == 0 && Player1Misses == 0
@@ -948,9 +1029,9 @@ function CreatePerfectClearCheevo(songId) {
 function CreateFullComboCheevo(songId) {
     songTitle = AllSongIdLookup[songId]
     demoId = SongToDemoLookup[songId]
-    points = 10
+    points = 5
     if (songId == SongDance) {
-        points = 10
+        points = 3
     }
     achievement(
         title = songTitle + " Full Combo",
@@ -971,6 +1052,56 @@ function CreateFullComboCheevo(songId) {
     )
 }
 
+function CreateSoloFullComboCheevo(songId) {
+    songTitle = AllSongIdLookup[songId]
+    demoId = SongToDemoLookup[songId]
+    if (songId != SongDance) {
+        achievement(
+            title = format("{0} Solo Maniac FC", songTitle),
+            points = 4,
+            description = "Get the Full Combo without using Little.",
+            trigger = InGameMode && prior(SongId) == demoId && SongId == songId &&
+            prev(TotalSongsCleared) == TotalSongsCleared - 1 &&
+            SoloGame && PlayerStyle > 1 &&
+            ((Player1Active && never(Player1LittleOn) && never(Player1FailedChart) &&
+                Player1DiffManiac &&
+                Player1Goods == 0 &&
+                Player1Boos == 0 && Player1Misses == 0
+            ) ||
+            (Player2Active && never(Player2LittleOn) && never(Player2FailedChart) &&
+                Player2DiffManiac &&
+                Player2Goods == 0 &&
+                Player2Boos == 0 && Player2Misses == 0
+            ))
+        )
+    }
+}
+
+function CreateDoubleFullComboCheevo(songId) {
+    songTitle = AllSongIdLookup[songId]
+    demoId = SongToDemoLookup[songId]
+    if (songId != SongDance) {
+        achievement(
+            title = format("{0} Double Maniac FC", songTitle),
+            points = 5,
+            description = "Get the Full Combo without using Little.",
+            trigger = InGameMode && prior(SongId) == demoId && SongId == songId &&
+            prev(TotalSongsCleared) == TotalSongsCleared - 1 &&
+            Double &&
+            ((Player1Active && never(Player1LittleOn) && never(Player1FailedChart) &&
+                Player1DiffManiac &&
+                Player1Goods == 0 &&
+                Player1Boos == 0 && Player1Misses == 0
+            ) ||
+            (Player2Active && never(Player2LittleOn) && never(Player2FailedChart) &&
+                Player2DiffManiac &&
+                Player2Goods == 0 &&
+                Player2Boos == 0 && Player2Misses == 0
+            ))
+        )
+    }
+}
+
 for actualSongIndex in ActualSongIds {
     // Create cheevo for first pass on Maniac.
     if (actualSongIndex != SongDance) {
@@ -980,6 +1111,9 @@ for actualSongIndex in ActualSongIds {
     CreateFullComboCheevo(actualSongIndex)
     // Create cheevos for PFC
     CreatePerfectClearCheevo(actualSongIndex)
+    
+    CreateSoloFullComboCheevo(actualSongIndex)
+    CreateDoubleFullComboCheevo(actualSongIndex)
 }
 
 function CreateMissionModeCheevo(setCount, numberCount) {
@@ -1049,7 +1183,37 @@ for styleIndex in leaderboardStyles {
     }
 }
 
+for i in ActualSongIds {
+    achievement(
+        title = "[VOID] Clear - " + AllSongIdLookup[i],
+        id = 352422 + SongOrderLookup[i],
+        points = 2,
+        description = "Pass the song on any chart, any mode except versus.",
+        trigger = InGameMode && !InternalDifficultyEasy &&
+            prior(SongId) == SongToDemoLookup[i] && SongId == i &&
+            prev(TotalSongsCleared) == TotalSongsCleared - 1 &&
+            (SoloGame || !Versus) &&
+            ((Player1Active && never(Player1FailedChart)) || 
+            (Player2Active && never(Player2FailedChart))) 
+    )
+}
+
 // Rich Presence Below
+
+RpStyleLookup = {
+    0x00: "Single",
+    0x01: "Single",
+    0x02: "Double",
+    0x05: "Versus",
+    0x07: "Double",
+    0x10: "Single",
+    0x11: "Single",
+    0x12: "Solo",
+    0x15: "Solo",
+    0x17: "Solo",
+}
+
+RpStyle = rich_presence_lookup("Style", low4(0x0e3f3e) * 0x10 + PlayerStyle, RpStyleLookup)
 
 RpChallengeSong = rich_presence_lookup(
     "ChallengeSong",
@@ -1103,16 +1267,18 @@ rich_presence_conditional_display(
 
 rich_presence_conditional_display(
     DifficultySelection && Player1Active,
-    "Deciding Difficulty on {0}: Maybe {1}?",
+    "Deciding Difficulty on {0} {2}: Maybe {1}?",
     RpSongTitle,
-    RpP1Difficulty
+    RpP1Difficulty,
+    RpStyle
 )
 
 rich_presence_conditional_display(
     DifficultySelection && Player2Active,
-    "Deciding Difficulty on {0}: Maybe {1}?",
+    "Deciding Difficulty on {0} {2}: Maybe {1}?",
     RpSongTitle,
-    RpP2Difficulty
+    RpP2Difficulty,
+    RpStyle
 )
 
 rich_presence_conditional_display(
@@ -1127,8 +1293,9 @@ rich_presence_conditional_display(
 
 rich_presence_conditional_display(
     SongSelection,
-    "Thinking About Playing {0}",
-    RpSongTitle
+    "Thinking About Playing {0} {1}",
+    RpSongTitle,
+    RpStyle
 )
 
 rich_presence_conditional_display(
@@ -1139,9 +1306,10 @@ rich_presence_conditional_display(
 // End of Song: check with failure byte.
 rich_presence_conditional_display(
     (EndOfSong || EvaluationScreen) && BothPlayersActive && AllPlayersFailed && Player1Difficulty == Player2Difficulty,
-    "Failed On {0} {1}",
+    "Failed On {0} {1} {2}",
     RpSongTitle,
-    RpP1Difficulty
+    RpP1Difficulty,
+    RpStyle
 )
 
 rich_presence_conditional_display(
@@ -1233,7 +1401,7 @@ rich_presence_conditional_display(
 
 rich_presence_conditional_display(
     (EndOfSong || EvaluationScreen) && Player1Active,
-    "Results On {0}: {1} {2}/{3}/{4}/{5}/{6} {7} {8}",
+    "Results On {0}: {1} {9} {2}/{3}/{4}/{5}/{6} {7} {8}",
     RpSongTitle,
     RpP1Difficulty,
     RpP1Perfect,
@@ -1242,12 +1410,13 @@ rich_presence_conditional_display(
     RpP1Boo,
     RpP1Miss,
     RpP1Score,
-    RpP1Combo
+    RpP1Combo,
+    RpStyle
 )
 
 rich_presence_conditional_display(
     (EndOfSong || EvaluationScreen) && Player2Active,
-    "Results On {0}: {1} {2}/{3}/{4}/{5}/{6} {7} {8}",
+    "Results On {0}: {1} {9} {2}/{3}/{4}/{5}/{6} {7} {8}",
     RpSongTitle,
     RpP2Difficulty,
     RpP2Perfect,
@@ -1256,27 +1425,31 @@ rich_presence_conditional_display(
     RpP2Boo,
     RpP2Miss,
     RpP2Score,
-    RpP2Combo
+    RpP2Combo,
+    RpStyle
 )
 
 rich_presence_conditional_display(
     (EndOfSong || EvaluationScreen) && Player1Active && Player1FailedChart,
-    "Failed On {0} {1}",
+    "Failed On {0} {1} {2}",
     RpSongTitle,
-    RpP1Difficulty
+    RpP1Difficulty,
+    RpStyle
 )
 
 rich_presence_conditional_display(
     (EndOfSong || EvaluationScreen) && Player2Active && Player2FailedChart,
-    "Failed On {0} {1}",
+    "Failed On {0} {1} {2}",
     RpSongTitle,
-    RpP2Difficulty
+    RpP2Difficulty,
+    RpStyle
 )
 
 rich_presence_conditional_display(
-    (EndOfSong || EvaluationScreen) ,
-    "Passed The Song {0}",
-    RpSongTitle
+    (EndOfSong || EvaluationScreen),
+    "Passed The Song {0} {1}",
+    RpSongTitle,
+    RpStyle
 )
 
 rich_presence_conditional_display(
@@ -1324,7 +1497,7 @@ rich_presence_conditional_display(
 
 rich_presence_conditional_display(
     HereWeGo && Player1Active,
-    "{0} {1}: {2}/{3}/{4}/{5}/{6} {7} {8}",
+    "{0} {1} {9}: {2}/{3}/{4}/{5}/{6} {7} {8}",
     RpSongTitle,
     RpP1Difficulty,
     RpP1Perfect,
@@ -1333,12 +1506,13 @@ rich_presence_conditional_display(
     RpP1Boo,
     RpP1Miss,
     RpP1Score,
-    RpP1Combo
+    RpP1Combo,
+    RpStyle
 )
 
 rich_presence_conditional_display(
     HereWeGo && Player2Active,
-    "{0} {1}: {2}/{3}/{4}/{5}/{6} {7} {8}",
+    "{0} {1} {9}: {2}/{3}/{4}/{5}/{6} {7} {8}",
     RpSongTitle,
     RpP2Difficulty,
     RpP2Perfect,
@@ -1347,7 +1521,8 @@ rich_presence_conditional_display(
     RpP2Boo,
     RpP2Miss,
     RpP2Score,
-    RpP2Combo
+    RpP2Combo,
+    RpStyle
 )
 
 rich_presence_conditional_display(
@@ -1367,22 +1542,25 @@ rich_presence_conditional_display(
 
 rich_presence_conditional_display(
     AreYouReady && Player1Active,
-    "About To Dance To {0} on {1}",
+    "About To Dance To {0} on {1} {2}",
     RpSongTitle,
-    RpP1Difficulty
+    RpP1Difficulty,
+    RpStyle
 )
 
 rich_presence_conditional_display(
     AreYouReady && Player2Active,
-    "About To Dance To {0} on {1}",
+    "About To Dance To {0} on {1} {2}",
     RpSongTitle,
-    RpP2Difficulty
+    RpP2Difficulty,
+    RpStyle
 )
 
 rich_presence_conditional_display(
     AreYouReady,
-    "About To Dance To {0}",
-    RpSongTitle
+    "About To Dance To {0} {1}",
+    RpSongTitle,
+    RpStyle
 )
 
 // Loading the Song: the Demo Song ID should be loaded still.
@@ -1403,22 +1581,25 @@ rich_presence_conditional_display(
 
 rich_presence_conditional_display(
     LoadingSong && Player1Active,
-    "Loading The {1} Chart For {0}",
+    "Loading The {1} {2} Chart For {0}",
     RpSongTitle,
-    RpP1Difficulty
+    RpP1Difficulty,
+    RpStyle
 )
 
 rich_presence_conditional_display(
     LoadingSong && Player2Active,
-    "Loading The {1} Chart For {0}",
+    "Loading The {1} {2} Chart For {0}",
     RpSongTitle,
-    RpP2Difficulty
+    RpP2Difficulty,
+    RpStyle
 )
 
 rich_presence_conditional_display(
     LoadingSong,
-    "Loading The Charts for {0}",
-    RpSongTitle
+    "Loading The Charts for {0} {1}",
+    RpSongTitle,
+    RpStyle
 )
 
 rich_presence_conditional_display(
