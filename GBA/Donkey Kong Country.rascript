@@ -236,8 +236,30 @@ achievement(
                0x609
 )
 
+BossCheevoData = [
+    ["Very Gnawty", 5, 0, 8],
+    ["Master Necky", 5, 1, 8],
+    ["Queen B.", 5, 2, 9],
+    ["Really Gnawty", 5, 3, 9],
+    ["Dumb Drum", 5, 4, 9],
+    ["Master Necky Snr.", 5, 5, 8],
+]
+
+function GeneralBossCheevo(data) {
+    achievement(
+        title = data[0],
+        description = "Defeat " + data[0] + ".",
+        points = 5,
+        trigger = OverworldArea == data[2] && LevelNumber == data[3] && MusicId == 3
+    )
+}
+
+for i in BossCheevoData {
+    GeneralBossCheevo(i)
+}
+
 achievement(
-    title = "Baddies Bashed", description = "Complete the game.", points = 25,
+    title = "Baddies Bashed", description = "Complete the game.", points = 10,
     id = 2715, badge = "243741", published = "9/7/2013 7:23:33 AM", modified = "5/23/2022 1:12:32 PM",
     trigger = byte(0x00101C) == 0x01 && bit1(0x00117C) == 0x01
 )
@@ -246,42 +268,6 @@ achievement(
     title = "Time to be the Hero", description = "Beat the game on Hero Mode.", points = 50,
     id = 2716, badge = "243742", published = "9/7/2013 7:31:53 AM", modified = "5/23/2022 1:12:32 PM",
     trigger = bit4(0x001008) == 0x01 && byte(0x00101C) == 0x01 && bit1(0x00117C) == 0x01
-)
-
-achievement(
-    title = "Very Gnawty", description = "Defeat Very Gnawty with both Kongs alive.", points = 10,
-    id = 2684, badge = "243743", published = "9/4/2013 5:10:01 AM", modified = "5/23/2022 1:12:33 PM",
-    trigger = byte(0x000FD6) == 0x01 && byte(0x00100C) == 0x00 && byte(0x001010) == 0x08 && byte(0x000000) == 0x03
-)
-
-achievement(
-    title = "Master Necky", description = "Defeat Master Necky Jr. with both Kongs alive.", points = 10,
-    id = 2687, badge = "243744", published = "9/4/2013 7:43:00 AM", modified = "5/23/2022 1:12:33 PM",
-    trigger = byte(0x00100C) == 0x01 && byte(0x001010) == 0x08 && byte(0x000FD6) == 0x01 && byte(0x000000) == 0x03
-)
-
-achievement(
-    title = "Queen B.", description = "Defeat Queen B. and her cohorts with both Kongs alive.", points = 10,
-    id = 2693, badge = "243745", published = "9/5/2013 3:53:41 AM", modified = "5/23/2022 1:12:33 PM",
-    trigger = byte(0x00100C) == 0x02 && byte(0x001010) == 0x09 && byte(0x000FD6) == 0x01 && byte(0x000000) == 0x03
-)
-
-achievement(
-    title = "Really Gnawty", description = "Defeat Really Gnawty with both Kongs alive.", points = 10,
-    id = 2697, badge = "243746", published = "9/5/2013 6:01:48 AM", modified = "5/23/2022 1:12:34 PM",
-    trigger = byte(0x000FD6) == 0x01 && byte(0x00100C) == 0x03 && byte(0x001010) == 0x09 && byte(0x000000) == 0x03
-)
-
-achievement(
-    title = "Dumb Drum", description = "Defeat Dumb Drum with both Kongs alive.", points = 10,
-    id = 2700, badge = "243747", published = "9/5/2013 8:07:53 AM", modified = "5/23/2022 1:12:34 PM",
-    trigger = byte(0x00100C) == 0x04 && byte(0x001010) == 0x09 && byte(0x000FD6) == 0x01 && byte(0x000000) == 0x03
-)
-
-achievement(
-    title = "Master Necky Snr.", description = "Defeat Master Necky Snr. with both Kongs alive.", points = 10,
-    id = 2705, badge = "243748", published = "9/5/2013 8:32:30 PM", modified = "5/23/2022 1:12:35 PM",
-    trigger = byte(0x000FD6) == 0x01 && byte(0x00100C) == 0x05 && byte(0x001010) == 0x08 && byte(0x000000) == 0x03
 )
 
 achievement(
@@ -462,13 +448,13 @@ DKAttackSRank = {
     11: 120000,
     12: 110000,
     13: 130000,
-    14: 150000,
+    14: 145000,
     15: 70000,
     16: 120000,
     17: 135000,
     18: 130000,
     19: 130000,
-    20: 115000,
+    20: 100000,
     21: 100000,
     22: 180000,
     23: 120000,
@@ -496,18 +482,30 @@ for i in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 23] {
     LevelWarpCheevo(i)
 }
 
+DkAttackStageScore = dword(0x1170)
+DkAttackFinalScore = dword(0x1174)
+DkAttackEvalSeconds = byte(0x1045)
+DkAttackStage = byte(0x1000)
+
+DkAttackEvalScreen = byte(0x1014) == 5
+DkAttackFailed = byte(0x1014) != 1 && !DkAttackEvalScreen
+
+function StartDkAttackStage(i) {
+    return prev(DkAttackStage) == 0xff && DkAttackStage == i
+}
+
 function SRankCheevo(i) {
     stage = DKAttackStageLookup[i]
     achievement(
         title = format("S-Rank - {0}", stage),
         points = 10,
         description = format("[DK Attack] Get an S Rank on {0}.", stage),
-        trigger = once(prev(byte(0x1000)) == 0xff && byte(0x1000) == i) &&
-            never(byte(0x1000) != i && byte(0x1000) != 0xff && word(0x1a1) > 0x100) &&
-            never(byte(0x1000) == 0x20 && byte(0x8f) == 0xff) && 
+        trigger = once(prev(DkAttackStage) == 0xff && DkAttackStage == i) &&
+            never(DkAttackStage != i && DkAttackStage != 0xff && word(0x1a1) > 0x100) &&
+            never(DkAttackStage == 0x20 && byte(0x8f) == 0xff && !DkAttackEvalScreen) && 
             never(byte(0x1014) == 0x00 && GlobalState == 0x89) &&
             never(byte(0x1014) != 0x01 && byte(0x1014) != 0x05) &&
-            dword(0x1174) >= DKAttackSRank[i] && byte(0x1045) == 0 &&
+            DkAttackFinalScore >= DKAttackSRank[i] && DkAttackEvalSeconds == 0 &&
             byte(0x1014) == 5
     )
 }
@@ -552,18 +550,6 @@ leaderboard(
     value = word(0x000FC0) * 1 + word(0x000FC2) * 65536,
     format = "FRAMES", lower_is_better = true
 )
-
-DkAttackStageScore = dword(0x1170)
-DkAttackFinalScore = dword(0x1174)
-DkAttackEvalSeconds = byte(0x1045)
-DkAttackStage = byte(0x1000)
-
-DkAttackEvalScreen = byte(0x1014) == 5
-DkAttackFailed = byte(0x1014) != 1 && !DkAttackEvalScreen
-
-function StartDkAttackStage(i) {
-    return prev(DkAttackStage) == 0xff && DkAttackStage == i
-}
 
 DKAttackBoardId = {
     0: 32,
