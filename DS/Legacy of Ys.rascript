@@ -42,7 +42,7 @@ Ys1Exp = dword(0x2972c0)
 function Ys1SpentGold(total) => SpentGold(Ys1Gold, total)
 function Ys1EarnedGold(total) => EarnedGold(Ys1Gold, total)
 
-Ys1Difficulty = byte(0x2c0820)
+Ys1Difficulty = byte(0x29ad5a)
 Ys1DiffNormal = Ys1Difficulty == 3
 Ys1DiffNightmare = Ys1Difficulty == 4
 
@@ -123,16 +123,16 @@ Ys1LadoSpire = [0x4c, 0x61, 0x64, 0x6f, 0x20, 0x53, 0x70, 0x69,
 
 Ys1GivenShortSword = SetBit(0x29abe8, 0)
 
-Ys1TimeAttack = Ys1 && byte(0x2972d0) > 0 && Ys1Exp == 0 && Ys1Difficulty == 2
+Ys1TimeAttack = Ys1 && byte(0x2972d0) > 0 && Ys1Exp == 0 && Ys1MaxHp > 30
 
 Ys2CurHp = word(0x2492f4)
 Ys2MaxHp = word(0x2492f6)
 Ys2Gold = dword(0x2492f0)
 Ys2Exp = dword(0x2492ec)
-Ys2Difficulty = byte(0x284104)
+Ys2Difficulty = byte(0x2501b8)
 
-Ys2AllowedDiff = Ys2 && (Ys1Difficulty != 1 && Ys1Difficulty != 2)
-Ys2TimeAttack = Ys2 && byte(0x249300) > 0 && Ys2Exp == 0 && Ys2Difficulty == 2
+Ys2AllowedDiff = Ys2 && (Ys2Difficulty != 1 && Ys2Difficulty != 2)
+Ys2TimeAttack = Ys2 && byte(0x249300) > 0 && Ys2Exp == 0 && Ys2MaxHp > 30
 
 function Ys2SpentGold(total) => SpentGold(Ys2Gold, total)
 function Ys2EarnedGold(total) => EarnedGold(Ys2Gold, total)
@@ -1329,10 +1329,10 @@ RpYs2LocG = rich_presence_macro("ASCIIChar", byte(0x24ac98))
 RpAscii = "{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}{12}{13}{14}{15}{16}"
 
 DiffLookup = {
-    1: "Very Easy",
-    2: "Easy",
-    3: "Normal",
-    4: "Nightmare"
+    2: "Very Easy",
+    1: "Easy",
+    0: "Normal",
+    3: "Nightmare"
 }
 
 RpYs1Diff = rich_presence_lookup("Diff", Ys1Difficulty, DiffLookup)
