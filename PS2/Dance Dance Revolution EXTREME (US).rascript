@@ -67,12 +67,6 @@ InternalLevelEasy = InternalLevel < 3
 TotalSongsAndCoursesCleared = dword(0x2af134)
 PassedSongOrCourse = prev(TotalSongsAndCoursesCleared) + 1 == TotalSongsAndCoursesCleared
 
-TimesPassedEverybodysFavorite = word(0x2af4c0)
-TimesPassedEverybodysFavoriteDifficult = word(0x2af7b8)
-
-TotalSongsCleared = TotalSongsAndCoursesCleared -
-    TimesPassedEverybodysFavorite - TimesPassedEverybodysFavoriteDifficult
-
 // The initial unlocking area.
 UnlockedThingBase = 0x2b0518
 UnlockedNonstopBase = 0x2b051d
@@ -415,7 +409,7 @@ MemoriesUnlockByte = low4(0x298710)
 // Stupid Memories Unlock Cheevo
 achievement(
     title = "Having Memories My Way, Burger King",
-    points = 3,
+    points = 2,
     description = "On the Main Menu, enter the P2 cheat code (see the comment).",
     trigger = OnMenus && UnlockedMemories &&
         prev(MemoriesUnlockByte) == 0x0f && MemoriesUnlockByte == 0x00
@@ -613,7 +607,7 @@ for lockCount in range(5, 200, 5) {
         byteOffset = (lockCount - 5) / 40
         bitOffset = (lockCount - 5) % 40
         playingStuff = CourseId == 0
-        if (lockCount == 35 || lockCount == 145) {
+        if (lockCount == 35 || lockCount == 145 || lockCount == 160 || lockCount == 175) {
             playingStuff = always_true()
         }
         unlockBit = false
@@ -648,7 +642,7 @@ for lockCount in range(5, 200, 5) {
         }
         
         achievement(
-            points = 4,
+            points = 2,
             title = SongUnlockCheevoTitle[lockCount],
             description = format(
                 "Unlock [{0}] for future plays.",
@@ -870,7 +864,7 @@ for ns in NonstopTitleUnlock {
     }
     
     achievement(
-        points = 10,
+        points = 5,
         title = NonstopTitleUnlock[ns],
         description = format(
             "Unlock the Nonstop course [{0}].",
@@ -948,18 +942,17 @@ ChallengeTitleIds = {
 }
 
 function ChallengeCourseTrigger(courseId) {
-    target = word(0x2af180 + 32 + (40 * (courseId - 1)))
-    return GameMode && SinglePlayerOnly &&
+    singleTarget = word(0x2af180 + 32 + (40 * (courseId - 1)))
+    doubleTarget = word(0x2af180 + 34 + (40 * (courseId - 1)))
+    return GameMode &&
         OniAlive && PAState == 6 &&
         never(GameState == 0x01) &&
-        prev(target) + 1 == target
+        
+        ((prev(singleTarget) + 1 == singleTarget) ||
+        (prev(doubleTarget) + 1 == doubleTarget))
 }
 
 for index in ChallengeTitleUnlock {
-    points = 10
-    if (index >= 4) {
-        points = 25
-    }
     targetNumber = ChallengeTitleNumber[index]
     bits = ChallengeTitleBits[index]
     bitFlips = byte(bits[0]) -
@@ -989,7 +982,7 @@ for index in ChallengeTitleUnlock {
     }
     
     achievement(
-        points = points,
+        points = 5,
         title = ChallengeTitleUnlock[index],
         description = format(
             "Complete {0} unique Challenge {1} & thus unlock {2}.",
@@ -1004,7 +997,7 @@ for index in ChallengeTitleUnlock {
 // Extra Stage Cheevos
 
 achievement(
-    points = 10,
+    points = 5,
     title = "Sound The Alarm! Why Is There An Alarm?",
     description = "Unlock the opportunity to try an Extra Stage.",
     trigger = GameMode && (Single || Double) && !AnyCourse &&
@@ -1013,7 +1006,7 @@ achievement(
 )
 
 achievement(
-    points = 25,
+    points = 10,
     title = "Survivor of Extra Stage [m]",
     description = "Pass TRIP MACHINE survivor under Extra Stage conditions.",
     trigger = GameMode && (Single || Double) && !AnyCourse && 
@@ -1023,7 +1016,7 @@ achievement(
 )
 
 achievement(
-    points = 50,
+    points = 25,
     title = "Legend of Extra Stage",
     description = "Pass The legend of MAX under Extra Stage conditions.",
     trigger = GameMode && (Single || Double) && !AnyCourse &&
@@ -1035,9 +1028,9 @@ achievement(
 // Song Scoring Cheevos
 
 function SingleSongClearCheevo(songId, songName) {
-    points = 5
+    points = 2
     if (songId == 56) {
-        points = 10
+        points = 3
     }
     
     achievement(
@@ -1062,9 +1055,9 @@ function SingleHeavySongCheevo(songId, songName) {
         targetDiff = "Heavy/Challenge"
     }
     
-    points = 10
+    points = 3
     if (songId == 56) {
-        points = 25
+        points = 5
     }
     
     achievement(
@@ -1084,9 +1077,9 @@ function SingleHeavySongCheevo(songId, songName) {
 }
 
 function SingleFullComboCheevo(songId, songName) {
-    points = 10
+    points = 5
     if (songId == 56) {
-        points = 25
+        points = 10
     }
     earnedGood = PAGood > prev(PAGood)
     earnedAlmost = PAAlmost > prev(PAAlmost)
@@ -1110,11 +1103,6 @@ function SingleFullComboCheevo(songId, songName) {
 
 for songId in range(1, 71) {
     songName = SongTitleLookup[songId]
-    
-    points = 5
-    if (songId == 56) {
-        points = 10
-    }
     if (!any_of(ChallengeOnlySongs, s => s == songId)) {
         SingleSongClearCheevo(songId, songName)
     }
@@ -1126,13 +1114,13 @@ for songId in range(1, 71) {
 // Nonstop Mode Courses
 
 function NonstopClearCheevo(courseId, diffId) {
-    points = 10
+    points = 3
     if (courseId == 0x21 && diffId == 1) {
-        points = 50
+        points = 10
     } else if (courseId == 0x021) {
-        points = 25
+        points = 5
     } else if (diffId == 1) {
-        points = 25
+        points = 5
     }
     courseName = CourseTitleLookup[courseId]
     courseDiff = NonstopDiffLookup[diffId]
@@ -1152,12 +1140,12 @@ for courseIndex in NonstopCheevoNumbers {
 // Challenge Mode Courses
 
 for index in ChallengeTitleCheevo {
-    points = 10
+    points = 5
     if (index >= 0x10) {
-        points = 50
+        points = 25
     }
     else if (index >= 7) {
-        points = 25
+        points = 10
     }
     target = word(0x2af180 + 32 + (40 * (index - 1)))
     achievement(
