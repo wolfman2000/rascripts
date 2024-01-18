@@ -258,14 +258,15 @@ OffsetBase = 0x542b0
 
 FirstPlayer = low4(0x65622d)
 InGame = FirstPlayer < 3 && bitcount(0x65622d) == 1
-PlayerOffset = FirstPlayer * OffsetBase
+PlayerOffset = bit1(0x65622d) * OffsetBase
 
-PlayerDiff = low4(0x5a68f3 + FirstPlayer)
-Light = PlayerDiff == 1
-Standard = PlayerDiff == 2
-Heavy = PlayerDiff == 3
-Oni = PlayerDiff == 6
-Beginner = PlayerDiff == 7
+PlayerDiff = low4(0x5a68f4 + bit1(0x65622d))
+PALoadedDiff = low4(0x5aacd8 + PlayerOffset)
+Light = PALoadedDiff == 1
+Standard = PALoadedDiff == 2
+Heavy = PALoadedDiff == 3
+Oni = PALoadedDiff == 6
+Beginner = PALoadedDiff == 7
 
 PAInitialDiff = low4(0x5a2bf0 + (FirstPlayer * 4))
 
@@ -273,55 +274,60 @@ IsNonstopDifficult = bit0(0x5a68f8) == 1
 
 AliveGeneral = bit0(0x5aac30) == 0
 AliveNoMore = bit0(0x5aac30) > prev(bit0(0x5aac30))
-AliveNormal = AliveGeneral && word(0x5569ba + PlayerOffset) != 0
-AliveOni = AliveGeneral && byte(0x5569bc + PlayerOffset) <= 3
+AliveNormal = AliveGeneral && word(0x5aac6a + PlayerOffset) != 0
+AliveOni = AliveGeneral && byte(0x5aac6c + PlayerOffset) <= 3
 
-PAGrade = low4(0x556ad8 + PlayerOffset)
+PAGrade = low4(0x5aad88 + PlayerOffset)
 EarnedAA = PAGrade != 0 && PAGrade <= 2
 
-PAMarvelous = word(0x556a6c + PlayerOffset)
-PAPerfect = word(0x556a70 + PlayerOffset)
-PAGreat = word(0x556a74 + PlayerOffset)
-PAGood = word(0x556a78 + PlayerOffset)
-PABoo = word(0x556a7c + PlayerOffset)
-PAMiss = word(0x556a80 + PlayerOffset)
-PAOK = word(0x556a8c + PlayerOffset)
+PAMarvelous = word(0x5aad1c + PlayerOffset)
+PAPerfect = word(0x5aad20 + PlayerOffset)
+PAGreat = word(0x5aad24 + PlayerOffset)
+PAGood = word(0x5aad28 + PlayerOffset)
+PABoo = word(0x5aad2c + PlayerOffset)
+PAMiss = word(0x5aad30 + PlayerOffset)
+PAOK = word(0x5aad3c + PlayerOffset)
+PAMaxCombo = word(0x5aad80 + PlayerOffset)
 
-PAMoneyScore = dword(0x5569c0 + PlayerOffset) - dword(0x5569c4 + PlayerOffset)
-PACourseMoneyScore = dword(0x5569c0 + PlayerOffset)
+PAMoneyScore = dword(0x5aac70 + PlayerOffset) - dword(0x5aac74 + PlayerOffset)
+PACourseMoneyScore = dword(0x5aac70 + PlayerOffset)
 
-PACourseEvalMarvelous = word(0x556adc + PlayerOffset)
-PACourseEvalPerfect = word(0x556ae0 + PlayerOffset)
-PACourseEvalGreat = word(0x556ae4 + PlayerOffset)
-PACourseEvalGood = word(0x556ae8 + PlayerOffset)
-PACourseEvalBoo = word(0x556aec + PlayerOffset)
-PACourseEvalMiss = word(0x556af0 + PlayerOffset)
-PACourseEvalOK = word(0x556afc + PlayerOffset)
+PACourseEvalMarvelous = word(0x5aad8c + PlayerOffset)
+PACourseEvalPerfect = word(0x5aad90 + PlayerOffset)
+PACourseEvalGreat = word(0x5aad94 + PlayerOffset)
+PACourseEvalGood = word(0x5aad98 + PlayerOffset)
+PACourseEvalBoo = word(0x5aad9c + PlayerOffset)
+PACourseEvalMiss = word(0x5aada0 + PlayerOffset)
+PACourseEvalOK = word(0x5aadac + PlayerOffset)
+PACourseMaxCombo = word(0x5aaec4 + PlayerOffset)
+
+
+PAFinalScore = dword(0x5aadec + PlayerOffset)
 
 HasHolds = word(0x5ff1a8) != 0
 
-PAHidden = bit0(0x556a30 + PlayerOffset) == 1 &&
-    bit1(0x556a30 + PlayerOffset) == 0
-PASudden = bit0(0x556a30 + PlayerOffset) == 0 &&
-    bit1(0x556a30 + PlayerOffset) == 1
-PAAnyAppearance = bit0(0x556a30 + PlayerOffset) == 1 ||
-    bit1(0x556a30 + PlayerOffset) == 1
-PATurnMod = low4(0x556a29 + PlayerOffset)
-PAFlatOn = bit7(0x556a31 + PlayerOffset) == 0
-PADarkOn = bit3(0x556a32 + PlayerOffset) == 1
-PASoloOn = bit1(0x556a32 + PlayerOffset) == 1
-PALittleOn = bit2(0x556a30 + PlayerOffset) == 1
-PAFreezeOff = bit6(0x556a31 + PlayerOffset) == 0
-PABoost = bit5(0x556a30 + PlayerOffset) == 1
-PAReverse = bit4(0x556a31 + PlayerOffset) == 1
-PASpeed1x = bit7(0x556a30 + PlayerOffset) == 0 &&
-    bit0(0x556a31 + PlayerOffset) == 1 &&
-    bit1(0x556a31 + PlayerOffset) == 0 &&
-    bit2(0x556a31 + PlayerOffset) == 0
-PASpeed15x = bit7(0x556a30 + PlayerOffset) + bit0(0x556a31 + PlayerOffset) == 2
-PASpeed3x = bit0(0x556a31 + PlayerOffset) + bit1(0x556a31 + PlayerOffset) == 2
-PASpeed5x = bit0(0x556a31 + PlayerOffset) + bit2(0x556a31 + PlayerOffset) == 2
-PASpeed8x = bit3(0x556a31 + PlayerOffset) == 1
+PAHidden = bit0(0x5aace0 + PlayerOffset) == 1 &&
+    bit1(0x5aace0 + PlayerOffset) == 0
+PASudden = bit0(0x5aace0 + PlayerOffset) == 0 &&
+    bit1(0x5aace0 + PlayerOffset) == 1
+PAAnyAppearance = bit0(0x5aace0 + PlayerOffset) == 1 ||
+    bit1(0x5aace0 + PlayerOffset) == 1
+PATurnMod = low4(0x5aacd9 + PlayerOffset)
+PAFlatOn = bit7(0x5aace1 + PlayerOffset) == 0
+PADarkOn = bit3(0x5aace2 + PlayerOffset) == 1
+PASoloOn = bit1(0x5aace2 + PlayerOffset) == 1
+PALittleOn = bit2(0x5aace0 + PlayerOffset) == 1
+PAFreezeOff = bit6(0x5aace1 + PlayerOffset) == 0
+PABoost = bit5(0x5aace0 + PlayerOffset) == 1
+PAReverse = bit4(0x5aace1 + PlayerOffset) == 1
+PASpeed1x = bit7(0x5aace0 + PlayerOffset) == 0 &&
+    bit0(0x5aace1 + PlayerOffset) == 1 &&
+    bit1(0x5aace1 + PlayerOffset) == 0 &&
+    bit2(0x5aace1 + PlayerOffset) == 0
+PASpeed15x = bit7(0x5aace1 + PlayerOffset) + bit0(0x5aace1 + PlayerOffset) == 2
+PASpeed3x = bit0(0x5aace1 + PlayerOffset) + bit1(0x5aace1 + PlayerOffset) == 2
+PASpeed5x = bit0(0x5aace1 + PlayerOffset) + bit2(0x5aace1 + PlayerOffset) == 2
+PASpeed8x = bit3(0x5aace1 + PlayerOffset) == 1
 
 // cheevos
 
@@ -459,7 +465,7 @@ function UnlockCheevo(num) {
     targetBit = bit(bitOffset, UnlockByteBase + byteOffset)
     unlockBit = targetBit > prev(targetBit)
     achievement(
-        points = 3,
+        points = 2,
         title = "Revealing " + UnlockTitle[num],
         description = "Unlock " + UnlockContent[num] + " for future plays.",
         trigger = (GameState >= 4 && GameState <= 6) && unlockBit
@@ -508,6 +514,60 @@ for i in DancerUnlockByte {
     SecretDancerCheevo(i)
 }
 
+function ChartPass(addr) => bitcount(addr) == 1 || bitcount(addr) == 2
+function PrevChartPass(addr) => prev(bitcount(addr)) == 1 || prev(bitcount(addr)) == 2
+
+function CollectionPass(songId) {
+    base = 0x2c58e2 + (songId * 140) // Initial grade
+    localTargets = []
+    array_push(localTargets, base + 0) // LSP
+    array_push(localTargets, base + 1) // SSP
+    array_push(localTargets, base + 2) // HSP
+    // array_push(localTargets, base + 4) // BEG
+    array_push(localTargets, base + 5) // LDP
+    array_push(localTargets, base + 6) // SDP
+    array_push(localTargets, base + 7) // HDP
+    if (any_of(OniSongs, o => o == songId)) {
+        array_push(localTargets, base + 3) // CSP
+        array_push(localTargets, base + 8) // CDP
+    }
+    
+    // transform
+    localCurr = array_map(localTargets, s => ChartPass(s))
+    localPrev = array_map(localTargets, s => PrevChartPass(s))
+    
+    return [localCurr, localPrev]
+}
+
+function CreateSongPercentageCheevo(title, points, target) {
+    playCurr = []
+    playPrev = []
+    for i in SongTitles {
+        currPrev = CollectionPass(i)
+        array_push(playCurr, currPrev[0])
+        array_push(playPrev, currPrev[1])
+    }
+    allHits = tally_of(playCurr, target, s => once(any_of(s, t => t)))
+    deltaProtection = tally_of(playPrev, target - 1, s => once(any_of(s, t => t)))
+    lock = tally_of(playPrev, target, s => once(any_of(s, t => t)))
+    achievement(
+        title = title,
+        points = points,
+        description = format("Clear {0} unique songs. Beginner difficulty is ignored.", target),
+        trigger = GameMode && never(GameState > 0x13) &&
+            deltaProtection && measured(allHits) && unless(lock)
+    )
+}
+
+CreateSongPercentageCheevo("A First Step", 2, 14)
+CreateSongPercentageCheevo("A Second Coming", 2, 28)
+CreateSongPercentageCheevo("A Third Time For The Charm", 3, 42)
+CreateSongPercentageCheevo("A Fourth Corner", 3, 56)
+CreateSongPercentageCheevo("A Fifth Element", 5, 70)
+CreateSongPercentageCheevo("A Maximum Potential", 5, 84)
+CreateSongPercentageCheevo("An Achievement To The Max. TWO!", 10, 98)
+CreateSongPercentageCheevo("An Extreme Accomplishment", 25, 111)
+
 // Mod cheevos
 
 function Speed800Cheevo() {
@@ -534,8 +594,8 @@ function Speed800Cheevo() {
     achievement(
         title = "Practicing for Original Songs",
         description = "Pass any chart on Standard or Higher with a sustained calculated BPM of 800 or higher.",
-        points = 10,
-        trigger = MinGameLevel && NotCourse && !Versus &&
+        points = 5,
+        trigger = MinGameLevel && InGame && NotCourse && !Versus &&
             PlayerDiff >= 2 && PlayerDiff <= 6 &&
             !PALittleOn && !PAFreezeOff &&
             GsEval && AliveNormal && any_of(validCombos, e => e)
@@ -548,8 +608,8 @@ function BagS4RCheevo() {
     achievement(
         title = "With Love From 3rd Mix",
         description = "Pass bag Heavy Single under S4R Conditions (1x, Flat, Shuffle).",
-        points = 10,
-        trigger = MinGameLevel && NotCourse && Single &&
+        points = 5,
+        trigger = MinGameLevel && InGame && NotCourse && Single &&
             Heavy && SongId == 0x08 &&
             !PALittleOn && PATurnMod > 4 && PAFlatOn && PASpeed1x &&
             GsEval && AliveNormal
@@ -563,8 +623,8 @@ function TMSModCheevo() {
     achievement(
         title = "Living In America",
         description = "Pass TRIP MACHINE survivor Heavy with 1.5x Sudden.",
-        points = 10,
-        trigger = MinGameLevel && NotCourse && !Versus &&
+        points = 5,
+        trigger = MinGameLevel && InGame && NotCourse && !Versus &&
             Heavy && SongId == 0x41 && !PALittleOn && !PAFreezeOff &&
             PASpeed15x && PASudden &&
             GsEval && AliveNormal
@@ -577,8 +637,8 @@ function EvolutionCheevo() {
     achievement(
         title = "Better Than America?",
         description = "Pass PARANOiA EVOLUTION Heavy with Hidden.",
-        points = 10,
-        trigger = MinGameLevel && NotCourse && !Versus &&
+        points = 5,
+        trigger = MinGameLevel && InGame && NotCourse && !Versus &&
             Heavy && SongId == 0x3d && !PALittleOn &&
             PAHidden &&
             GsEval && AliveNormal
@@ -590,9 +650,9 @@ EvolutionCheevo()
 function SixRowModCheevo() {
     achievement(
         title = "Tubthumping",
-        points = 10,
+        points = 5,
         description = "Pass any chart on Standard or higher using one of each non-default mod for the first six rows.",
-        trigger = MinGameLevel && NotCourse && !Versus &&
+        trigger = MinGameLevel && InGame && NotCourse && !Versus &&
             PlayerDiff >= 2 && PlayerDiff <= 6 &&
             !PALittleOn && !PAFreezeOff &&
             !PASpeed1x && PABoost && PAAnyAppearance &&
@@ -627,7 +687,7 @@ function Flashing10EncoreCheevo(song) {
         title = format("The {0} Way", DifferentWays[song]),
         points = 10,
         description = format("Earn One More Extra Stage with {0}.", SongTitles[song]),
-        trigger = MinGameLevel && NotCourse && !Versus && Heavy &&
+        trigger = MinGameLevel && InGame && NotCourse && !Versus && Heavy &&
             EarnedEncore && GsEval && AliveNormal && SongId == song
     )
 }
@@ -641,7 +701,7 @@ function EncoreEarnedCheevo() {
         title = "The Revolutionary Way",
         points = 10,
         description = "Clear One More Extra Stage.",
-        trigger = MinGameLevel && NotCourse && !Versus && Oni &&
+        trigger = MinGameLevel && InGame && NotCourse && !Versus && Oni &&
             NormalMaxStage + 2 == low4(0x5aac2c) &&
             GsEval && AliveNormal && SongId == 0x12
     )
@@ -654,7 +714,7 @@ function ChartAaCheevo(song, style, diff, points, abbr) {
         title = SongTitles[song] + " " + abbr + " AA",
         points = points,
         description = format("Get an AA rank on {0} {1}.", SongTitles[song], abbr),
-        trigger = MinGameLevel &&
+        trigger = MinGameLevel && InGame && 
             NotCourse && SongId == song && style && diff &&
             GsEval && EarnedAA && AliveNormal
     )
@@ -664,6 +724,9 @@ function PointBump(song, points) {
     isFlashing10 = any_of(FlashingSongs, o => o == song)
     if (isFlashing10 == false) {
         return points
+    }
+    if points == 2 {
+        return 3
     }
     if points == 3 {
         return 5
@@ -679,15 +742,15 @@ function PointBump(song, points) {
 
 for i in SongTitles {
     hasOni = any_of(OniSongs, o => o == i)
-    ChartAaCheevo(i, Single, Standard, PointBump(i, 3), "SSP")
-    ChartAaCheevo(i, Single, Heavy, PointBump(i, 5), "HSP")
+    ChartAaCheevo(i, Single, Standard, PointBump(i, 2), "SSP")
+    ChartAaCheevo(i, Single, Heavy, PointBump(i, 3), "HSP")
     if hasOni == true {
-        ChartAaCheevo(i, Single, Oni, PointBump(i, 5), "CSP")
+        ChartAaCheevo(i, Single, Oni, PointBump(i, 3), "CSP")
     }
-    ChartAaCheevo(i, Double, Standard, PointBump(i, 5), "SDP")
-    ChartAaCheevo(i, Double, Heavy, PointBump(i, 10), "HDP")
+    ChartAaCheevo(i, Double, Standard, PointBump(i, 3), "SDP")
+    ChartAaCheevo(i, Double, Heavy, PointBump(i, 5), "HDP")
     if hasOni == true {
-        ChartAaCheevo(i, Double, Oni, PointBump(i, 10), "CDP")
+        ChartAaCheevo(i, Double, Oni, PointBump(i, 5), "CDP")
     }
 }
 
@@ -695,6 +758,9 @@ function NonstopPointBump(course, points) {
     isMax = course == 0x3a
     if isMax == false {
         return points
+    }
+    if points == 3 {
+        return 5
     }
     if points == 5 {
         return 10
@@ -713,8 +779,9 @@ achievement(
     title = "Always Aim Accurately",
     points = 25,
     description = "Earn an AAA rank on any chart. No Beginner or Edit.",
-    trigger = MinGameLevel && NotCourse && !Versus && !Beginner &&
-        PAMarvelous + PAPerfect == word(0x5ff1a0) && PAOK == word(0x5ff1a8) &&
+    trigger = MinGameLevel && InGame && NotCourse && !Versus && !Beginner &&
+        // PAMarvelous + PAPerfect == word(0x5ff1a0) && PAOK == word(0x556c48) &&
+        // PAMarvelous + PAPerfect == word(0x5ff1a0) && PAOK == word(0x5ff1a8) &&
         GsEval && AliveNormal && PAGrade == 1
 )
 
@@ -725,7 +792,7 @@ function NonstopCheevo(course, style, points, abbr) {
         title = CourseTitles[course] + " " + abbr,
         points = points,
         description = format("Clear the {0} course on {1} Difficult.", CourseTitles[course], abbr),
-        trigger = MinGameLevel && 
+        trigger = MinGameLevel && InGame && 
             CourseId == course && style && IsNonstopDifficult &&
             !PALittleOn && !PAFreezeOff &&
             GsEval && AliveNormal &&
@@ -734,8 +801,8 @@ function NonstopCheevo(course, style, points, abbr) {
 }
 
 for i in AllowedNonstop {
-    NonstopCheevo(i, Single, NonstopPointBump(i, 5), "Single")
-    NonstopCheevo(i, Double, NonstopPointBump(i, 10), "Double")
+    NonstopCheevo(i, Single, NonstopPointBump(i, 3), "Single")
+    NonstopCheevo(i, Double, NonstopPointBump(i, 5), "Double")
 }
 
 function OniCheevo(course, style, points, abbr) {
@@ -743,7 +810,7 @@ function OniCheevo(course, style, points, abbr) {
         title = CourseTitles[course] + " " + abbr,
         points = points,
         description = format("Clear the {0} course on {1}.", CourseTitles[course], abbr),
-        trigger = MinGameLevel && 
+        trigger = MinGameLevel && InGame && 
             CourseId == course && style && GsEval && AliveOni &&
             disable_when(AliveNoMore, until=GameState == 0x0c)
     )
@@ -790,7 +857,7 @@ for i in range(1, 0x1e) {
 // Leaderboards
 
 function SongPassLeader(song, style, diff) {
-    return MinGameLevel && NotCourse && SongId == song &&
+    return MinGameLevel && InGame && NotCourse && SongId == song &&
         style && diff && PAGrade <= 5 && AliveNormal &&
         prev(GameState) == 5 && GsEval
 }
@@ -845,7 +912,7 @@ function NonstopExLeaderboard(course, style, abbr) {
     leaderboard(
         title = CourseTitles[course] + " " + abbr + " Difficult EX Score",
         description = "Get the best EX score you can!",
-        start = MinGameLevel && CourseId == course &&
+        start = MinGameLevel && InGame && CourseId == course &&
             style && IsNonstopDifficult && PAGrade <= 5 && AliveNormal &&
             prev(GameState) == 5 && GsEval,
         cancel = always_false(),
@@ -863,7 +930,7 @@ function NonstopMoneyLeaderboard(course, style, abbr) {
     leaderboard(
         title = CourseTitles[course] + " " + abbr + " Difficult Money Score",
         description = "Get the best Money score you can!",
-        start = MinGameLevel && CourseId == course &&
+        start = MinGameLevel && InGame && CourseId == course &&
             style && IsNonstopDifficult && PAGrade <= 5 && AliveNormal &&
             prev(GameState) == 5 && GsEval,
         cancel = always_false(),
@@ -883,7 +950,7 @@ function OniExLeaderboard(course, style, abbr) {
     leaderboard(
         title = CourseTitles[course] + " " + abbr + " EX Score",
         description = "Get the best EX score you can!",
-        start = MinGameLevel && CourseId == course &&
+        start = MinGameLevel && InGame && CourseId == course &&
             style && prev(GameState) == 5 && GsEval,
         cancel = always_false(),
         submit = always_true(),
@@ -1013,7 +1080,7 @@ RpChartAbbr = rich_presence_lookup(
 )
 RpChartAbbrGame = rich_presence_lookup(
     "ChartAbbr",
-    low4(0x556a28 + PlayerOffset) * 10 + low4(0x5fef8a),
+    PALoadedDiff * 10 + low4(0x5fef8a),
     ShortChartAbbr
 )
 
@@ -1030,7 +1097,7 @@ RpGood = rich_presence_macro("Number", PAGood)
 RpBoo = rich_presence_macro("Number", PABoo)
 RpMiss = rich_presence_macro("Number", PAMiss)
 RpOK = rich_presence_macro("Number", PAOK)
-RpMaxCombo = rich_presence_macro("Number", word(0x556ad0 + PlayerOffset))
+RpMaxCombo = rich_presence_macro("Number", PAMaxCombo)
 RpScoreEmoji = "💯"
 RpMoneyScore = rich_presence_macro("Number", PAMoneyScore)
 
@@ -1050,11 +1117,11 @@ RpCourseGameBoo = rich_presence_macro("Number", PACourseEvalBoo + PABoo)
 RpCourseGameMiss = rich_presence_macro("Number", PACourseEvalMiss + PAMiss)
 RpCourseGameOK = rich_presence_macro("Number", PACourseEvalOK + PAOK)
 RpCourseMoneyScore = rich_presence_macro("Number", PACourseMoneyScore)
-RpCourseMaxCombo = rich_presence_macro("Number", word(0x556c14 + PlayerOffset))
+RpCourseMaxCombo = rich_presence_macro("Number", PACourseMaxCombo)
 
 RpCourseEvalMoneyScore = rich_presence_macro(
     "Number",
-    dword(0x556b3c + PlayerOffset)
+    PAFinalScore
 )
 
 NonstopDiffs = {
@@ -1475,3 +1542,4 @@ rich_presence_conditional_display(
 )
 
 rich_presence_display("Let's DDR!")
+
