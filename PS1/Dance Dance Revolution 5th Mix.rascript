@@ -373,11 +373,13 @@ Versus = low4(PlayerStyleBase) == 5
 Double = bit1(PlayerStyleBase) == 1
 
 PlayerStartBase = low4(0xf2900)
+// DO NOT RELY ON THIS FOR CHEEVOS!
 StartOffset = PlayerStartBase * PlayerOffset
 
 // Global game state
 GlobalState = byte(0xf2908)
 HereWeGo = prev(GlobalState) != 4 && GlobalState == 4
+SelectMusic = GlobalState == 0x0c
 EditMode = GlobalState == 0x2c
 GalleryMode = GlobalState == 0x33
 GlobalEvaluation = GlobalState == 0x06
@@ -395,10 +397,9 @@ function currentScoreP1() => dword(0x0F2940)
 function currentBonusP1() => dword(0x0F2944)
 
 SingleOffset = bit0(PlayerStyleBase) * PlayerOffset
-DoubleOffset = bit1(PlayerStyleBase) * 0xffff6d7c
-function currentDifficultyStart() => byte(0xe9714 + StartOffset)
+DoubleOffset = ~bit2(PlayerStyleBase) * PlayerOffset
 function currentDifficultySingle() => byte(0x0f2998 + SingleOffset)
-function currentDifficultyDouble() => byte(0xfbc1c + DoubleOffset)
+function currentDifficultyDouble() => byte(0xf2998 + DoubleOffset)
 
 // $0F2998: [Game] Difficulty selected for 1P for current song [8-bit]
 //          0x01=Basic
@@ -412,13 +413,14 @@ function currentDifficultyP1() => byte(0x0F2998)
 //          0x03=Maniac
 function currentDifficultyP2() => byte(0x0FBC1C)
 
-function runningScoreStart() => dword(0xe96bc + StartOffset)
+function runningScoreSingle() => dword(0xe96bc + SingleOffset)
+function runningScoreDouble() => dword(0xe96bc + DoubleOffset)
 
-function priorScoreStart() => dword(0xe96b8 + StartOffset)
+function priorScoreSingle() => dword(0xe96b8 + SingleOffset)
+function priorScoreDouble() => dword(0xe96b8 + DoubleOffset)
 
-function moneyScoreStart() => runningScoreStart() - priorScoreStart()
 function moneyScoreSingle() => dword(0xf2940 + SingleOffset) - dword(0xf293c + SingleOffset)
-function moneyScoreDouble() => dword(0xfbbc4 + DoubleOffset) - dword(0xfbbc0 + DoubleOffset)
+function moneyScoreDouble() => dword(0xf2940 + DoubleOffset) - dword(0xf293c + DoubleOffset)
 
 // $0F29C4: [Game] Player 1 Grade of current song [8-bit]
 //          Calculated in real time during the song using EX score
@@ -445,42 +447,39 @@ function currentGradeP1() => byte(0x0F29C4)
 function maxComboP1() => word(0x0F3B6C)
 function maxComboP2() => word(0x0fbc44)
 function maxComboSingle() => word(0xf3b6c + SingleOffset)
-function maxComboDouble() => word(0xfbc44 + DoubleOffset)
+function maxComboDouble() => word(0xf3b6c + DoubleOffset)
 
 // Is Little On?
-function littleOffStart() => bit2(0xe971c + StartOffset) == 0
 function littleOffSingle() => bit2(0xf29a0 + SingleOffset) == 0
-function littleOffDouble() => bit2(0xfbc24 + DoubleOffset) == 0
+function littleOffDouble() => bit2(0xf29a0 + DoubleOffset) == 0
 
 // How many perfects?
-function judgePerfectStart() => dword(0xe9720 + StartOffset)
 function judgePerfectSingle() => dword(0xf29a4 + SingleOffset)
-function judgePerfectDouble() => dword(0xfbc28 + DoubleOffset)
+function judgePerfectDouble() => dword(0xf29a4 + DoubleOffset)
 
 // How many greats?
-function judgeGreatStart() => dword(0xe9724 + StartOffset)
 function judgeGreatSingle() => dword(0xf29a8 + SingleOffset)
-function judgeGreatDouble() => dword(0xfbc2c + DoubleOffset)
+function judgeGreatDouble() => dword(0xf29a8 + DoubleOffset)
 
 // How many goods?
-function judgeGoodStart() => dword(0xe9728 + StartOffset)
 function judgeGoodSingle() => dword(0xf29ac + SingleOffset)
-function judgeGoodDouble() => dword(0xfbc30 + DoubleOffset)
+function judgeGoodDouble() => dword(0xf29ac + DoubleOffset)
 
 // How many boos?
-function judgeBooStart() => dword(0xe972c + StartOffset)
 function judgeBooSingle() => dword(0xf29b0 + SingleOffset)
-function judgeBooDouble() => dword(0xfbc34 + DoubleOffset)
+function judgeBooDouble() => dword(0xf29b0 + DoubleOffset)
 
 // How many misses?
-function judgeMissStart() => dword(0xe9730 + StartOffset)
 function judgeMissSingle() => dword(0xf29b4 + SingleOffset)
-function judgeMissDouble() => dword(0xfbc38 + DoubleOffset)
+function judgeMissDouble() => dword(0xf29b4 + DoubleOffset)
 
 // What was the last judgment?
-function lastJudgeStart() => byte(0xea90a + StartOffset)
 function lastJudgeSingle() => byte(0xf3b8e + SingleOffset)
-function lastJudgeDouble() => byte(0xfce12 + DoubleOffset)
+function lastJudgeDouble() => byte(0xf3b8e + DoubleOffset)
+
+// How many notes in the chart?
+function totalNotesSingle() => dword(0xf3ba0 + SingleOffset)
+function totalNotesDouble() => dword(0xf3ba0 + DoubleOffset)
 
 // $0FBBC4: [Game] Player 2 In-song current score [32-bit]
 //          Does not include bonus
@@ -632,6 +631,7 @@ function ComboCheevo(i) {
         description = format("Obtain a {0} combo in a single song.", i),
         trigger = never(programStatus() != 2) &&
             never(currentSongId() != prev(currentSongId())) &&
+            never(GlobalState != 4) &&
             (singleCombo || doubleCombo) &&
             GameLevel() >= 3
     )
@@ -853,13 +853,23 @@ achievement(
     title = "And Now To Anger Everyone",
     points = 25,
     description = "Get a Perfect Full Combo on any chart.",
-    trigger = !Versus && littleOffStart() &&
-        once(HereWeGo) && trigger_when(atResultsScreen()) &&
-        never(lastJudgeStart() > 1) &&
-        never(judgeGoodStart() > prev(judgeGoodStart())) &&
-        never(judgeBooStart() > prev(judgeBooStart())) &&
-        never(judgeMissStart() > prev(judgeMissStart())) &&
+    trigger = !Versus &&
+        once(HereWeGo) &&
+        trigger_when(atResultsScreen()) &&
+        ((Single && littleOffSingle() &&
+        trigger_when(judgePerfectSingle() == totalNotesSingle()) &&
+        judgeGreatSingle() == 0 &&
+        judgeGoodSingle() == 0 &&
+        judgeBooSingle() == 0 &&
+        judgeMissSingle() == 0
+        ) || (Double && littleOffDouble() &&
+        trigger_when(judgePerfectDouble() == totalNotesDouble()) &&
+        judgeGreatDouble() == 0 &&
+        judgeGoodDouble() == 0 &&
+        judgeBooDouble() == 0 &&
+        judgeMissDouble() == 0)) &&
         never(GlobalState == 0x0c) &&
+        never(GlobalState == 0x1c) &&
         GameLevel() >= 3
 )
 
@@ -878,12 +888,14 @@ function SingleFullComboCheevo(songId, diffId) {
     // Don't stress about diet mode this time around.
     common = currentSongId() == songId && Single && littleOffSingle() &&
         diffTarget && once(HereWeGo) &&
-        never(runningScoreStart() != priorScoreStart() && lastJudgeSingle() > 2) &&
-        never(judgeGoodStart() > prev(judgeGoodStart())) &&
-        never(judgeBooStart() > prev(judgeBooStart())) &&
-        never(judgeMissStart() > prev(judgeMissStart())) &&
-        never(GlobalState == 0x0c) &&
+        never(runningScoreSingle() != priorScoreSingle() && lastJudgeSingle() > 2) &&
+        judgeGoodSingle() == 0 &&
+        judgeBooSingle() == 0 &&
+        judgeMissSingle() == 0 &&
+        never(SelectMusic) &&
+        never(GlobalState == 0x1c) &&
         trigger_when(atResultsScreen()) &&
+        trigger_when(judgePerfectSingle() + judgeGreatSingle() == totalNotesSingle()) &&
         GameLevel() >= 3
     achievement(
         title = format("{0} Single {1} FC", songEng, diff),
@@ -908,12 +920,14 @@ function DoubleFullComboCheevo(songId, diffId) {
     // Don't stress about diet mode this time around.
     common = currentSongId() == songId && Double && littleOffDouble() &&
         diffTarget && once(HereWeGo) &&
-        never(runningScoreStart() != priorScoreStart() && lastJudgeDouble() > 2) &&
-        never(judgeGoodStart() > prev(judgeGoodStart())) &&
-        never(judgeBooStart() > prev(judgeBooStart())) &&
-        never(judgeMissStart() > prev(judgeMissStart())) &&
-        never(GlobalState == 0x0c) &&
+        never(runningScoreDouble() != priorScoreDouble() && lastJudgeDouble() > 2) &&
+        judgeGoodDouble() == 0 &&
+        judgeBooDouble() == 0 &&
+        judgeMissDouble() == 0 &&
+        never(SelectMusic) &&
+        never(GlobalState == 0x1c) &&
         trigger_when(atResultsScreen()) &&
+        trigger_when(judgePerfectDouble() + judgeGreatDouble() == totalNotesDouble()) &&
         GameLevel() >= 3
     achievement(
         title = format("{0} Double {1} FC", songEng, diff),
@@ -1134,19 +1148,55 @@ for i in range(1, 47) {
     }
 }
 
+GsIntroLoop = GlobalState == 0x00 || GlobalState == 0x1d || (GlobalState >= 0x22 && GlobalState <= 0x24)
+
+function RetroOlympicsLeaderboard(songId, diffId) {
+    diff = difficultyDict[diffId] + " "
+    diffComp = currentDifficultySingle() == diffId
+    leaderboard(
+        title = format(
+            "RetroOlympics 2023 - {0} Single {1}EX Score",
+            songMemoryDict[songId],
+            diff
+        ),
+        description = format(
+            "Get the highest EX score you can! (2P + G)"
+        ),
+        start = programStatus() == 2 && prev(songStatus()) == 5 && songStatus() == 4 &&
+            Single && diffComp &&
+            currentSongId() == songId && GameLevel() >= 3,
+        cancel = GlobalState == 0x1c || GsIntroLoop,
+        submit = prev(songStatus()) == 7 && __ornext(songStatus() == 8 || songStatus() == 0x0b),
+        value = judgePerfectSingle() * 2 + judgeGreatSingle()
+    )
+}
+
+for i in [0x05, 0x13, 0x1e] {
+    RetroOlympicsLeaderboard(i, 1)
+    RetroOlympicsLeaderboard(i, 2)
+    RetroOlympicsLeaderboard(i, 3)
+}
+
 // Rich Presence
 
 RpScoreIcon = "💯"
 
 RpSongName = rich_presence_lookup("SongSelection", currentSongId(), songMemoryDict, "No Song")
 RpPlayStyle = rich_presence_lookup("PlayStyle", getPlayStyle() - 1, styleDict)
-RpDifficulty = rich_presence_lookup("PADifficulty", currentDifficultyStart(), difficultyDict)
-RpPerfect = rich_presence_macro("Number", judgePerfectStart())
-RpGreat = rich_presence_macro("Number", judgeGreatStart())
-RpGood = rich_presence_macro("Number", judgeGoodStart())
-RpBoo = rich_presence_macro("Number", judgeBooStart())
-RpMiss = rich_presence_macro("Number", judgeMissStart())
-RpScore = rich_presence_macro("Number", moneyScoreStart())
+RpP1Diff = rich_presence_lookup("PADifficulty", currentDifficultySingle(), difficultyDict)
+RpP2Diff = rich_presence_lookup("PADifficulty", currentDifficultyDouble(), difficultyDict)
+RpP1Perfect = rich_presence_macro("Number", judgePerfectSingle())
+RpP2Perfect = rich_presence_macro("Number", judgePerfectDouble())
+RpP1Great = rich_presence_macro("Number", judgeGreatSingle())
+RpP2Great = rich_presence_macro("Number", judgeGreatDouble())
+RpP1Good = rich_presence_macro("Number", judgeGoodSingle())
+RpP2Good = rich_presence_macro("Number", judgeGoodDouble())
+RpP1Boo = rich_presence_macro("Number", judgeBooSingle())
+RpP2Boo = rich_presence_macro("Number", judgeBooDouble())
+RpP1Miss = rich_presence_macro("Number", judgeMissSingle())
+RpP2Miss = rich_presence_macro("Number", judgeMissDouble())
+RpP1Score = rich_presence_macro("Number", moneyScoreSingle())
+RpP2Score = rich_presence_macro("Number", moneyScoreDouble())
 
 rich_presence_conditional_display(
     GlobalState == 0x1c,
@@ -1164,49 +1214,95 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    GlobalState == 4,
-    "Playing {0} {1} {2}: {3}/{4}/{5}/{6}/{7} {8} {9}",
+    GlobalState == 4 && Double,
+    "Playing {0} Double {2}: {3}/{4}/{5}/{6}/{7} {8} {9}",
     RpSongName,
     RpPlayStyle,
-    RpDifficulty,
-    RpPerfect,
-    RpGreat,
-    RpGood,
-    RpBoo,
-    RpMiss,
+    RpP2Diff,
+    RpP2Perfect,
+    RpP2Great,
+    RpP2Good,
+    RpP2Boo,
+    RpP2Miss,
     RpScoreIcon,
-    RpScore
+    RpP2Score
+)
+
+rich_presence_conditional_display(
+    GlobalState == 4,
+    "Playing {0} Single {2}: {3}/{4}/{5}/{6}/{7} {8} {9}",
+    RpSongName,
+    RpPlayStyle,
+    RpP1Diff,
+    RpP1Perfect,
+    RpP1Great,
+    RpP1Good,
+    RpP1Boo,
+    RpP1Miss,
+    RpScoreIcon,
+    RpP1Score
+)
+
+rich_presence_conditional_display(
+    GlobalState >= 1 && GlobalState < 4 && Double,
+     "About to Play {0} Double {2}",
+    RpSongName,
+    RpPlayStyle,
+    RpP2Diff
 )
 
 rich_presence_conditional_display(
     GlobalState >= 1 && GlobalState < 4,
-    "About to Play {0} {1} {2}",
+    "About to Play {0} Single {2}",
     RpSongName,
     RpPlayStyle,
-    RpDifficulty
+    RpP1Diff
+)
+
+rich_presence_conditional_display(
+    GlobalState >= 5 && GlobalState <= 6 && Double,
+    "Results of {0} Double {2}: {3}/{4}/{5}/{6}/{7} {8} {9}",
+    RpSongName,
+    RpPlayStyle,
+    RpP2Diff,
+    RpP2Perfect,
+    RpP2Great,
+    RpP2Good,
+    RpP2Boo,
+    RpP2Miss,
+    RpScoreIcon,
+    RpP2Score
 )
 
 rich_presence_conditional_display(
     GlobalState >= 5 && GlobalState <= 6,
-    "Results of {0} {1} {2}: {3}/{4}/{5}/{6}/{7} {8} {9}",
+    "Results of {0} Single {2}: {3}/{4}/{5}/{6}/{7} {8} {9}",
     RpSongName,
     RpPlayStyle,
-    RpDifficulty,
-    RpPerfect,
-    RpGreat,
-    RpGood,
-    RpBoo,
-    RpMiss,
+    RpP1Diff,
+    RpP1Perfect,
+    RpP1Great,
+    RpP1Good,
+    RpP1Boo,
+    RpP1Miss,
     RpScoreIcon,
-    RpScore
+    RpP1Score
+)
+
+rich_presence_conditional_display(
+    GlobalState == 0x0c && Double,
+    "Thinking of Playing {0} Double {2}",
+    RpSongName,
+    RpPlayStyle,
+    RpP2Diff
 )
 
 rich_presence_conditional_display(
     GlobalState == 0x0c,
-    "Thinking of Playing {0} {1} {2}",
+    "Thinking of Playing {0} Single {2}",
     RpSongName,
     RpPlayStyle,
-    RpDifficulty
+    RpP1Diff
 )
 
 rich_presence_conditional_display(
@@ -1220,7 +1316,7 @@ rich_presence_conditional_display(
 )
 
 rich_presence_conditional_display(
-    GlobalState == 0x00 || GlobalState == 0x1d || (GlobalState >= 0x22 && GlobalState <= 0x24),
+    GsIntroLoop,
     "Watching Intro Loop"
 )
 
