@@ -239,7 +239,11 @@ OverworldLookup = {
 
 // Dependent Functions
 
-function IsDead() => CurrentHealth == 1 && (byte(0x0802) == 0x13 || byte(0x0803) == 0x08)
+function IsDead() => MusicId == 5 || (CurrentHealth == 1 &&
+    GreenMea == 0 && PurpleMea == 0 &&
+    GreenMea == prev(GreenMea) &&
+    PurpleMea == prev(PurpleMea) &&
+    (byte(0x0802) == 0x13 || byte(0x0803) == 0x08))
 function IsSoundTestOn() => SoundTest == 1 && OverworldScreenId == 0xb6
 function IsHeadingToValley() => OverworldScreenId == 0xb6
 function InOverworld() => MusicId == 0x20 || MusicId == 0x19 || MusicId == 0x06 ||
@@ -352,6 +356,7 @@ function PerfectFinalCheevo() {
         ) && never(OverworldScreenId != 0x10) &&
             never(InOverworld()) &&
             never(byte(0x0836) > 0xd0) &&
+            never(IsDead()) &&
             trigger_when(Enemy00HP == 0)
     )
 }
@@ -471,14 +476,15 @@ achievement(
 )
 
 AllStubbornWomenData = [
-    ["Lake", 0xa9],
-    ["Cursed Forest", 0x34],
-    ["Great Forest", 0x1f]
+    ["Lake", 0xa9, 237964],
+    ["Cursed Forest", 0x34, 237971],
+    ["Great Forest", 0x1f, 237972]
 ]
 
 function StubbornWomanCheevo(index) {
     woman = AllStubbornWomenData[index]
     achievement(
+        id = woman[2],
         title = format("Peering Into Rings {0}", index + 1),
         points = 10,
         description = format("Bring a green ring to the woman in the {0}.", woman[0]),
@@ -575,7 +581,7 @@ function RpMaxHealth() => rich_presence_value("Number", MaxHealth)
 function RpMoneyBag() => "💰"
 function RpCurGold() => rich_presence_value("Number", CurrentGold)
 function RpMaxGold() => rich_presence_value("Number", MaxGold)
-function RpArea() => rich_presence_lookup("Area", OverworldScreenId, OverworldLookup, "Valley of Doom")
+function RpArea() => rich_presence_lookup("Area", OverworldScreenId, OverworldLookup, "Valley")
 function RpBoss() => rich_presence_lookup("Boss", OverworldScreenId, BossNameLookup, "Someone")
 
 rich_presence_conditional_display(
