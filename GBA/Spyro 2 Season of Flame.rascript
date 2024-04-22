@@ -428,7 +428,7 @@ achievement(
 )
 
 achievement(
-    title = "Nav System Rush [m]", description = "Turn on all the Rocket Navigational Satellites without changing breath.", points = 10,
+    title = "Nav System Rush", description = "Turn on all the Rocket Navigational Satellites without changing breath.", points = 10,
     id = 22656, badge = "22646", published = "5/8/2015 11:35:44 PM", modified = "11/14/2021 12:20:43 PM",
     trigger = always_true() &&
         repeated(8, byte(0x001C78 + LangOffset) > prev(byte(0x001C78 + LangOffset)) &&
