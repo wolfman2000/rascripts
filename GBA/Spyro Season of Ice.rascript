@@ -36,10 +36,11 @@ Cheats = byte(0x2254 + LanguageOffset)
 
 StageId = byte(0x75b0)
 OldStageId = byte(0x1493 + LanguageOffset)
+SaveStageId = byte(0x481e6)
 
 
 function Stage(val) {
-    return __ornext(StageId == val || OldStageId == val)
+    return __ornext(StageId == val || SaveStageId == val || OldStageId == val)
 }
 // Cheevos
 
@@ -171,7 +172,7 @@ achievement(
     description = "Collect all gems",
     id = 30376, badge = "31061", published = "11/29/2015 7:51:14 AM", modified = "2/12/2022 9:43:24 PM",
     trigger = StageId <= 0x17 && PrevGemCount < 7000 && PrevGemCount >= 6900 &&
-        measured(CurrGemCount == 7000, when=Cheats == 0)
+        measured(CurrGemCount >= 7000, when=Cheats == 0)
 )
 
 achievement(
@@ -180,7 +181,7 @@ achievement(
     id = 30377, badge = "31062", published = "11/29/2015 7:51:15 AM", modified = "10/16/2019 12:48:46 AM",
     trigger = StageId <= 0x17 &&
         PrevFairyCount + PrevGemCount < 7100 && PrevFairyCount + PrevGemCount >= 7000 &&
-        measured(CurrFairyCount + CurrGemCount == 7100, when=Cheats == 0, format="percent")
+        measured(CurrFairyCount + CurrGemCount >= 7100, when=Cheats == 0, format="percent")
 )
 
 achievement(
@@ -204,7 +205,7 @@ EmojiGem = "💎"
 EmojiFairy = "🧚"
 
 rich_presence_display("{0} {1} {2}/100 {3} {4}/7000",
-    rich_presence_lookup("Stage", StageId, StageLookup),
+    rich_presence_lookup("Stage", SaveStageId, StageLookup),
     EmojiFairy,
     rich_presence_macro("Number", CurrFairyCount),
     EmojiGem,
